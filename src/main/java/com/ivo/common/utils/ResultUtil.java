@@ -99,4 +99,18 @@ public class ResultUtil {
         pageResult.setCount(object.size());
         return pageResult;
     }
+
+    /**
+     * 分页成功返回数据
+     * @return PageResult
+     */
+    public static PageResult successPage(Collection object, long count) {
+        PageResult<Collection> pageResult = new PageResult<>();
+        // 适应Layui的表格插件，返回状态码改为0
+        pageResult.setCode(0);
+        pageResult.setMsg(ResultEnum.SUCCESS.getMessage());
+        pageResult.setData(object);
+        pageResult.setCount(count);
+        return pageResult;
+    }
 }

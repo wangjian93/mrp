@@ -81,9 +81,7 @@
                 </div>
             </form>
 
-            <button id="file-btn-upload" class="layui-btn layui-btn-sm layui-btn-normal icon-btn">
-                <i class="layui-icon">&#xe681;</i>&nbsp;导入
-            </button>&nbsp;
+
 
             <!-- 表格 -->
             <table id="tableVenderArrivalPlan" lay-filter="tableVenderArrivalPlan"></table>
@@ -104,10 +102,10 @@
 
 <script type="text/html" id="toolbar">
     <p>
-        <button  lay-event="add" class="layui-btn layui-btn-sm icon-btn">
-            <i class="layui-icon layui-icon-upload"></i>&nbsp;导入
-        </button>
-        <button lay-event="del" class="layui-btn layui-btn-sm layui-btn-danger icon-btn">
+        <button id="file-btn-upload" class="layui-btn layui-btn-sm layui-btn-normal icon-btn">
+            <i class="layui-icon">&#xe681;</i>&nbsp;导入
+        </button>&nbsp;
+        <button id="file-btn-download" class="layui-btn layui-btn-sm layui-btn-danger icon-btn">
             <i class="layui-icon layui-icon-download-circle"></i>&nbsp;导出
         </button>
     </p>
@@ -122,37 +120,9 @@
         var layer = layui.layer;
         var form = layui.form;
         var table = layui.table;
-        var util = layui.util;
-        var xmSelect = layui.xmSelect;
         var laydate = layui.laydate;
         var notice = layui.notice;
         var upload = layui.upload;
-
-
-        // 上传
-        upload.render({
-            elem: '#file-btn-upload',
-            accept: 'file',
-            url: '/mrp/venderArrivalPlan/uploadFile', //上传接口
-            done: function(res){ //上传成功后的回调
-                if(res.code === 200) {
-                    notice.msg('上传成功', {icon: 5});
-                    console.log(res);
-                    var month = res.data;
-                    month = month + "-01";
-                    var date = new Date(Date.parse(month.replace(/-/g,  "/")));
-                    laydate.render({
-                        elem: '#month',
-                        type: 'month',
-                        value: date
-                    });
-                    $("button[lay-filter=search]").click();
-                } else {
-                    notice.msg(data.msg, {icon: 2});
-                }
-            }
-        });
-
 
         //年月选择器
         laydate.render({
@@ -280,7 +250,40 @@
             data: [],
             cols: [],
             toolbar: "#toolbar",
-            size: 'sm'
+            size: 'sm',
+            height: 'full-10',
+            done: function() {
+                // 上传
+                upload.render({
+                    elem: '#file-btn-upload',
+                    accept: 'file',
+                    url: '/mrp/venderArrivalPlan/importVenderArrivalPlan', //上传接口
+                    done: function(res){ //上传成功后的回调
+                        console.log(res);
+                        if(res.code === 200) {
+                            notice.msg('上传成功', {icon: 5});
+                            console.log(res);
+                            var month = res.data;
+                            month = month + "-01";
+                            var date = new Date(Date.parse(month.replace(/-/g,  "/")));
+                            laydate.render({
+                                elem: '#month',
+                                type: 'month',
+                                value: date
+                            });
+                            $("button[lay-filter=search]").click();
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    }
+                });
+
+                //下载
+                $("#file-btn-download").on("click",function(){
+                    var month= $("#month").val();
+                    window.open("/mrp/venderArrivalPlan/exportVenderArrivalPlan?month="+month+"&vender=&material");
+                });
+            }
         });
 
         // 表格重载数据

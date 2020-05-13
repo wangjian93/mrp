@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>DPS</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<!-- 页面加载loading -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <form class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">DPS版本:</label>
+                        <div class="layui-input-inline">
+                            <select name="ver" id="ver">
+                                <option value="">选择版本</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn" lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 表格 -->
+            <table id="tableDps" lay-filter="tableDps"></table>
+        </div>
+    </div>
+</div>
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script>
+    layui.use(['form', 'notice', 'table'], function() {
+        var form = layui.form;
+        var notice = layui.notice;
+        var $ = layui.$;
+        var table = layui.table;
+
+        // 下拉框选项
+        $.ajax({
+            type: 'get',
+            url: '/mrp/dps/getDpsVer',
+            success: function(data){
+                if(data.code === 200) {
+                    for(var i=0; i<data.data.length; i++) {
+                        $('#ver').append(new Option(data.data[i], data.data[i]));
+                    }
+                    form.render('select');
+                } else {
+                    notice.msg(data.msg, {icon: 2});
+                }
+            }
+        });
+
+        // 表格渲染
+        table.render({
+            elem: '#tableDps',
+            data: [],
+            cols: [],
+            size: 'sm',
+            page: true,
+            limit: 100,
+            height: 'full-10',
+            even: true
+        });
+
+        /* 表格搜索 */
+        form.on('submit(search)', function (data) {
+            if(!data.field.ver) {
+                notice.msg('请选择DPS版本', {icon: 5});
+                return false;
+            }
+            reloadTableDps(data.field.ver);
+            return false;
+        });
+
+
+        /**
+         * 加载DPS表格
+         * @param ver dps的版本
+         */
+        var reloadTableDps = function(ver) {
+            var dps = getDps(ver);
+            var calendar = getCalendar(ver);
+            var data = buildTableData(dps);
+            var cols = buildTableCols(calendar);
+            console.log(JSON.stringify(data));
+            console.log(JSON.stringify(cols));
+
+            table.reload('tableDps', {data: data, cols: cols});
+        };
+
+        /**
+         * 获取DPS数据
+         * @param ver
+         */
+        var getDps = function(ver) {
+            // 按版本获取DPS的URL
+            var URL_DPS = "/mrp/dps/getDps/" + ver;
+            var dps = [];
+            $.ajax({
+                type : "get",
+                url: URL_DPS,
+                async : false,
+                success : function(data){
+                    if(data.code === 200) {
+                        dps =  data.data;
+                    } else {
+                        notice.msg(data.msg, {icon: 2});
+                    }
+                }
+            });
+            return dps;
+        };
+
+        /**
+         * 获取日历
+         */
+        var getCalendar = function(ver) {
+            // 获取日历的URL
+            var URL_getCalendar = "/mrp/dps/getCalendar/" + ver;
+            var calendar = {};
+            $.ajax({
+                type : "get",
+                url: URL_getCalendar,
+                async : false,
+                success : function(data){
+                    if(data.code === 200) {
+                        calendar =  data.data;
+                    } else {
+                        notice.msg(data.msg, {icon: 2});
+                    }
+                }
+            });
+            return calendar;
+        };
+
+        /**
+         * 构造表头
+         */
+        var buildTableCols = function(calendar) {
+            // 第一行表头
+            var col1 = [
+                {type: 'numbers', align: 'center', rowspan: 2, fixed: 'left'},
+                {field: 'product', title: '产品', align: 'center', rowspan: 2, fixed: 'left', width: 150, sort: true},
+                {field: 'model', title: 'Model', align: 'center', rowspan: 2, fixed: 'left', width: 90, sort: true},
+                {field: 'fab', title: '厂别', align: 'center', rowspan: 2, fixed: 'left', width: 80},
+                {field: 'total', title: 'QTY', align: 'center', rowspan: 2, fixed: 'left', width: 80, sort: true}
+            ];
+            for(var i=0; i<calendar.day.length; i++) {
+                col1.push({title: calendar.day[i], align: 'center', colspan: 1.1, width: 120});
+            }
+            // 第二行表头
+            var col2 = [];
+            for(var j=0; j<calendar.week.length; j++) {
+                col2.push({field: calendar.day[j], title: calendar.week[j],  align: 'center', width: 120});
+            }
+            return [col1, col2];
+        };
+
+        /**
+         * 构造DPS数据
+         * @param dps
+         * @param dps[].fabDate
+         * @param dps[].qty
+         */
+        var buildTableData = function(dps) {
+            var d = {};
+            for(var i=0; i<dps.length; i++) {
+                var primaryKey = dps[i].product + "_" + dps[i].ver + "_" + dps[i].fab;
+                if(!d[primaryKey]) {
+                    d[primaryKey] = {
+                        product: dps[i].product,
+                        ver: dps[i].ver,
+                        fab: dps[i].fab,
+                        model: dps[i].model,
+                        total: 0
+                    };
+                }
+                d[primaryKey][dps[i].fabDate] = dps[i].qty;
+                d[primaryKey]['total'] += dps[i].qty;
+            }
+            var data = [];
+            for(var key in d) {
+                data.push(d[key]);
+            }
+            return data;
+        }
+    });
+</script>
+</body>
+</html>

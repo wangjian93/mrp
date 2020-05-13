@@ -3,17 +3,32 @@ server:
 
 spring:
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 主数据源  Mysql
+    primary:
+      url: jdbc:mysql://localhost:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: root
+    # DPS数据库
+    dpsdb:
+      url: jdbc:mysql://10.10.2.115:3306/dps_lcm?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: ivodis
+      password: dis@2020
+    eifdb:
+      url: jdbc:jtds:sqlserver://10.20.2.81/EIFDB
+      username: SYS_ARC
+      password: SYS_ARC_201908_00_admin
+      validation-query: SELECT 1
+
     druid:
       aop-patterns: com.ivo.*
+
 
   jackson:
     time-zone: GMT+8
 
   jpa:
+    show-sql: false
     hibernate:
       ddl-auto: update
+      primary-dialect: com.ivo.common.mysql.MySQLDialectUTF8
+    open-in-view: true

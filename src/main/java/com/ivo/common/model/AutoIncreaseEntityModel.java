@@ -1,5 +1,8 @@
 package com.ivo.common.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -10,19 +13,12 @@ import javax.persistence.MappedSuperclass;
  * @author wj
  * @version 1.0
  */
+@Setter
+@Getter
 @MappedSuperclass
 public class AutoIncreaseEntityModel extends EntityModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>BOM清单</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<!-- 页面加载loading -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            <i class="layui-icon layui-icon-tabs"></i>
+            <span>BOM清单</span>
+        </div>
+        <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <form class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">厂别:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="plant" placeholder="请输入搜索厂别">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">机种:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="product" placeholder="请输入搜索机种">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">料号:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="material" placeholder="请输入搜索料号">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 表格 -->
+            <table id="tableBom" lay-filter="tableBom"></table>
+        </div>
+    </div>
+</div>
+<!-- js部分 -->
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script>
+    layui.use(['form', 'table'], function () {
+        var form = layui.form;
+        var table = layui.table;
+
+        /* 表格渲染 */
+        table.render({
+            elem: '#tableBom',
+            url: '/mrp/bom/list',
+            method: 'get',
+            where: {
+                product: '',
+                material: '',
+                plant: ''
+            },
+            page: true,
+            limit: 50,
+            cols: [[
+                {type: 'numbers', align: 'center', width: 60},
+                {field: 'plant', title: '厂别', align: 'center'},
+                {field: 'product', title: 'PRODUCT', align: 'center'},
+                {field: 'material', title: '料号', align: 'center'},
+                {field: 'materialName', title: '物料名', align: 'center', width: 350},
+                {field: 'measureUnit', title: '计量单位', align: 'center'},
+                {field: 'usageQty', title: '使用数量', align: 'center'}
+            ]],
+            size: 'sm',
+            even: true
+        });
+
+        /* 表格搜索 */
+        form.on('submit(search)', function (data) {
+            table.reload('tableBom', {
+                where: data.field,
+                page: { curr: 1 }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

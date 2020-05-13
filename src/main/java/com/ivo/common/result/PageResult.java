@@ -1,13 +1,15 @@
 package com.ivo.common.result;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 响应数据分页增强
  * @author wj
  * @version 1.0
  */
-@Data
+@Setter
+@Getter
 public class PageResult<T> extends Result<T> {
 
     /**
