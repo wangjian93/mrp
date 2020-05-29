@@ -26,9 +26,16 @@ public class DpsServiceTest extends AbstractTest {
         dpsService.syncDps();
     }
 
+    String path1 = "/Users/wangjian/Downloads/LCM1.xlsx";
+    String path2 = "/Users/wangjian/Downloads/CELL.xlsx";
+
     @Test
-    public void importDps() {
-        String path = "/Users/wangjian/Downloads/LCM1.xlsx";
+    public void test() {
+        importDps(path1);
+        importDps(path2);
+    }
+
+    public void importDps(String path) {
         File file = new File(path);
         try {
             InputStream inputStream = new FileInputStream(file);

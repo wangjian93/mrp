@@ -20,5 +20,8 @@ public interface BomRepository extends JpaRepository<Bom, BomPrimaryKey> {
     @Query(value = "select t.material_group from mrp_bom t where t.material =:material limit 1", nativeQuery = true)
     String getMaterialGroup(String material);
 
+    @Query(value = "select t.material_name from mrp_bom t where t.material =:material and material_name<>'' limit 1", nativeQuery = true)
+    String getMaterialName(String material);
+
     Page<Bom> findByProductLikeAndMaterialLikeAndPlantLike(String product, String material, String plant, Pageable pageable);
 }

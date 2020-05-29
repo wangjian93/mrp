@@ -2,10 +2,13 @@ package com.ivo.mrp2.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp2.key.SupplierArrivalPlanKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import java.sql.Date;
 
 /**
@@ -15,23 +18,40 @@ import java.sql.Date;
  */
 @Setter
 @Getter
-@Entity(name = "mrp2_supplier_arrival_plan")
-public class SupplierArrivalPlan extends AutoIncreaseEntityModel {
+@Entity(name = "mrp_supplier_arrival_plan")
+@IdClass(SupplierArrivalPlanKey.class)
+public class SupplierArrivalPlan {
 
     /**
      * 供应商编号
      */
-    private long supplierCode;
+    @Id
+    private String supplierCode;
 
     /**
-     * 供应商名称
+     * 日期
      */
-    private String supplier;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Id
+    private Date date;
 
     /**
      * 料号
      */
+    @Id
     private String material;
+
+    /**
+     * MRP版本
+     */
+    @Id
+    private String mrpVer;
+
+    /**
+     * 厂别
+     */
+    @Id
+    private String plant;
 
     /**
      * 物料名
@@ -39,13 +59,17 @@ public class SupplierArrivalPlan extends AutoIncreaseEntityModel {
     private String materialName;
 
     /**
-     * 日期
+     * 物料组
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date date;
+    private String materialGroup;
+
+    /**
+     * 供应商名称
+     */
+    private String supplier;
 
     /**
      * 计划到货量
      */
-    private Double planQty;
+    private Double arrivalQty;
 }

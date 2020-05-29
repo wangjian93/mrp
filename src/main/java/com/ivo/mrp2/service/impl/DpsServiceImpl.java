@@ -96,20 +96,18 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public String importDps(InputStream inputStream, String fileName) {
-        String dpsVer = "MC"+System.currentTimeMillis();
+        SimpleDateFormat sdf_ = new SimpleDateFormat("yyyyMMdd");
+        String dpsVer = sdf_.format(new java.util.Date()) +"MC"+ getDpsVer().size();
         String fab;
         String[] propertyTypes;
         if(StringUtils.containsIgnoreCase(fileName, "LCM1")) {
             fab = "LCM1";
-            dpsVer += fab;
             propertyTypes = new String[] {"model","product"};
         } else if(StringUtils.containsIgnoreCase(fileName, "LCM2")) {
             fab = "LCM2";
-            dpsVer += fab;
             propertyTypes = new String[] {"model","product"};
         } else {
             fab = "CELL";
-            dpsVer += fab;
             propertyTypes = new String[] {"product"};
         }
 
@@ -242,4 +240,9 @@ public class DpsServiceImpl implements DpsService {
     public List<String> getProduct(String dpsVer) {
         return dpsRepository.getProduct(dpsVer);
     }
+
+//    @Override
+//    public List<Map> summaryMaterial(String dpsVer) {
+//        return dpsRepository.summaryMaterial(dpsVer);
+//    }
 }

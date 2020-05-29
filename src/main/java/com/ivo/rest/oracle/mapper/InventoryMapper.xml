@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ivo.rest.oracle.mapper.InventoryMapper">
+
+  <!-- 获取LCM1良品仓材料的库存 -->
+  <select id="getLcm1GoodInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('3010','3150','4010')
+      AND WERKS ='3000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATKL,MATNR
+  </select>
+
+  <!-- 获取LCM1呆滞料的库存 -->
+  <select id="getLcm1DullInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('3060')
+      AND WERKS ='3000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATKL,MATNR
+  </select>
+
+  <!-- 获取LCM2良品仓材料的库存 -->
+  <select id="getLcm2GoodInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('2100','2101','5610','5611','1400','1401')
+      AND WERKS ='1000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATNR
+  </select>
+
+  <!-- 获取LCM2呆滞料的库存 -->
+  <select id="getLcm2DullInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('1310','1311')
+      AND WERKS ='1000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATNR
+  </select>
+
+  <!-- 获取CELL良品仓材料的库存 -->
+  <select id="getCellGoodInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('1100','1111','1200','5300','1400','1401')
+      AND WERKS ='1000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATKL,MATNR
+  </select>
+
+  <!-- 获取Cell呆滞料的库存 -->
+  <select id="getCellDullInventory" resultType="java.lang.Double">
+    select SUM(LABST)QTY from EXF.SZA_STOCK
+    WHERE LGORT IN ('1310','1311')
+      AND WERKS ='1000'
+      AND FAB_DATE=TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR=#{material}
+    GROUP BY fab_date,MATKL,WERKS,MATKL,MATNR
+  </select>
+</mapper>

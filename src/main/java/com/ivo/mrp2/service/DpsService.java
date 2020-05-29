@@ -5,6 +5,7 @@ import com.ivo.mrp2.entity.Dps;
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * DPS服务接口
@@ -34,18 +35,18 @@ public interface DpsService {
 
     /**
      * 获取DPS版本的数据
-     * @param ver dps版本
+     * @param  dpsVer dps版本
      * @return List<Dps>
      */
-    List<Dps> getDps(String ver);
+    List<Dps> getDps(String dpsVer);
 
     /**
      * 获取DPS版本的数据
-     * @param ver dps版本
+     * @param dpsVer dps版本
      * @param product product
      * @return List<Dps>
      */
-    List<Dps> getDps(String ver, String product);
+    List<Dps> getDps(String dpsVer, String product);
 
     /**
      * 获取DPS的所有版本
@@ -69,16 +70,23 @@ public interface DpsService {
     String importDps(InputStream inputStream, String fileName);
 
     /**
-     * 获取DPS的厂别
+     * 判断DPS的厂别
      * @param dpsVer dps版本
      * @return String
      */
     String getPlantByDpsVer(String dpsVer);
 
     /**
-     * 获取dsp版本中的所欲机种
+     * 获取DPS中所有机种
      * @param dpsVer dps版本
      * @return List<String>
      */
     List<String> getProduct(String dpsVer);
+
+//    /**
+//     * 汇总料号
+//     * @param dpsVer DPS版本
+//     * @return
+//     */
+//    List<Map> summaryMaterial(String dpsVer);
 }

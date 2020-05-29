@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +49,7 @@ public class DpsController {
      */
     @RequestMapping("/getDpsCalendar")
     public Result getDpsCalendar(@RequestParam String dpsVer) {
-        List<Date> list = dpsService.getDpsCalendarList(dpsVer);
+        List list = dpsService.getDpsCalendarList(dpsVer);
         List<String> days = DateUtil.format_(list);
         String[] weeks = DateUtil.getWeekDay_(list);
         Map<String, Object> map = new HashMap<>();
@@ -72,4 +74,18 @@ public class DpsController {
     }
 
 
+    /**
+     * MC手动Excel上传DPS
+     * @param file 文件
+     * @return Result
+     */
+    @RequestMapping("/importDps")
+    public Result importDps(@RequestParam("file") MultipartFile file) {
+        try {
+            dpsService.importDps(file.getInputStream(), file.getOriginalFilename());
+        } catch (IOException e) {
+            return ResultUtil.error("上传失败：" + e.getMessage());
+        }
+        return ResultUtil.success();
+    }
 }

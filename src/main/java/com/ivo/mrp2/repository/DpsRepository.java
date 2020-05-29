@@ -30,4 +30,15 @@ public interface DpsRepository extends JpaRepository<Dps, DpsPrimaryKey> {
 
     @Query(value = "SELECT DISTINCT product from mrp_dps t where t.dps_ver=:dpsVer", nativeQuery = true)
     List<String> getProduct(String dpsVer);
+
+    @Query(value = "select t.dps_ver as dpsVer, t.fab_date as fabDate, t.material as material, t.demand_qty as demandQty, \n" +
+            "(select loss_rate from mrp2_material_loss_rate b where b.material=t.material and b.effect_date<=now() and b.expire_date>now()) as lossRate,\n" +
+            "(select sum(plan_qty) from mrp2_supplier_arrival_plan a where a.material=t.material and a.date=t.fab_date) as planQty\n" +
+            "from \n" +
+            "(\n" +
+            "select d.dps_ver, d.fab_date, d.material, SUM(d.demand_qty) as demand_qty\n" +
+            "from mrp_demand d where d.dps_ver=:dpsVer \n" +
+            "GROUP BY d.dps_ver, d.fab_date, d.material\n" +
+            ") t", nativeQuery = true)
+    List<Map> summaryMaterial(String dpsVer);
 }

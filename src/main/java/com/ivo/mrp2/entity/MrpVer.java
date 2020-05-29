@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.sql.Date;
 
 /**
@@ -14,8 +15,8 @@ import java.sql.Date;
  */
 @Setter
 @Getter
-@Entity(name = "mrp2_mrp_ver")
-public class MrpVer {
+@Entity(name = "mrp_mrp_ver")
+public class MrpVer implements Serializable {
 
     public static final String STATUS_COMP = "COMP";
     public static final String STATUS_INPR = "INPR";

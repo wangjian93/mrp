@@ -35,14 +35,19 @@
   <!-- 获取Cell的BOM -->
   <select id="getBomCell" resultType="com.ivo.mrp2.entity.Bom">
     select
-           plant,
-           product,
-           MTRL_ID as Material,
-           '' as MaterialName,
-           '' as MaterialGroup,
-           '' as MaterialGroupName,
-           MEASURE_UNIT as MeasureUnit,
-           usageQty
-    from MM_o_CELLBOM where ValidFlag = 1
+      a.plant,
+      a.PRODUCT,
+      a.MTRL_ID as Material,
+      a.MEASURE_UNIT as MeasureUnit,
+      a.usageqty as usageQty,
+      b.MaterialName as MaterialName,
+      b.MaterialGroup_FK as MaterialGroup
+    from MM_O_CELLBOM a, MM_O_Material b
+    where a.MTRL_ID  =b.Material_ID
+      and a.ValidFlag =1
+    union all
+    select  a.plant,a.PRODUCT,a.MTRL_ID,a.MEASURE_UNIT,a.usageqty,b.MaterialName,b.MaterialGroup_FK from  MM_O_CELLBOMFORPK a, MM_O_Material b
+    where a.MTRL_ID  =b.Material_ID
+      and a.ValidFlag =1
   </select>
 </mapper>

@@ -34,6 +34,7 @@ public class BomServiceImpl implements BomService {
     @Override
     public void syncBom() {
         log.info("START>> 从Auto PR同步LCM1/LCM2/CELL的BOM");
+        bomRepository.deleteAll();
         log.info("LCM1...");
         List<Bom> lcm1BomList = eifBomService.getBomLcm1();
         bomRepository.saveAll(lcm1BomList);
@@ -49,6 +50,11 @@ public class BomServiceImpl implements BomService {
     @Override
     public String getMaterialGroup(String material) {
         return bomRepository.getMaterialGroup(material);
+    }
+
+    @Override
+    public String getMaterialName(String material) {
+        return bomRepository.getMaterialName(material);
     }
 
     @Override

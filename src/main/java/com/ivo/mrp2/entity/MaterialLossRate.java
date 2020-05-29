@@ -15,7 +15,7 @@ import java.sql.Date;
  */
 @Setter
 @Getter
-@Entity(name = "mrp2_material_loss_rate")
+@Entity(name = "mrp_material_loss_rate")
 public class MaterialLossRate extends AutoIncreaseEntityModel {
 
     /**

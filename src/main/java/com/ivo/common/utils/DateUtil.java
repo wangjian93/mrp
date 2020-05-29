@@ -120,7 +120,7 @@ public class DateUtil {
         return weeks;
     }
 
-    public static String[] getWeekDay_(List<java.sql.Date> dateList) {
+    public static String[] getWeekDay_(List<Date> dateList) {
         String[] weeks = new String[dateList.size()];
         for(int i=0; i<dateList.size(); i++) {
             weeks[i] = getWeekDay(dateList.get(i));
@@ -169,7 +169,7 @@ public class DateUtil {
         return list;
     }
 
-    public static List<String> format_(List<java.sql.Date> dateList) {
+    public static List<String> format_(List<Date> dateList) {
         List<String> list = new ArrayList<>();
         for(Date date : dateList) {
             list.add(format(date));
@@ -191,5 +191,33 @@ public class DateUtil {
             e.printStackTrace();
         }
         return date;
+    }
+
+    /**
+     * 开始时间结束时间取月份集合
+     * @param minDate 开始日期
+     * @param maxDate 结束日期
+     * @return List<String>
+     */
+    public static List<String> getMonthBetween(Date minDate, Date maxDate) {
+        ArrayList<String> result = new ArrayList<String>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");//格式化为年月
+
+        Calendar min = Calendar.getInstance();
+        Calendar max = Calendar.getInstance();
+
+        min.setTime(minDate);
+        min.set(min.get(Calendar.YEAR), min.get(Calendar.MONTH), 1);
+
+        max.setTime(maxDate);
+        max.set(max.get(Calendar.YEAR), max.get(Calendar.MONTH), 2);
+
+        Calendar curr = min;
+        while (curr.before(max)) {
+            result.add(sdf.format(curr.getTime()));
+            curr.add(Calendar.MONTH, 1);
+        }
+
+        return result;
     }
 }

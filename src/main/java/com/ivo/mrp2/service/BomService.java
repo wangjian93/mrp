@@ -25,6 +25,21 @@ public interface BomService {
     String getMaterialGroup(String material);
 
     /**
+     * 获取材料品名
+     * @param material 料号
+     * @return 品名
+     */
+    String getMaterialName(String material);
+
+    /**
+     * 展开机种的使用材料
+     * @param product 机种
+     * @param plant 厂别
+     * @return List<Bom>
+     */
+    List<Bom> getBomByProductAndPlant(String product, String plant);
+
+    /**
      * 分页查询BOM清单
      * @param page 页码
      * @param limit 分页大小
@@ -34,12 +49,4 @@ public interface BomService {
      * @return Page<Bom>
      */
     Page<Bom> pageQueryBom(int page, int limit,  String product, String material, String plant);
-
-    /**
-     * 展开机种的使用材料
-     * @param product 机种
-     * @param plant 厂别
-     * @return List<Bom>
-     */
-    List<Bom> getBomByProductAndPlant(String product, String plant);
 }

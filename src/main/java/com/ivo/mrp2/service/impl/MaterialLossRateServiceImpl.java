@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.List;
 
 /**
  * @author wj
@@ -43,5 +44,10 @@ public class MaterialLossRateServiceImpl implements MaterialLossRateService {
         }
         if(lossRate == null) return 0D;
         return lossRate.getLossRate() == null ? 0D : lossRate.getLossRate();
+    }
+
+    @Override
+    public List<MaterialLossRate> getMaterialLossRate() {
+        return lossRateRepository.findAll();
     }
 }

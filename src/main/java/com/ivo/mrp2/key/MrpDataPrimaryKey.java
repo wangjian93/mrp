@@ -20,13 +20,4 @@ public class MrpDataPrimaryKey implements Serializable {
     private Date fabDate;
 
     private String material;
-
-    public MrpDataPrimaryKey(String mrpVer, Date fabDate, String material) {
-        this.mrpVer = mrpVer;
-        this.fabDate = fabDate;
-        this.material = material;
-    }
-
-    public MrpDataPrimaryKey() {
-    }
 }

@@ -16,19 +16,19 @@ public class MrpService2Test extends AbstractTest {
     @Autowired
     private MrpService2 mrpService;
 
-    private static String dpsVer = "MC1589275326215LCM1";
-    private static String mrpVer = "MC1589275326215LCM1-1";
+    private static String dpsVer = "20200529MC25";
+    private static String mrpVer = "20200529MC25-0";
 
 
-    @Test
-    public void t1_generateMrpVer() {
-        mrpService.generateMrpVer(dpsVer);
-    }
-
-    @Test
-    public void t2_computeDemand() {
-        mrpService.computeDemand(mrpVer);
-    }
+//    @Test
+//    public void t1_generateMrpVer() {
+//        mrpVer = mrpService.generateMrpVer(dpsVer);
+//    }
+//
+//    @Test
+//    public void t2_computeDemand() {
+//        mrpService.computeDemand(mrpVer);
+//    }
 
     @Test
     public void t3_generateMrpData() {
@@ -36,9 +36,17 @@ public class MrpService2Test extends AbstractTest {
     }
 
     @Test
-    public void t4_computeBalance() {
-        mrpService.computeBalance(mrpVer);
+    public void t4_computeLossQty() {
+        mrpService.computeLossQty(mrpVer);
     }
 
+    @Test
+    public void t5_computeArrivalQty() {
+        mrpService.computeArrivalQty(mrpVer);
+    }
 
+    @Test
+    public void t6_computeBalance() {
+        mrpService.computeBalance(mrpVer);
+    }
 }

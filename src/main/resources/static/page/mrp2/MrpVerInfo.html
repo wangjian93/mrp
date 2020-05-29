@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>MRP版本信息</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        /** ---------------------------theme-my主题start----------------------------------- */
+
+        /* input */
+        .theme-my .layui-input:focus,
+        .theme-my .layui-textarea:focus,
+        .theme-my xm-select:hover {
+            border-color: #009688 !important;
+        }
+
+        .theme-my .layui-input:focus,
+        .theme-my .layui-textarea:focus,
+        .theme-my .layui-btn:active,
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a:focus,
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a:active,
+        .theme-my xm-select:active {
+            box-shadow: 0 0 0 2px rgba(0,150,136,.2);
+        }
+
+        .theme-my .layui-form-danger:focus,
+        .theme-my .layui-form-danger + .layui-form-select .layui-input {
+            box-shadow: 0 0 0 2px rgba(237, 64, 20, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-normal:focus,
+        .theme-my .layui-btn.layui-btn-normal:active {
+            box-shadow-color: rgba(20, 159, 255, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-warm:active {
+            box-shadow: 0 0 0 2px rgba(255, 184, 0, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-danger:active {
+            box-shadow: 0 0 0 2px rgba(255, 87, 34, .2);
+        }
+
+
+
+
+        /* input、button height */
+        /* button */
+        .theme-my .layui-btn {
+            height: 32px;
+            line-height: 32px;
+            border-radius: 4px;
+        }
+
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a {
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+        }
+
+        /* input */
+        .theme-my .layui-input,
+        .theme-my .layui-select,
+        .theme-my .layui-textarea,
+        .theme-my xm-select {
+            height: 32px;
+            border-radius: 4px;
+        }
+
+        /* form */
+        .theme-my .layui-form-label,
+        .theme-my .layui-form-mid {
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        .theme-my .layui-input-block {
+            min-height: 32px;
+        }
+
+        .theme-my .layui-form-radio {
+            margin-top: 2px;
+        }
+
+        /* button lg sm */
+        .theme-my .layui-btn-lg {
+            height: 42px;
+            line-height: 42px;
+        }
+
+        .theme-my .layui-btn.layui-btn-sm {
+            height: 28px;
+            line-height: 28px;
+        }
+
+        .theme-my .layui-btn.layui-btn-xs {
+            height: 22px;
+            line-height: 22px;
+        }
+
+        /** ---------------------------theme-my主题end----------------------------------- */
+    </style>
+
+</head>
+<body>
+<!-- 加载动画 -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+
+<!-- 正文开始 -->
+<div class="theme-my">
+    <div class="layui-card" style="min-height:700px">
+        <div class="layui-card-body">
+            <table id="tableMrpVer" lay-filter="tableMrpVer"></table>
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+    <!-- 表格工具栏 -->
+    <form class="layui-form toolbar table-tool-mini">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label w-auto">搜索:</label>
+                <div class="layui-input-inline">
+                    <input name="keyword" class="layui-input" type="text" placeholder="输入关键字"/>
+                </div>
+            </div>
+            <div class="layui-inline" style="padding-right: 110px;">
+                <button class="layui-btn icon-btn layui-btn-sm" lay-filter="tbBasicTbSearch" lay-submit>
+                    <i class="layui-icon">&#xe615;</i>搜索
+                </button>
+            </div>
+        </div>
+    </form>
+</script>
+<!-- js部分 -->
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script>
+    layui.use(['layer', 'steps', 'form', 'table'], function () {
+        var table = layui.table;
+
+        /* 表格渲染 */
+        table.render({
+            elem: '#tableMrpVer',
+            url: '/mrp/getAllMrpVerInfo',
+            method: 'get',
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {title: 'MRP版本', align: 'center', minWidth: 200,
+                    templet: '<div><a href="javascript:;" class="layui-table-link" onclick="showMrpData(\'{{d.mrpVer}}\')">{{d.mrpVer}}</a></div>'
+                },
+                {field: 'dpsVer', title: 'DPS版本', align: 'center', minWidth: 180},
+                {field: 'mpsVer', title: 'MPS版本', align: 'center'},
+                {field: 'startDate', title: '开始日期', align: 'center'},
+                {field: 'endDate', title: '结束日期', align: 'center'},
+                {field: 'plant', title: '厂别', align: 'center'},
+                {field: 'status', title: '状态', align: 'center'}
+            ]],
+            height: 'full-50',
+            page: true,
+            limit: 50,
+            size: 'sm',
+            even: true,
+            toolbar: '#toolbarDemo'
+        });
+
+        /* 打开MRP数据页面 */
+        window.showMrpData = function(mrpVer) {
+            var URL ="/page/mrp2/MrpData2.html?mrpVer="+mrpVer;
+            window.open(URL);
+        };
+    });
+</script>
+</body>
+</html>

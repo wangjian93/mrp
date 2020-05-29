@@ -14,6 +14,6 @@ public interface MrpVerRepository extends JpaRepository<MrpVer, String> {
 
     int countByDpsVer(String dpsVer);
 
-    @Query(value = "select t.mrp_ver from mrp_ver t group by t.mrp_ver ORDER BY t.mrp_ver DESC", nativeQuery = true)
+    @Query(value = "select t.mrp_ver from mrp_mrp_ver t group by t.mrp_ver ORDER BY t.mrp_ver DESC", nativeQuery = true)
     List<String> getMrpVer();
 }

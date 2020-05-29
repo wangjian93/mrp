@@ -55,7 +55,27 @@ public class Demand {
     private String materialName;
 
     /**
+     * 工厂
+     */
+    private String fab;
+
+    /**
+     * 机种的DPS数量
+     */
+    private double dpsQty;
+
+    /**
+     * 材料BOM的单位使用量
+     */
+    private double usageQty;
+
+    /**
+     * 切片数
+     */
+    private Double slice;
+
+    /**
      * 需求量
      */
-    private Double demandQty;
+    private double demandQty;
 }

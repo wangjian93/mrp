@@ -41,21 +41,6 @@ public class MrpData {
     private String material;
 
     /**
-     * 物料名
-     */
-    private String materialName;
-
-    /**
-     * 机种（料号对应多个机种时使用'/'分隔）
-     */
-    private String products;
-
-    /**
-     * 厂别
-     */
-    private String plant;
-
-    /**
      * 需求量
      */
     private double demandQty;
@@ -74,4 +59,9 @@ public class MrpData {
      * 结余量
      */
     private double balanceQty;
+
+    /**
+     * 修改结余量
+     */
+    private double balanceQty_;
 }

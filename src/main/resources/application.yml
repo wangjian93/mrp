@@ -5,7 +5,7 @@ spring:
   datasource:
     # 主数据源  Mysql
     primary:
-      url: jdbc:mysql://localhost:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      url: jdbc:mysql://localhost:3306/mrp_db2?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
       password: root
     # DPS数据库
@@ -13,11 +13,17 @@ spring:
       url: jdbc:mysql://10.10.2.115:3306/dps_lcm?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: ivodis
       password: dis@2020
+    # 81数据库
     eifdb:
       url: jdbc:jtds:sqlserver://10.20.2.81/EIFDB
       username: SYS_ARC
       password: SYS_ARC_201908_00_admin
       validation-query: SELECT 1
+    # ORACLE数据库
+    oracle:
+      url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.233)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.234)(PORT=1521))(LOAD_BALANCE=yes)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kabedw)))
+      username: etl
+      password: etl
 
     druid:
       aop-patterns: com.ivo.*

@@ -18,7 +18,7 @@ public interface MaterialLossRateRepository extends JpaRepository<MaterialLossRa
      * @param date 日期
      * @return MaterialLossRate
      */
-    @Query("from mrp2_material_loss_rate a where a.material=:material and a.effectDate<=:date and a.expireDate>:date")
+    @Query("from mrp_material_loss_rate a where a.material=:material and a.effectDate<=:date and a.expireDate>:date")
     MaterialLossRate getEffectRate(String material, Date date);
 
     /**
@@ -27,7 +27,7 @@ public interface MaterialLossRateRepository extends JpaRepository<MaterialLossRa
      * @param date 日期
      * @return MaterialLossRate
      */
-    @Query("from mrp2_material_loss_rate a where a.materialGroup=:materialGroup and a.material=null and a.effectDate<=:date and a.expireDate>:date")
+    @Query("from mrp_material_loss_rate a where a.materialGroup=:materialGroup and a.material=null and a.effectDate<=:date and a.expireDate>:date")
     MaterialLossRate getEffectRateByMaterialGroup(String materialGroup, Date date);
 
 }

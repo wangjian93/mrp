@@ -1,5 +1,9 @@
 package com.ivo.mrp2.service;
 
+import com.ivo.mrp2.entity.MaterialLossRate;
+
+import java.util.List;
+
 /**
  * 材料损耗率
  * @author wj
@@ -14,4 +18,9 @@ public interface MaterialLossRateService {
      */
     Double getMaterialLossRate(String material);
 
+    /**
+     * 获取材料损耗率
+     * @return List<MaterialLossRate>
+     */
+    List<MaterialLossRate> getMaterialLossRate();
 }
