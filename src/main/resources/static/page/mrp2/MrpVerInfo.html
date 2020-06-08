@@ -122,28 +122,29 @@
 <div class="theme-my">
     <div class="layui-card" style="min-height:700px">
         <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <form class="layui-form toolbar table-tool-mini">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">搜索:</label>
+                        <div class="layui-input-inline">
+                            <input name="keyword" class="layui-input" type="text" placeholder="输入关键字"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline" style="padding-right: 110px;">
+                        <button class="layui-btn icon-btn layui-btn-sm" lay-filter="tbBasicTbSearch" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!-- 表格数据 -->
             <table id="tableMrpVer" lay-filter="tableMrpVer"></table>
         </div>
     </div>
 </div>
 
 <script type="text/html" id="toolbarDemo">
-    <!-- 表格工具栏 -->
-    <form class="layui-form toolbar table-tool-mini">
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label w-auto">搜索:</label>
-                <div class="layui-input-inline">
-                    <input name="keyword" class="layui-input" type="text" placeholder="输入关键字"/>
-                </div>
-            </div>
-            <div class="layui-inline" style="padding-right: 110px;">
-                <button class="layui-btn icon-btn layui-btn-sm" lay-filter="tbBasicTbSearch" lay-submit>
-                    <i class="layui-icon">&#xe615;</i>搜索
-                </button>
-            </div>
-        </div>
-    </form>
 </script>
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>

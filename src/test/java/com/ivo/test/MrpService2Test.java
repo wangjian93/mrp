@@ -17,18 +17,18 @@ public class MrpService2Test extends AbstractTest {
     private MrpService2 mrpService;
 
     private static String dpsVer = "20200529MC25";
-    private static String mrpVer = "20200529MC25-0";
+    private static String mrpVer;
 
 
-//    @Test
-//    public void t1_generateMrpVer() {
-//        mrpVer = mrpService.generateMrpVer(dpsVer);
-//    }
-//
-//    @Test
-//    public void t2_computeDemand() {
-//        mrpService.computeDemand(mrpVer);
-//    }
+    @Test
+    public void t1_generateMrpVer() {
+        mrpVer = mrpService.generateMrpVer(dpsVer);
+    }
+
+    @Test
+    public void t2_computeDemand() {
+        mrpService.computeDemand(mrpVer);
+    }
 
     @Test
     public void t3_generateMrpData() {

@@ -16,8 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -153,8 +153,6 @@ public class MrpService2Impl implements MrpService2 {
     }
 
 
-
-
     @Override
     public void computeDemand(String mrpVer) {
         log.info("STA>>展开BOM计算MRP版本的材料需求，MRP版本"+mrpVer);
@@ -176,7 +174,6 @@ public class MrpService2Impl implements MrpService2 {
         String plant = dpsService.getPlantByDpsVer(dpsVer);
         List<Bom> bomList = bomService.getBomByProductAndPlant(product, plant);
         if(bomList == null || bomList.size() == 0) return;
-        log.info("展开"+product+"，BOM料号共" + bomList.size());
         List<Demand> demandList = new ArrayList<>();
         double slice = productSliceService.getProductSliceService(product);
         for(Dps dps : dpsList) {
@@ -220,12 +217,91 @@ public class MrpService2Impl implements MrpService2 {
         String dpsVer = m.getDpsVer();
         List<String> materialList = demandService.getMaterial(dpsVer);
         if(materialList==null || materialList.size()==0) return;
-        int l = materialList.size();
+        // 利用缓存减少轮询数据库
+        MrpVer mrp = getMrpVer(mrpVer);
+        Map<String, List<Demand>> demandMap = new HashMap<>();
+        List<Demand> demandList = demandService.getDemand(mrp.getDpsVer());
+        for(Demand demand : demandList) {
+            demandMap.computeIfAbsent(demand.getMaterial(), k -> new ArrayList<>());
+            demandMap.get(demand.getMaterial()).add(demand);
+        }
+        Map<String, String> materialNameMap = new HashMap<>();
+        Map<String, String> materialGroupMap = new HashMap<>();
+        List<Map> materialBomList = bomService.getMaterialNameAndGroup(materialList);
+        for(Map map : materialBomList) {
+            materialNameMap.put((String) map.get("material"), (String) map.get("materialName"));
+            materialGroupMap.put((String) map.get("material"), (String) map.get("materialGroup"));
+        }
+        Map<String, Double> goodInventoryMap = new HashMap<>();
+        Map<String, Double> dullInventoryMap = new HashMap<>();
+        Date d = m.getStartDate();
+        if(d.after(new java.util.Date())) d = new Date(new java.util.Date().getTime());
+        List<Map> goodInventoryList = inventoryService.getGoodInventory(materialList,  d, mrp.getPlant());
+        List<Map> dullInventoryList = inventoryService.getDullInventory(materialList, d, mrp.getPlant());
+        for(Map map : goodInventoryList) {
+            goodInventoryMap.put((String) map.get("material".toUpperCase()), ((BigDecimal) map.get("qty".toUpperCase()) ).doubleValue());
+        }
+        for(Map map : dullInventoryList) {
+            dullInventoryMap.put((String) map.get("material".toUpperCase()), ((BigDecimal) map.get("qty".toUpperCase()) ).doubleValue());
+        }
+
         for(String material : materialList) {
-            log.info("料号" + material + "，剩余" + l--);
-            generateMrpData(mrpVer, material);
+            generateMrpData(mrpVer, material, demandMap, materialNameMap, materialGroupMap, goodInventoryMap, dullInventoryMap);
         }
         log.info("END>>");
+    }
+
+    private void generateMrpData(String mrpVer, String material, Map<String, List<Demand>> demandMap,
+                                 Map<String, String> materialNameMap,  Map<String, String> materialGroupMap ,
+                                 Map<String, Double> goodInventoryMap,  Map<String, Double> dullInventoryMap) {
+        List<Demand> demandList = demandMap.get(material);
+        if(demandList== null || demandList.size()==0) return;
+        List<Date> dateList = getMrpCalendarList(mrpVer);
+        if(dateList==null || dateList.size()==0) return;
+        // 创建MrpData
+        List<MrpData> mrpDataList = new ArrayList<>();
+        Map<Date, MrpData> dateMap = new HashMap<>();
+        for(Date date : dateList) {
+            MrpData mrpData = new MrpData();
+            mrpData.setMrpVer(mrpVer);
+            mrpData.setMaterial(material);
+            mrpData.setFabDate(date);
+            dateMap.put(date, mrpData);
+            mrpDataList.add(mrpData);
+        }
+        // 创建MrpMaterial
+        MrpMaterial mrpMaterial = new MrpMaterial();
+        mrpMaterial.setMaterial(material);
+        mrpMaterial.setMrpVer(mrpVer);
+        mrpMaterial.setMaterialName(materialNameMap.get(material));
+        mrpMaterial.setMaterialGroup(materialGroupMap.get(material));
+        mrpMaterial.setLossRate(materialLossRateService.getMaterialLossRate(material));
+        // 获取期初库存
+        mrpMaterial.setGoodInventory(goodInventoryMap.get(material)==null ? 0 : goodInventoryMap.get(material));
+        mrpMaterial.setDullInventory(dullInventoryMap.get(material)==null  ? 0 : dullInventoryMap.get(material));
+
+        // 赋值MrpData需求量、MrpMaterial机种/厂
+        for(Demand demand : demandList) {
+            MrpData mrpData = dateMap.get(demand.getFabDate());
+            mrpData.setDemandQty(DoubleUtil.sum(mrpData.getDemandQty(), demand.getDemandQty()));
+
+            if(StringUtils.isEmpty(mrpMaterial.getProducts())) {
+                mrpMaterial.setProducts(demand.getProduct());
+            } else {
+                if(!StringUtils.containsIgnoreCase(mrpMaterial.getProducts(), demand.getProduct())) {
+                    mrpMaterial.setProducts(mrpMaterial.getProducts() + "/" + demand.getProduct());
+                }
+            }
+            if(StringUtils.isEmpty(mrpMaterial.getPlant())) {
+                mrpMaterial.setPlant(demand.getFab());
+            } else {
+                if(!StringUtils.containsIgnoreCase(mrpMaterial.getPlant(), demand.getFab())) {
+                    mrpMaterial.setPlant(mrpMaterial.getPlant() + "/" + demand.getFab());
+                }
+            }
+        }
+        mrpMaterialService.saveMrpMaterial(mrpMaterial);
+        mrpDataRepository.saveAll(mrpDataList);
     }
 
     public void generateMrpData(String mrpVer, String material) {
@@ -284,8 +360,6 @@ public class MrpService2Impl implements MrpService2 {
     }
 
 
-
-
     @Override
     public void computeLossQty(String mrpVer) {
         log.info("STA>>计算损耗量，MRP版本"+mrpVer);
@@ -324,12 +398,17 @@ public class MrpService2Impl implements MrpService2 {
 
     @Override
     public void computeArrivalQty(String mrpVer, String material) {
+        MrpVer mrp = getMrpVer(mrpVer);
+        List<Map> arrivalList =  supplierArrivalPlanService.getDaySupplierArrivalQty(mrp.getStartDate(), mrp.getEndDate(), mrp.getPlant(), material);
+        if(arrivalList==null || arrivalList.size()==0) return;
+        Map<Date, Double> arrivalMap = new HashMap<>();
+        for(Map map : arrivalList) {
+            arrivalMap.put((Date) map.get("fabDate"), (Double) map.get("qty"));
+        }
         List<MrpData> mrpDataList = getMrpData(mrpVer, material);
-        MrpVer mrpVerO = getMrpVer(mrpVer);
         if(mrpDataList== null || mrpDataList.size()==0) return;
         for(MrpData mrpData : mrpDataList) {
-            if(mrpData.getDemandQty() == 0) continue;
-            mrpData.setArrivalQty(supplierArrivalPlanService.getMaterialArrivalPlanQty(mrpVerO.getPlant(), mrpData.getMaterial(), mrpData.getFabDate()));
+            mrpData.setArrivalQty(arrivalMap.get(mrpData.getFabDate())==null ? 0 : arrivalMap.get(mrpData.getFabDate()));
         }
         mrpDataRepository.saveAll(mrpDataList);
     }
@@ -339,9 +418,7 @@ public class MrpService2Impl implements MrpService2 {
         log.info("STA>>计算材料的结余量，MRP版本"+mrpVer);
         List<String> materialList = mrpMaterialService.getMaterial(mrpVer);
         if(materialList == null || materialList.size() == 0) return;
-//        int l = materialList.size();
         for(String material : materialList) {
-//            log.info("材料" + material + "，剩余" + l--);
             computeBalance(mrpVer, material);
         }
         log.info("END>>");
@@ -356,9 +433,18 @@ public class MrpService2Impl implements MrpService2 {
         for(MrpData mrpData : mrpDataList) {
             dateMap.put(mrpData.getFabDate(), mrpData);
         }
-        MrpVer mrpVerO = getMrpVer(mrpVer);
         List<Date> dateList = getMrpCalendarList(mrpVer);
         if(dateList == null || dateList.size() == 0) return;
+
+        MrpVer mrp = getMrpVer(mrpVer);
+        List<Map> arrivalList =  supplierArrivalPlanService.getDaySupplierArrivalQty(mrp.getStartDate(), mrp.getEndDate(), mrp.getPlant(), material);
+        Map<Date, Double> arrivalMap = new HashMap<>();
+        if(arrivalList!=null && arrivalList.size()>0) {
+            for(Map map : arrivalList) {
+                arrivalMap.put((Date) map.get("fabDate"), (Double) map.get("qty"));
+            }
+        }
+
         for(int i=0; i<dateList.size(); i++) {
             Date fabDate = dateList.get(i);
             MrpData mrpData = dateMap.get(fabDate);
@@ -372,7 +458,7 @@ public class MrpService2Impl implements MrpService2 {
                 // 损耗量
                 mrpData.setDemandQty(0);
                 // 到货量
-                double arrivalQty = supplierArrivalPlanService.getMaterialArrivalPlanQty(mrpVerO.getPlant(), material, fabDate);
+                double arrivalQty = arrivalMap.get(mrpData.getFabDate())==null ? 0 : arrivalMap.get(mrpData.getFabDate());
                 mrpData.setArrivalQty(arrivalQty);
                 mrpDataList.add(mrpData);
                 dateMap.put(fabDate, mrpData);
@@ -383,8 +469,15 @@ public class MrpService2Impl implements MrpService2 {
                 double demandQty = mrpData.getDemandQty();
                 double lossQty = mrpData.getLossQty();
                 double balanceQty = DoubleUtil.sum(beginInventoryQty, -demandQty, -lossQty);
-                balanceQty = DoubleUtil.sum(balanceQty, mrpData.getBalanceQty_());
-                mrpData.setBalanceQty(balanceQty);
+                mrpData.setBalanceQtyCompute(balanceQty);
+                if(mrpData.getBalanceQtyModify() != 0) {
+                    mrpData.setBalanceQty(mrpData.getBalanceQtyModify());
+                } else {
+                    mrpData.setBalanceQty(balanceQty);
+                }
+                if(balanceQty<0) {
+                    mrpData.setShortQty(balanceQty);
+                }
             } else {
                 // 其他天：前一天计算的可用库存 + 前一天的到货 - 当日耗损量 – 当日需求量
                 MrpData yesterdayMrpData = dateMap.get(dateList.get(i-1));
@@ -393,8 +486,19 @@ public class MrpService2Impl implements MrpService2 {
                 double demandQty = mrpData.getDemandQty();
                 double lossQty = mrpData.getLossQty();
                 double balanceQty = DoubleUtil.sum(yesterdayBalanceQty, yesterdayArrivalQty, -demandQty, -lossQty);
-                balanceQty = DoubleUtil.sum(balanceQty, mrpData.getBalanceQty_());
-                mrpData.setBalanceQty(balanceQty);
+                mrpData.setBalanceQtyCompute(balanceQty);
+                if(mrpData.getBalanceQtyModify() != 0) {
+                    mrpData.setBalanceQty(mrpData.getBalanceQtyModify());
+                } else {
+                    mrpData.setBalanceQty(balanceQty);
+                }
+                if(balanceQty<0) {
+                    if(yesterdayBalanceQty>0) {
+                        mrpData.setShortQty(balanceQty);
+                    } else {
+                        mrpData.setShortQty(balanceQty-yesterdayBalanceQty);
+                    }
+                }
             }
         }
         mrpDataRepository.saveAll(mrpDataList);

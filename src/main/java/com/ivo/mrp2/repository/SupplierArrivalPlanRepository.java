@@ -39,4 +39,8 @@ public interface SupplierArrivalPlanRepository extends JpaRepository<SupplierArr
             "where a.date>=:startDate and a.date <:endDate and a.material=:material and a.supplier_code=:supplierCode and a.plant =:plant " +
             "GROUP BY a.plant, a.supplier_code, a.material, a.date",  nativeQuery = true)
     List<Map> getSupplierArrivalQty(Date startDate, Date endDate, String plant, String material, String supplierCode);
+
+    @Query(value = "select date as fabDate, sum(arrival_qty) as qty from mrp_supplier_arrival_plan where material=:material and plant=:plant " +
+            "and date>=:startDate and date<=:endDate GROUP BY plant,material,date", nativeQuery = true)
+    List<Map> getDaySupplierArrivalQty(Date startDate, Date endDate, String plant, String material);
 }

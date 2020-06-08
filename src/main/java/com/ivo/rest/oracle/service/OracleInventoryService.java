@@ -1,6 +1,10 @@
 package com.ivo.rest.oracle.service;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.sql.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 获取材料的库存量
@@ -28,4 +32,22 @@ public interface OracleInventoryService {
      */
     double getDullInventory(String plant, String material, Date fabDate);
 
+
+    /**
+     * 集中获取材料库存
+     * @param materialList 料号集合
+     * @param fabDate 日期
+     * @param plant 厂别
+     * @return List<Map>
+     */
+    List<Map> getGoodInventory(List<String> materialList, Date fabDate, String plant);
+
+    /**
+     * 集中获取呆滞料库存
+     * @param materialList 料号集合
+     * @param fabDate 日期
+     * @param plant 厂别
+     * @return List<Map>
+     */
+    List<Map> getDullInventory(List<String> materialList, Date fabDate, String plant);
 }

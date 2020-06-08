@@ -59,7 +59,18 @@ public interface SupplierArrivalPlanService {
      * @param plant 厂别
      * @param material 料号
      * @param supplierCode 供应商
-     * @return  List<Map
+     * @return  List<Map>
      */
     List<Map> getSupplierArrivalQty(Date startDate, Date endDate, String plant, String material, String supplierCode);
+
+
+    /**
+     * 获取日期区间内料号的每天的到货数量
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @param plant 厂别
+     * @param material 料号
+     * @return
+     */
+    List<Map> getDaySupplierArrivalQty(Date startDate, Date endDate, String plant, String material);
 }

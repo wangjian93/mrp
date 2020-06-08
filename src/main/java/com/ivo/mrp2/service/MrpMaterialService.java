@@ -52,4 +52,11 @@ public interface MrpMaterialService {
      * @return Page
      */
     Page<MrpMaterial> getPageMrpData(int page, int limit, String mrpVer, String product, String materialGroup, String material);
+
+    /**
+     * 查询MrpMaterial
+     * @param mrpVer MRP版本
+     * @return  List<String>
+     */
+    List<MrpMaterial> getMrpMaterial(String mrpVer);
 }

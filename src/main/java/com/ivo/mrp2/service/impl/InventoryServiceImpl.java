@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj
@@ -31,5 +33,15 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public double getDullInventory(String plant, String material, Date fabDate) {
         return oracleInventoryService.getDullInventory(plant, material, fabDate);
+    }
+
+    @Override
+    public List<Map> getDullInventory(List<String> materialList, Date fabDate, String plant) {
+        return oracleInventoryService.getDullInventory(materialList, fabDate, plant);
+    }
+
+    @Override
+    public List<Map> getGoodInventory(List<String> materialList, Date fabDate, String plant) {
+        return oracleInventoryService.getGoodInventory(materialList, fabDate, plant);
     }
 }

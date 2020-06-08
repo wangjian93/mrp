@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj
@@ -78,5 +79,10 @@ public class BomServiceImpl implements BomService {
     @Override
     public List<Bom> getBomByProductAndPlant(String product, String plant) {
         return bomRepository.findByPlantAndProduct(plant, product);
+    }
+
+    @Override
+    public List<Map> getMaterialNameAndGroup(List<String> materialList) {
+        return bomRepository.getMaterialNameAndGroup(materialList);
     }
 }

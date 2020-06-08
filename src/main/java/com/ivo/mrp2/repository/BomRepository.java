@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj
@@ -24,4 +25,7 @@ public interface BomRepository extends JpaRepository<Bom, BomPrimaryKey> {
     String getMaterialName(String material);
 
     Page<Bom> findByProductLikeAndMaterialLikeAndPlantLike(String product, String material, String plant, Pageable pageable);
+
+    @Query(value = "select material, material_name as materialName, material_group as materialGroup from mrp_bom where material in :materialList", nativeQuery = true)
+    List<Map> getMaterialNameAndGroup(List<String> materialList);
 }

@@ -79,4 +79,8 @@ public class DemandServiceImpl implements DemandService {
     }
 
 
+    @Override
+    public List<Demand> getDemand(String dpsVer) {
+        return demandRepository.findByDpsVer(dpsVer);
+    }
 }

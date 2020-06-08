@@ -63,4 +63,20 @@
       AND MATNR=#{material}
     GROUP BY fab_date,MATKL,WERKS,MATKL,MATNR
   </select>
+
+  <!-- 获取Cell呆滞料的库存 -->
+  <select id="getInventory" resultType="java.util.Map">
+    select MATNR as material, SUM(LABST) as qty from EXF.SZA_STOCK
+    WHERE WERKS = #{plant}
+      AND FAB_DATE= TO_DATE(#{fabDate},'YYYY-MM-DD')
+      AND MATNR IN
+      <foreach item="item" index="index" collection="materialList" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+      AND LGORT IN
+      <foreach item="item" index="index" collection="positionList" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    GROUP BY fab_date,MATKL,WERKS,MATNR
+  </select>
 </mapper>

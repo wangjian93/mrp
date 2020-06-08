@@ -172,6 +172,7 @@ public class MrpController {
                 mrpDataMap.put("lossQty", mrpData.getLossQty());
                 mrpDataMap.put("arrivalQty", mrpData.getArrivalQty());
                 mrpDataMap.put("balanceQty", mrpData.getBalanceQty());
+                mrpDataMap.put("memo", mrpData.getMemo());
                 map.put(mrpData.getFabDate().toString(), mrpDataMap);
                 // 计算月份汇总
                 String month_ = mrpData.getFabDate().toString().substring(0, 7);
@@ -244,11 +245,26 @@ public class MrpController {
      */
     @RequestMapping("/updateBalanceQty")
     public Result updateBalanceQty(@RequestParam String mrpVer, @RequestParam String material, @RequestParam Date fabDate,
-                                   @RequestParam double balanceQty) {
+                                   @RequestParam double balanceQty, @RequestParam String memo) {
         MrpData mrpData = mrpService.getMrpData(mrpVer, material, fabDate);
-        mrpData.setBalanceQty_(balanceQty-mrpData.getBalanceQty()+mrpData.getBalanceQty_());
+        mrpData.setBalanceQtyModify(balanceQty);
+        mrpData.setBalanceQty(balanceQty);
+        mrpData.setMemo(memo);
         mrpService.updateBalanceQty(mrpData);
         mrpService.computeBalance(mrpVer, material);
         return ResultUtil.success();
+    }
+
+    /**
+     * 获取结余量信息
+     * @param mrpVer MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return
+     */
+    @RequestMapping("/getBalanceQty")
+    public Result getBalanceQty(@RequestParam String mrpVer, @RequestParam String material, @RequestParam Date fabDate) {
+        MrpData mrpData = mrpService.getMrpData(mrpVer, material, fabDate);
+        return ResultUtil.success(mrpData);
     }
 }

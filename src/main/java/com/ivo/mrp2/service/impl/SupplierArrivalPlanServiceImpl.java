@@ -59,4 +59,9 @@ public class SupplierArrivalPlanServiceImpl implements SupplierArrivalPlanServic
     public List<Map> getSupplierArrivalQty(Date startDate, Date endDate, String plant, String material, String supplierCode) {
         return arrivalPlanRepository.getSupplierArrivalQty(startDate, endDate, plant, material, supplierCode);
     }
+
+    @Override
+    public List<Map> getDaySupplierArrivalQty(Date startDate, Date endDate, String plant, String material) {
+        return arrivalPlanRepository.getDaySupplierArrivalQty(startDate, endDate, plant,  material);
+    }
 }

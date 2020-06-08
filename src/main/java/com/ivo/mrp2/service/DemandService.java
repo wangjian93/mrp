@@ -89,4 +89,12 @@ public interface DemandService {
      * @return List<Demand>
      */
     List<Demand> getDemandByMaterial(String dpsVer, String material);
+
+
+    /**
+     * 按DPS版本获取需求量
+     * @param dpsVer DPS版本
+     * @return  List<Demand>
+     */
+    List<Demand> getDemand(String dpsVer);
 }

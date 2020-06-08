@@ -27,4 +27,6 @@ public interface MrpMaterialRepository extends JpaRepository<MrpMaterial, MrpMat
     @Query(value = "from mrp_material t where t.mrpVer=:mrpVer and t.material like :material and t.products like :product and t.materialGroup like :materialGroup",
     countQuery = "select count(distinct material) from mrp_material t where t.mrpVer=:mrpVer and t.material like :material and t.products like :product and t.materialGroup like :materialGroup")
     Page<MrpMaterial> getPage(String mrpVer, String product, String materialGroup, String material, Pageable pageable);
+
+    List<MrpMaterial> findByMrpVer(String mrpVer);
 }

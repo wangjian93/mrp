@@ -61,7 +61,22 @@ public class MrpData {
     private double balanceQty;
 
     /**
-     * 修改结余量
+     * 结余量计算值
      */
-    private double balanceQty_;
+    private double balanceQtyCompute;
+
+    /**
+     * 结余量修改值
+     */
+    private double balanceQtyModify;
+
+    /**
+     * 备注说明
+     */
+    private String memo;
+
+    /**
+     * 缺料量
+     */
+    private double shortQty;
 }

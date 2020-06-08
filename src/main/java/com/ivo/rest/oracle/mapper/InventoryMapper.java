@@ -3,6 +3,9 @@ package com.ivo.rest.oracle.mapper;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author wj
  * @version 1.0
@@ -59,5 +62,10 @@ public interface InventoryMapper {
      * @return
      */
     Double getCellDullInventory(@Param("material") String material, @Param("fabDate") String fabDate);
+
+
+
+    List<Map> getInventory(@Param("materialList") List<String> materialList, @Param("fabDate") String fabDate,
+                           @Param("plant") String plant, @Param("positionList") List<String> positionList);
 
 }

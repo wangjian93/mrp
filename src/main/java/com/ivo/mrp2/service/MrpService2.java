@@ -196,4 +196,5 @@ public interface MrpService2 {
      * @param  mrpData mrpData
      */
     void updateBalanceQty(MrpData mrpData);
+
 }

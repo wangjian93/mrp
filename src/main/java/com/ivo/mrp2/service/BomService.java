@@ -4,6 +4,7 @@ import com.ivo.mrp2.entity.Bom;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Bom服务接口
@@ -49,4 +50,11 @@ public interface BomService {
      * @return Page<Bom>
      */
     Page<Bom> pageQueryBom(int page, int limit,  String product, String material, String plant);
+
+    /**
+     * 获取物料名和物料组
+     * @param materialList 料号集合
+     * @return List<Map>
+     */
+    List<Map> getMaterialNameAndGroup(List<String> materialList);
 }

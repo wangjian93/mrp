@@ -35,6 +35,10 @@
             color: red;
         }
 
+        .memoClass {
+            background-color: orangered;
+        }
+
         .pointer{
 
             cursor: pointer;
@@ -48,9 +52,40 @@
         .layui-table-view .layui-table td{
             padding: 0px 0px;
         }
-        .layui-table-view .layui-table[lay-size="sm"] .layui-table-cell {
+        .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
             height: auto;
             padding: 0px 5px;
+        }
+        .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+
+        th .weekClass_yellowgreen {
+            background-color: yellowgreen;
+        }
+        th .weekClass_yellow {
+            background-color: yellow;
+        }
+        .pic_border_orange{
+            /*橙色*/
+            /*border-radius: 18px;*/
+            border: 2px solid orangered;
+            box-shadow: 0 0 10px 3px orangered;
+        }
+        .layui-table-fixed-l {
+            box-shadow: 0 0 10px 8px rgba(0,0,0,.08);
+        }
+
+        .layui-table td, .layui-table th, .layui-table-col-set, .layui-table-fixed-r, .layui-table-grid-down, .layui-table-header, .layui-table-page, .layui-table-tips-main, .layui-table-tool, .layui-table-total, .layui-table-view, .layui-table[lay-skin="line"], .layui-table[lay-skin="row"] {
+            border-color: #b5b5b5;
+        }
+
+        .layui-table-view{
+            box-shadow: 0 0 10px 8px rgba(0,0,0,.08);
         }
     </style>
 
@@ -243,6 +278,13 @@
 </div>
 
 <!-- 工具条 -->
+<script type="text/html" id="tableTitleDemo">
+    <div class='{{d.weekClass}}'>
+        <div>{{d.day}}</div>
+        <div>{{d.week}}</div>
+    </div>
+</script>
+
 <script type="text/html" id="DemoPlan">
     <div class="plan">
         <div class="plan_child div_border">Daily Demand</div>
@@ -257,7 +299,7 @@
         <div class="plan_child div_border pointer" lay-event="showDemandQty_{{d.fabDate}}">{{d.demandQty}}</div>
         <div class="plan_child div_border ">{{d.lossQty}}</div>
         <div class="plan_child div_border pointer layui-table-link" lay-event="showArrivalQty_{{d.fabDate}}">{{d.arrivalQty}}</div>
-        <div class="plan_child {{d.redClass}}" lay-event="showBalanceQty_{{d.fabDate}}">{{d.balanceQty}}</div>
+        <div class="plan_child {{d.redClass}} {{d.memoClass}}" lay-event="showBalanceQty_{{d.fabDate}}">{{d.balanceQty}}</div>
     </div>
 </script>
 
@@ -346,7 +388,7 @@
                 cols: cols,
                 height: 'full-10',
                 page: true,
-                limit: 200,
+                limit: 50,
                 size: 'sm',
                 even: true,
                 toolbar: true
@@ -380,15 +422,18 @@
                 {field: 'materialName', title: '品名', align: 'center', rowspan: 2, width: 60},
                 {field: 'suppliers', title: '供应商', align: 'center', rowspan: 2, width: 60},
                 {field: 'lossRate', title: '损耗率', align: 'center', rowspan: 2, width: 60},
-                {field: 'goodInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
-                {field: 'dullInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
+                // {field: 'goodInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
+                // {field: 'dullInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
+                {title: '期初库存', align: 'center', colspan: 2, width: 120},
                 {title: '月份汇总', align: 'center', colspan: months.length+0.1}
             ];
-            for(var i=0; i<weeks.length; i++) {
-                col1.push({title: weeks[i], align: 'center', colspan: 1.1, width: 60});
-            }
+            // for(var i=0; i<weeks.length; i++) {
+            //     col1.push({title: weeks[i], align: 'center', colspan: 1.1, width: 60});
+            // }
             // 第二行表头
             var col2 = [];
+            col2.push({field: 'goodInventoryQty', title: '良品', align: 'center', width: 60});
+            col2.push( {field: 'dullInventoryQty', title: '呆滞', align: 'center', width: 60});
             // 月份的汇总数据
             for(var k=0; k<months.length; k++) {
                 (function(month) {
@@ -418,13 +463,19 @@
                 })(months[k]);
             }
             for(var j=0; j<days.length; j++) {
-                (function(day) {
+                (function(day, week) {
                     var day_ = day.substring(5, 10);
                     if(day_.indexOf('0') === 0) {
                         day_ = day_.substring(1, 5);
                     }
-                    col2.push(
-                        { field: day, title: day_,  align: 'center', width: 60,
+                    if(week === '星期六' || week === '星期日') {
+                        weekClass = "weekClass_yellow";
+                    } else {
+                        weekClass = "weekClass_yellowgreen";
+                    }
+                    var title = laytpl(tableTitleDemo.innerHTML).render({day: day_, week: week, weekClass: weekClass});
+                    col1.push(
+                        { field: day, title: title,  align: 'center', width: 60, rowspan: 2,
                             templet: function(data) {
                                 var d = data[day];
                                 if(!d) {
@@ -442,10 +493,13 @@
                                 } else {
                                     d.redClass = "";
                                 }
+                                if(d.memo) {
+                                    d.memoClass = "pic_border_orange";
+                                }
                                 return laytpl(mrpDataDemo.innerHTML).render(d);
                             }
                         });
-                })(days[j]);
+                })(days[j], weeks[j]);
             }
             return [col1, col2];
         };
@@ -555,30 +609,13 @@
         };
 
         var showBalanceQty = function(mrpVer, material, fabDate, obj) {
-            var index = parent.layui.admin.prompt(function (value) {
-                if(value) {
-                    $.ajax({
-                        type: 'post',
-                        url: '/mrp/updateBalanceQty',
-                        async:false,
-                        data: {
-                            mrpVer: mrpVer,
-                            material: material,
-                            fabDate: fabDate,
-                            balanceQty: value
-                        },
-                        success: function(res){
-                            if(res.code === 200) {
-                                notice.msg(res.msg, {icon: 5});
-                                admin.putLayerData('formOk', true, '#tableArrivalPlan');
-                                admin.closeDialog('#tableArrivalPlan');
-                            }
-                        },
-                        error: function(res) {
-                            notice.msg("结余量修改请求提交失败，" + res.status, {icon: 2});
-                        }
-                    });
-                    // 修改弹框关闭更新料号的数据
+            var html_URL = '/page/mrp2/BalanceUpdate.html?mrpVer='+mrpVer+"&material="+material+"&fabDate="+fabDate;
+            admin.open({
+                type: 2,
+                title: '修改结余量',
+                content: html_URL,
+                end: function() {
+                    //修改弹框关闭更新料号的数据
                     $.ajax({
                         type: 'post',
                         url: '/mrp/getMrpData',
@@ -599,7 +636,6 @@
                         }
                     });
                 }
-                parent.layer.close(index);
             });
         };
 

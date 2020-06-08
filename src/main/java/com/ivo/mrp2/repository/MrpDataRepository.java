@@ -38,6 +38,9 @@ public interface MrpDataRepository extends JpaRepository<MrpData, MrpDataPrimary
     Page<String> getMaterialByProduct(String mrpVer, String product, Pageable pageable);
 
 
+
+    List<MrpData> findByMrpVerAndShortQtyLessThan(String mrpVer, double less);
+
 //
 //
 //    @Query(value = "select DISTINCT material from mrp_data t where t.mrp_ver=:mrpVer and t.products like :product and t.material=:material",

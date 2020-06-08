@@ -37,6 +37,103 @@
             line-height: 25px;
         }
     </style>
+
+    <style>
+        /** ---------------------------theme-my主题start----------------------------------- */
+
+        /* input */
+        .theme-my .layui-input:focus,
+        .theme-my .layui-textarea:focus,
+        .theme-my xm-select:hover {
+            border-color: #009688 !important;
+        }
+
+        .theme-my .layui-input:focus,
+        .theme-my .layui-textarea:focus,
+        .theme-my .layui-btn:active,
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a:focus,
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a:active,
+        .theme-my xm-select:active {
+            box-shadow: 0 0 0 2px rgba(0,150,136,.2);
+        }
+
+        .theme-my .layui-form-danger:focus,
+        .theme-my .layui-form-danger + .layui-form-select .layui-input {
+            box-shadow: 0 0 0 2px rgba(237, 64, 20, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-normal:focus,
+        .theme-my .layui-btn.layui-btn-normal:active {
+            box-shadow-color: rgba(20, 159, 255, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-warm:active {
+            box-shadow: 0 0 0 2px rgba(255, 184, 0, .2);
+        }
+
+        .theme-my .layui-btn.layui-btn-danger:active {
+            box-shadow: 0 0 0 2px rgba(255, 87, 34, .2);
+        }
+
+
+
+
+        /* input、button height */
+        /* button */
+        .theme-my .layui-btn {
+            height: 32px;
+            line-height: 32px;
+            border-radius: 4px;
+        }
+
+        .theme-my .layui-layer.layui-layer-admin .layui-layer-btn a {
+            height: 30px;
+            line-height: 30px;
+            border-radius: 4px;
+        }
+
+        /* input */
+        .theme-my .layui-input,
+        .theme-my .layui-select,
+        .theme-my .layui-textarea,
+        .theme-my xm-select {
+            height: 32px;
+            border-radius: 4px;
+        }
+
+        /* form */
+        .theme-my .layui-form-label,
+        .theme-my .layui-form-mid {
+            padding-top: 6px;
+            padding-bottom: 6px;
+        }
+
+        .theme-my .layui-input-block {
+            min-height: 32px;
+        }
+
+        .theme-my .layui-form-radio {
+            margin-top: 2px;
+        }
+
+        /* button lg sm */
+        .theme-my .layui-btn-lg {
+            height: 42px;
+            line-height: 42px;
+        }
+
+        .theme-my .layui-btn.layui-btn-sm {
+            height: 28px;
+            line-height: 28px;
+        }
+
+        .theme-my .layui-btn.layui-btn-xs {
+            height: 22px;
+            line-height: 22px;
+        }
+
+        /** ---------------------------theme-my主题end----------------------------------- */
+    </style>
 </head>
 <body>
 <!-- 页面加载loading -->
@@ -46,7 +143,7 @@
     </div>
 </div>
 <!-- 正文开始 -->
-<div class="layui-fluid">
+<div class="theme-my">
     <div class="layui-card">
         <div class="layui-card-body">
             <!-- 表格工具栏 -->
@@ -74,7 +171,7 @@
                     </div>
 
                     <div class="layui-inline">&emsp;
-                        <button class="layui-btn icon-btn" lay-filter="search" lay-submit>
+                        <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
                             <i class="layui-icon">&#xe615;</i>搜索
                         </button>
                     </div>

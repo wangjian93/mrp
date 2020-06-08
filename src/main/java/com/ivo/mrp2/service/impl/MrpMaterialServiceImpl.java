@@ -59,4 +59,9 @@ public class MrpMaterialServiceImpl implements MrpMaterialService {
         Pageable pageable = PageRequest.of(page-1, limit);
         return mrpMaterialRepository.getPage(mrpVer, product, materialGroup, material, pageable);
     }
+
+    @Override
+    public List<MrpMaterial> getMrpMaterial(String mrpVer) {
+        return mrpMaterialRepository.findByMrpVer(mrpVer);
+    }
 }
