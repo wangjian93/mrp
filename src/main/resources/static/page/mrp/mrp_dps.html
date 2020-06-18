@@ -13,6 +13,27 @@
     <![endif]-->
 
     <style>
+        .layui-table-view .layui-table[lay-size="sm"] th {
+            height: 40px;
+        }
+        .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+
+        th .weekClass_yellowgreen {
+            background-color: yellowgreen;
+        }
+        th .weekClass_yellow {
+            background-color: yellow;
+        }
+
+    </style>
+
+    <style>
         /** ---------------------------theme-my主题start----------------------------------- */
 
         /* input */
@@ -139,46 +160,56 @@
                     </div>
 
                     <div class="layui-inline">
-                        <button type="button" class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                        <button id="search" type="button" class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
                             <i class="layui-icon">&#xe615;</i>搜索
                         </button>
-                        <button type="button" id="file-btn-upload" class="layui-btn layui-btn-sm layui-btn-normal icon-btn">
-                            <i class="layui-icon">&#xe681;</i>&nbsp;导入
-                        </button>&nbsp;
+                        <button type="button" id="file-btn-upload" hidden></button>
                     </div>
                 </div>
             </form>
 
             <!-- 表格 -->
-            <div class="layui-tab">
-<!--                <ul class="layui-tab-title">-->
-<!--                    <li class="layui-this">按天显示</li>-->
-<!--                    <li>原始格式</li>-->
-<!--                </ul>-->
-                <div class="layui-tab-content">
-                    <div class="layui-tab-item layui-show">
-                        <table id="tableDps" lay-filter="tableDps"></table>
-                    </div>
-                    <div class="layui-tab-item">
-                        <table id="tableDps_" lay-filter="tableDps_"></table>
-                    </div>
-                </div>
+            <table id="tableDps" lay-filter="tableDps"></table>
+            <div hidden>
+                <table id="tableDps_" lay-filter="tableDps_" ></table>
             </div>
         </div>
     </div>
 </div>
 
 <!-- js部分 -->
+<script type="text/html" id="tableTitleDemo">
+    <div class='{{d.weekClass}}'>
+        <div>{{d.day}}</div>
+        <div>{{d.week}}</div>
+    </div>
+</script>
+
+<!-- 表格头部工具栏 -->
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="importDemo">
+            <i class="layui-icon layui-icon-template-1"></i>&nbsp;导入模板
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="import">
+            <i class="layui-icon layui-icon-upload-circle"></i>&nbsp;导入
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="export">
+            <i class="layui-icon layui-icon-download-circle"></i>&nbsp;导出
+        </button>
+    </div>
+</script>
+
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['form', 'notice', 'table', 'element', 'upload'], function() {
+    layui.use(['form', 'notice', 'table', 'element', 'upload', 'laytpl'], function() {
         var form = layui.form;
         var notice = layui.notice;
         var $ = layui.$;
         var table = layui.table;
         var upload = layui.upload;
-
+        var laytpl = layui.laytpl;
 
         // DPS版本下拉框选项
         var getDpsVer = function() {
@@ -194,6 +225,8 @@
                     } else {
                         notice.msg(data.msg, {icon: 2});
                     }
+
+                    $("#search").click();
                 },
                 error: function(res) {
                     notice.msg("获取DPS版本选项请求失败，" + res.status, {icon: 2});
@@ -225,7 +258,8 @@
             page: true,
             limit: 100,
             limits: [20, 50, 70, 100, 200, 300],
-            even: true
+            even: true,
+            toolbar: "#toolbarDemo"
         });
 
         table.render({
@@ -319,21 +353,30 @@
         var buildTableCols = function(days, weeks) {
             // 第一行表头
             var col1 = [
-                {type: 'numbers', align: 'center', rowspan: 2, fixed: 'left'},
-                {field: 'product', title: '产品', align: 'center', rowspan: 2, fixed: 'left', width: 150, sort: true},
-                {field: 'model', title: 'Model', align: 'center', rowspan: 2, fixed: 'left', width: 90, sort: true},
-                {field: 'fab', title: '厂别', align: 'center', rowspan: 2, fixed: 'left', width: 80},
-                {field: 'total', title: 'QTY', align: 'center', rowspan: 2, fixed: 'left', width: 80, sort: true}
+                {type: 'numbers', align: 'center', fixed: 'left'},
+                {field: 'product', title: '产品', align: 'center', fixed: 'left', width: 150, sort: true},
+                {field: 'model', title: 'Model', align: 'center', fixed: 'left', width: 90, sort: true},
+                {field: 'fab', title: '厂别', align: 'center', fixed: 'left', width: 80},
+                {field: 'total', title: 'QTY', align: 'center', fixed: 'left', width: 80, sort: true}
             ];
             for(var i=0; i<days.length; i++) {
-                col1.push({title: days[i], align: 'center', colspan: 1.1, width: 120});
+                var day = days[i];
+                var week = weeks[i];
+                var day_ = day.substring(5, 10);
+                if(day_.indexOf('0') === 0) {
+                    day_ = day_.substring(1, 5);
+                }
+                var weekClass;
+                if(week === '星期六' || week === '星期日') {
+                    weekClass = "weekClass_yellow";
+                } else {
+                    weekClass = "weekClass_yellowgreen";
+                }
+                var title = laytpl(tableTitleDemo.innerHTML).render({day: day_, week: week, weekClass: weekClass});
+                col1.push({field: day, title: title,  align: 'center', width: 60});
+
             }
-            // 第二行表头
-            var col2 = [];
-            for(var j=0; j<weeks.length; j++) {
-                col2.push({field: days[j], title: weeks[j],  align: 'center', width: 120});
-            }
-            return [col1, col2];
+            return [col1];
         };
 
         /**
@@ -380,6 +423,20 @@
             }
         });
 
+        //头工具栏事件
+        table.on('toolbar(tableDps)', function(obj){
+            switch(obj.event){
+                case 'import':
+                    $("#file-btn-upload").click();
+                    break;
+                case 'export':
+                    layer.msg('功能开发中。。。');
+                    break;
+                case 'importDemo':
+                    layer.msg('功能开发中。。。');
+                    break;
+            }
+        });
     });
 </script>
 </body>

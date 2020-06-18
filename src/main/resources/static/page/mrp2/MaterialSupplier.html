@@ -138,13 +138,7 @@
 
                     <div class="layui-inline">
                         <button type="button" class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
-                            <i class="layui-icon">&#xe615;</i>搜索
-                        </button>
-                        <button type="button" class="layui-btn icon-btn layui-btn-sm" lay-event="getCheckData">
-                            <i class="layui-icon">&#xe654;</i>添加
-                        </button>
-                        <button type="button" class="layui-btn icon-btn layui-btn-sm" lay-event="getCheckLength">
-                            <i class="layui-icon">&#xe640;</i>删除
+                            <i class="layui-icon">&#xe615;</i>查询
                         </button>
                     </div>
                 </div>
@@ -154,7 +148,26 @@
         </div>
     </div>
 </div>
+
+<!-- 表格头部工具栏 -->
 <script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="add">
+            <i class="layui-icon layui-icon-add-1"></i>&nbsp;添加
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="abolish">
+            <i class="layui-icon layui-icon-edit"></i>&nbsp;删除
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="importDemo">
+            <i class="layui-icon layui-icon-template-1"></i>&nbsp;导入模板
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="import">
+            <i class="layui-icon layui-icon-upload-circle"></i>&nbsp;导入
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="export">
+            <i class="layui-icon layui-icon-download-circle"></i>&nbsp;导出
+        </button>
+    </div>
 </script>
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
@@ -178,11 +191,11 @@
             cols: [[
                 {type: 'checkbox', align: 'center'},
                 {type: 'numbers', align: 'center'},
-                {field: 'material', title: '料号', align: 'center'},
-                {field: 'materialName', title: '品名', align: 'center'},
-                {field: 'materialGroup', title: '物料组', align: 'center'},
-                {field: 'supplierCode', title: '供应商ID', align: 'center'},
-                {field: 'supplier', title: '供应商', align: 'center'}
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
+                {field: 'material', title: '料号', align: 'center', width: 140},
+                {field: 'materialName', title: '品名', align: 'center', minWidth: 300},
+                {field: 'supplierCode', title: '供应商ID', align: 'center', width: 80},
+                {field: 'supplier', title: '供应商', align: 'center', minWidth: 300}
             ]],
             size: 'sm',
             even: true,

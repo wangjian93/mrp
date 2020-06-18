@@ -2,9 +2,7 @@ package com.ivo.mrp2.repository;
 
 import com.ivo.mrp2.entity.MaterialLossRate;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
-import java.sql.Date;
 
 /**
  * @author wj
@@ -15,19 +13,16 @@ public interface MaterialLossRateRepository extends JpaRepository<MaterialLossRa
     /**
      * 获取料号的有效损耗率
      * @param material 料号
-     * @param date 日期
+     * @param effectFlag 有效性
      * @return MaterialLossRate
      */
-    @Query("from mrp_material_loss_rate a where a.material=:material and a.effectDate<=:date and a.expireDate>:date")
-    MaterialLossRate getEffectRate(String material, Date date);
+    MaterialLossRate findFirstByMaterialAndEffectFlag(String material, boolean effectFlag);
 
     /**
      * 获取物料组的有效损耗率
      * @param materialGroup 物料组
-     * @param date 日期
+     * @param effectFlag 有效性
      * @return MaterialLossRate
      */
-    @Query("from mrp_material_loss_rate a where a.materialGroup=:materialGroup and a.material=null and a.effectDate<=:date and a.expireDate>:date")
-    MaterialLossRate getEffectRateByMaterialGroup(String materialGroup, Date date);
-
+    MaterialLossRate findFirstByMaterialGroupAndEffectFlag(String materialGroup, boolean effectFlag);
 }

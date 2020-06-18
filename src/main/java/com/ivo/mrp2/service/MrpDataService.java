@@ -15,5 +15,5 @@ public interface MrpDataService {
      * @param mrpVer MRP版本
      * @return List<MrpData>
      */
-    List<MrpData> getShortMrpData(String mrpVer);
+    List<MrpData> getShortMrpData(String mrpVer, List<String> material);
 }

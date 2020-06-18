@@ -420,7 +420,16 @@
                 {field: 'plant', title: '厂别', align: 'center', rowspan: 2, width: 70},
                 {field: 'materialGroup', title: '物料组', align: 'center', rowspan: 2, width: 70},
                 {field: 'materialName', title: '品名', align: 'center', rowspan: 2, width: 60},
-                {field: 'suppliers', title: '供应商', align: 'center', rowspan: 2, width: 60},
+                {field: 'supplers', title: '供应商', align: 'center', rowspan: 2, width: 60,
+                    templet: function(d){
+                        var supplers = d.supplers;
+                        supplers = supplers.replace('/', '<br>');
+                        supplers = supplers.replace('/', '<br>');
+                        supplers = supplers.replace('/', '<br>');
+                        supplers = supplers.replace(/\//g, '  ');
+                        return '<span>'+supplers+'</span>';
+                    }
+                },
                 {field: 'lossRate', title: '损耗率', align: 'center', rowspan: 2, width: 60},
                 // {field: 'goodInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
                 // {field: 'dullInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},

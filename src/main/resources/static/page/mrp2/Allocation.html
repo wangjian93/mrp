@@ -35,6 +35,10 @@
             color: red;
         }
 
+        .memoClass {
+            background-color: orangered;
+        }
+
         .pointer{
 
             cursor: pointer;
@@ -44,10 +48,36 @@
         .layui-table-view .layui-table td{
             padding: 0px 0px;
         }
-        .layui-table-view .layui-table[lay-size="sm"] .layui-table-cell {
+        .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
             height: auto;
             padding: 0px 5px;
         }
+        .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+
+        .layui-table-view .layui-table[lay-size="sm"] th {
+            height: 40px;
+        }
+        .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+
+        th .weekClass_yellowgreen {
+            background-color: yellowgreen;
+        }
+        th .weekClass_yellow {
+            background-color: yellow;
+        }
+
     </style>
 
     <style>
@@ -165,27 +195,59 @@
                     <div class="layui-inline">
                         <label class="layui-form-label w-auto">MRP:</label>
                         <div class="layui-input-inline">
-                            <select name="mrpVer" id="mrpVer" lay-search="">
-                                <option value="">选择MRP版本</option>
+                            <select name="mrpVer" id="mrpVer" lay-search=""></select>
+                        </div>
+                    </div>
+<!--                    <div class="layui-inline">-->
+<!--                        <label class="layui-form-label w-auto">起止日期:</label>-->
+<!--                        <div class="layui-input-inline">-->
+<!--                            <input id="rangeDate" name="rangeDate" class="layui-input" placeholder="请选择开始和结束日期"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">机种:</label>
+                        <div class="layui-input-inline">
+                            <select name="product" id="product" lay-search="">
+                                <option value="">选择机种</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">物料组:</label>
+                        <div class="layui-input-inline">
+                            <select name="materialGroup" id="materialGroup" lay-search="">
+                                <option value="">选择物料组</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">料号:</label>
+                        <div class="layui-input-inline">
+                            <select name="material" id="material" lay-search="">
+                                <option value="">选择料号</option>
                             </select>
                         </div>
                     </div>
                     <div class="layui-inline" style="padding-right: 110px;">
-                        <button class="layui-btn layui-btn-sm icon-btn" lay-filter="tableSearch" lay-submit>
-                            <i class="layui-icon">&#xe615;</i>搜索
-                        </button>
-
-                        <button class="layui-btn layui-btn-sm icon-btn" lay-filter="tableSearch" lay-submit>
-                            <i class="layui-icon">&#xe615;</i>保存
+                        <button class="layui-btn layui-btn-sm icon-btn" id="tableSearch" lay-filter="tableSearch" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>查询
                         </button>
                     </div>
                 </div>
             </form>
+
             <!-- 表格 -->
             <table id="tableMrpData" lay-filter="tableMrpData"></table>
         </div>
     </div>
 </div>
+
+<script type="text/html" id="tableTitleDemo">
+    <div class='{{d.weekClass}}'>
+        <div>{{d.day}}</div>
+        <div>{{d.week}}</div>
+    </div>
+</script>
 
 <!-- 工具条 -->
 <script type="text/html" id="DemoPlan">
@@ -200,11 +262,7 @@
 
 <script type="text/html" id="mrpDataDemo">
     <div class="plan">
-<!--        <div class="plan_child div_border pointer" lay-event="showDemandQty_{{d.fabDate}}">{{d.demandQty}}</div>-->
-<!--        <div class="plan_child div_border ">{{d.lossQty}}</div>-->
-<!--        <div class="plan_child div_border pointer layui-table-link" lay-event="showArrivalQty_{{d.fabDate}}">{{d.arrivalQty}}</div>-->
-<!--        <div class="plan_child {{d.redClass}}" lay-event="showBalanceQty_{{d.fabDate}}">{{d.balanceQty}}</div>-->
-        <div class="plan_child">{{d.balanceQty}}</div>
+        <div class="plan_child redClass" lay-event="showArrivalQty_{{d.fabDate}}">{{d.shortQt}}</div>
     </div>
 </script>
 <!-- js部分 -->
@@ -258,6 +316,7 @@
                 page: true,
                 limit: 50,
                 size: 'sm',
+                toolbar: true,
                 even: true
             });
         };
@@ -270,43 +329,62 @@
         var buildTableCols = function(days, weeks, months) {
             // 第一行表头
             var col1 = [
-                {type: 'numbers', align: 'center', rowspan: 2, fixed: 'left'},
-                {field: 'products', title: '机种', align: 'center', rowspan: 2, width: 130, fixed: 'left'},
-                {field: 'material', title: '料号', align: 'center', rowspan: 2, width: 100, fixed: 'left'},
+                {type: 'numbers', align: 'center', fixed: 'left'},
+                {field: 'products', title: '机种', align: 'center', width: 130, fixed: 'left'},
+                {field: 'material', title: '料号', align: 'center', width: 100, fixed: 'left'},
                 // {title: '', toolbar: '#DemoPlan',  align: 'center', rowspan: 2, width: 80,   fixed: 'left'},
-                {field: 'plant', title: '厂别', align: 'center', rowspan: 2, width: 70},
-                {field: 'materialGroup', title: '物料组', align: 'center', rowspan: 2, width: 70},
-                {field: 'materialName', title: '品名', align: 'center', rowspan: 2, width: 60},
-                // {field: 'suppliers', title: '供应商', align: 'center', rowspan: 2, width: 60},
-                // {field: 'lossRate', title: '损耗率', align: 'center', rowspan: 2, width: 60},
-                // {field: 'goodInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
-                // {field: 'dullInventoryQty', title: '期初库存', align: 'center', rowspan: 2, width: 60},
+                {field: 'plant', title: '厂别', align: 'center', width: 70},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 70},
+                {field: 'materialName', title: '品名', align: 'center', width: 60},
+                // {field: 'suppliers', title: '供应商', align: 'center', width: 60},
+                // {field: 'lossRate', title: '损耗率', align: 'center', width: 60},
+                // {field: 'goodInventoryQty', title: '期初库存', align: 'center', width: 60},
+                // {field: 'dullInventoryQty', title: '期初库存', align: 'center', width: 60},
             ];
             for(var i=0; i<weeks.length; i++) {
-                col1.push({title: weeks[i], align: 'center', colspan: 1.1, width: 60});
-            }
-            // 第二行表头
-            var col2 = [];
-            for(var j=0; j<days.length; j++) {
-                (function(day) {
+                (function(day, week) {
                     var day_ = day.substring(5, 10);
                     if(day_.indexOf('0') === 0) {
                         day_ = day_.substring(1, 5);
                     }
-                    col2.push(
-                        { field: day, title: day_,  align: 'center', width: 60, style: 'color: red;'}
+                    var weekClass;
+                    if(week === '星期六' || week === '星期日') {
+                        weekClass = "weekClass_yellow";
+                    } else {
+                        weekClass = "weekClass_yellowgreen";
+                    }
+                    var title = laytpl(tableTitleDemo.innerHTML).render({day: day_, week: week, weekClass: weekClass});
+                    col1.push(
+                        {
+                            field: day, title: title,  align: 'center', width: 60,
+                            templet: function(data) {
+                                var d = data[day];
+                                if(!d) {
+                                    d = {
+                                        balanceQty: '',
+                                        lossQty: '',
+                                        demandQty: '',
+                                        arrivalQty:	'',
+                                        shortQt: ''
+                                    };
+                                }
+                                d.fabDate = day;
+                                return laytpl(mrpDataDemo.innerHTML).render(d);
+                            }
+                        }
                     );
-                })(days[j]);
+                })(days[i], weeks[i]);
             }
-            return [col1, col2];
+            return [col1];
         };
 
+        var mrpVer = '';
         /* 表格搜索 */
         form.on('submit(tableSearch)', function (data) {
             if(data.field.mrpVer === "") {
                 return false;
             }
-            var mrpVer = data.field.mrpVer;
+            mrpVer = data.field.mrpVer;
             var calendar = getMrpCalendar(mrpVer);
             var cols = buildTableCols(calendar.days, calendar.weeks, calendar.months);
             tableRender(cols, mrpVer);
@@ -338,18 +416,18 @@
                 type: 2,
                 title: '材料需求量的机种',
                 content: html_URL,
-                area: ['900px', '400px']
+                area: ['500px', '400px']
             });
         };
 
         /* show材料的计划到货量 */
         var showMaterialArrivalQty = function(mrpVer, material, fabDate, obj) {
-            var html_URL = '/page/mrp2/MaterialArrival.html?mrpVer='+mrpVer+"&material="+material+"&fabDate="+fabDate;
+            var html_URL = '/page/mrp2/AllocationMaterial.html?mrpVer='+mrpVer+"&material="+material+"&fabDate="+fabDate;
             admin.open({
                 type: 2,
-                title: '材料到货计划',
+                title: '缺料分配',
                 content: html_URL,
-                area: ['900px', '400px'],
+                area: ['700px', '430px'],
                 end: function() {
                     // 分配后弹框关闭更新料号的数据
                     $.ajax({
@@ -464,6 +542,8 @@
                         $('#mrpVer').append(new Option(data.data[i], data.data[i]));
                     }
                     form.render('select');
+
+                    $("#tableSearch").click();
                 } else {
                     notice.msg(data.msg, {icon: 2});
                 }

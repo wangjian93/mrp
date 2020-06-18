@@ -24,7 +24,7 @@ public class MrpDataServiceImpl implements MrpDataService {
     }
 
     @Override
-    public List<MrpData> getShortMrpData(String mrpVer) {
-        return mrpDataRepository.findByMrpVerAndShortQtyLessThan(mrpVer,0);
+    public List<MrpData> getShortMrpData(String mrpVer, List<String> materialList) {
+        return mrpDataRepository.findByMrpVerAndShortQtyLessThanAndMaterialIn(mrpVer,0, materialList);
     }
 }

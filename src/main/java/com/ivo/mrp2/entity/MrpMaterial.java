@@ -65,4 +65,9 @@ public class MrpMaterial {
      * 期初库存 (呆滞仓)
      */
     private double dullInventory;
+
+    /**
+     * 供应商（供应商对应多个机种时使用'/'分隔）
+     */
+    private String supplier;
 }

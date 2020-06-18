@@ -8,6 +8,7 @@ import com.ivo.common.utils.DoubleUtil;
 import com.ivo.common.utils.ResultUtil;
 import com.ivo.mrp2.entity.MrpVer;
 import com.ivo.mrp2.entity.SupplierArrivalPlan;
+import com.ivo.mrp2.service.MaterialSupplierService;
 import com.ivo.mrp2.service.MrpService2;
 import com.ivo.mrp2.service.SupplierArrivalPlanService;
 import org.apache.commons.lang3.StringUtils;
@@ -38,10 +39,14 @@ public class SupplierArrivalPlanController {
 
     private MrpService2 mrpService;
 
+    private MaterialSupplierService materialSupplierService;
+
     @Autowired
-    public SupplierArrivalPlanController(SupplierArrivalPlanService supplierArrivalPlanService, MrpService2 mrpService) {
+    public SupplierArrivalPlanController(SupplierArrivalPlanService supplierArrivalPlanService, MrpService2 mrpService,
+                                         MaterialSupplierService materialSupplierService) {
         this.supplierArrivalPlanService = supplierArrivalPlanService;
         this.mrpService = mrpService;
+        this.materialSupplierService = materialSupplierService;
     }
 
     /**
@@ -107,7 +112,7 @@ public class SupplierArrivalPlanController {
             supplierArrivalPlan.setDate(fabDate);
             supplierArrivalPlan.setMrpVer(mrpVer);
             supplierArrivalPlan.setSupplierCode(supplier);
-            supplierArrivalPlan.setSupplier(supplier);
+            supplierArrivalPlan.setSupplier(materialSupplierService.getSupplerName(supplier));
             supplierArrivalPlan.setArrivalQty(allocationQty);
             supplierArrivalPlan.setPlant(mrpVerO.getPlant());
             supplierArrivalPlanList.add(supplierArrivalPlan);

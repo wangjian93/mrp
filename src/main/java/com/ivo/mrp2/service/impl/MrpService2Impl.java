@@ -51,6 +51,8 @@ public class MrpService2Impl implements MrpService2 {
 
     private MrpMaterialService mrpMaterialService;
 
+    private MaterialSupplierService materialSupplierService;
+
     @Autowired
     public MrpService2Impl(DpsService dpsService, MrpVerRepository mrpVerRepository, BomService bomService,
                            DemandService demandService, MrpDataRepository mrpDataRepository,
@@ -58,7 +60,7 @@ public class MrpService2Impl implements MrpService2 {
                            SupplierArrivalPlanService supplierArrivalPlanService,
                            InventoryService inventoryService,
                            ProductSliceService productSliceService,
-                           MrpMaterialService mrpMaterialService) {
+                           MrpMaterialService mrpMaterialService, MaterialSupplierService materialSupplierService) {
         this.dpsService = dpsService;
         this.mrpVerRepository = mrpVerRepository;
         this.bomService = bomService;
@@ -69,6 +71,7 @@ public class MrpService2Impl implements MrpService2 {
         this.inventoryService = inventoryService;
         this.productSliceService = productSliceService;
         this.mrpMaterialService =  mrpMaterialService;
+        this.materialSupplierService = materialSupplierService;
     }
 
     @Override
@@ -300,6 +303,18 @@ public class MrpService2Impl implements MrpService2 {
                 }
             }
         }
+
+        //赋值供应商
+        List<MaterialSupplier> materialSupplierList = materialSupplierService.getMaterialSupplier(material);
+        String suppler = "";
+        for(MaterialSupplier materialSupplier : materialSupplierList) {
+            if(StringUtils.isNotEmpty(suppler)) {
+                suppler += "/";
+            }
+            suppler += materialSupplier.getSupplierCode();
+        }
+        mrpMaterial.setSupplier(suppler);
+
         mrpMaterialService.saveMrpMaterial(mrpMaterial);
         mrpDataRepository.saveAll(mrpDataList);
     }
@@ -329,6 +344,7 @@ public class MrpService2Impl implements MrpService2 {
         mrpMaterial.setMaterialName(bomService.getMaterialName(material));
         mrpMaterial.setMaterialGroup(bomService.getMaterialGroup(material));
         mrpMaterial.setLossRate(materialLossRateService.getMaterialLossRate(material));
+
         // 获取期初库存
         Date d = m.getStartDate();
         if(d.after(new java.util.Date())) d = new Date(new java.util.Date().getTime());

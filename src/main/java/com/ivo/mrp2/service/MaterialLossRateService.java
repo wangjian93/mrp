@@ -1,7 +1,9 @@
 package com.ivo.mrp2.service;
 
 import com.ivo.mrp2.entity.MaterialLossRate;
+import org.springframework.data.domain.Page;
 
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -23,4 +25,44 @@ public interface MaterialLossRateService {
      * @return List<MaterialLossRate>
      */
     List<MaterialLossRate> getMaterialLossRate();
+
+    /**
+     * 维护物料的损耗率
+     * @param material 料号
+     * @param lossRate 损耗率
+     */
+    void saveMaterialLossRate(String material, double lossRate, String memo);
+
+    /**
+     * 维护物料组的损耗率
+     * @param materialGroup 物料组
+     * @param lossRate 损耗率
+     */
+    void saveMaterialGroupLossRate(String materialGroup, double lossRate, String memo);
+
+    /**
+     * 废止损耗率
+     * @param ids 损耗率ID
+     */
+    void abolishLossRate(long[] ids);
+
+    /**
+     * 分页查询物料损耗率
+     * @param page 页数
+     * @param limit 分页大小
+     * @param material 料号
+     * @param materialGroup 物料组
+     * @param effectFlag 有效性
+     * @return Page<MaterialLossRate>
+     */
+    Page<MaterialLossRate> getPageMaterialLossRate(int page, int limit, String material, String materialGroup, String effectFlag);
+
+
+    /**
+     * 导入损耗率
+     * @param inputStream excel
+     * @param fileName 文件名
+     */
+    void importLossRate(InputStream inputStream, String fileName);
+
 }

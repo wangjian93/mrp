@@ -121,6 +121,37 @@
 <div class="theme-my">
     <div class="layui-card">
         <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <form class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">厂别:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="plant" placeholder="请输入搜索厂别">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">机种:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="product" placeholder="请输入搜索机种">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">料号:</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="material" placeholder="请输入搜索料号">
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </form>
             <!-- 表格 -->
             <table id="tableBom" lay-filter="tableBom"></table>
         </div>
@@ -128,37 +159,6 @@
 </div>
 
 <script type="text/html" id="toolbarDemo">
-    <!-- 表格工具栏 -->
-    <form class="layui-form toolbar">
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">厂别:</label>
-                <div class="layui-input-inline">
-                    <input class="layui-input" name="plant" placeholder="请输入搜索厂别">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <label class="layui-form-label">机种:</label>
-                <div class="layui-input-inline">
-                    <input class="layui-input" name="product" placeholder="请输入搜索机种">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <label class="layui-form-label">料号:</label>
-                <div class="layui-input-inline">
-                    <input class="layui-input" name="material" placeholder="请输入搜索料号">
-                </div>
-            </div>
-
-            <div class="layui-inline">
-                <button class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
-                    <i class="layui-icon">&#xe615;</i>搜索
-                </button>
-            </div>
-        </div>
-    </form>
 </script>
 
 <!-- js部分 -->
@@ -182,14 +182,15 @@
             page: true,
             limit: 50,
             cols: [[
-                {type: 'numbers', align: 'center', width: 60},
+                {type: 'numbers', align: 'center'},
                 {field: 'plant', title: '厂别', align: 'center'},
-                {field: 'product', title: 'PRODUCT', align: 'center', minWidth: 200},
-                {field: 'material', title: '料号', align: 'center',  minWidth: 200},
-                {field: 'materialName', title: '物料名', align: 'center', width: 350},
+                {field: 'product', title: 'PRODUCT', align: 'center', minWidth: 140},
                 {field: 'materialGroup', title: '物料组', align: 'center'},
+                {field: 'material', title: '料号', align: 'center',  minWidth: 140},
+                {field: 'materialName', title: '物料名', align: 'center', width: 300},
                 {field: 'measureUnit', title: '计量单位', align: 'center'},
-                {field: 'usageQty', title: '使用数量', align: 'center'}
+                {field: 'usageQty', title: '使用数量', align: 'center'},
+                {title: '替代比', align: 'center', templet: function(d) { return 1; }}
             ]],
             size: 'sm',
             even: true,

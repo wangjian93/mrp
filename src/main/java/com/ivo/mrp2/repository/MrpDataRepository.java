@@ -39,7 +39,7 @@ public interface MrpDataRepository extends JpaRepository<MrpData, MrpDataPrimary
 
 
 
-    List<MrpData> findByMrpVerAndShortQtyLessThan(String mrpVer, double less);
+    List<MrpData> findByMrpVerAndShortQtyLessThanAndMaterialIn(String mrpVer, double less, List<String> materialList);
 
 //
 //

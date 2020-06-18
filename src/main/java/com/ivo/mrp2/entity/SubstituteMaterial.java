@@ -6,37 +6,49 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.sql.Date;
 
 /**
- * MRP使用的物料损耗率 （数据MC物管自维护）
+ * 替代料关系维护
  * @author wj
  * @version 1.0
  */
 @Setter
 @Getter
-@Entity(name = "mrp_material_loss_rate")
-public class MaterialLossRate extends AutoIncreaseEntityModel {
+@Entity
+@Table(name = "mrp_substitute_material")
+public class SubstituteMaterial extends AutoIncreaseEntityModel {
 
     /**
-     * 物料组
+     * 替代组
      */
-    private String materialGroup;
+    private int substituteGroup;
 
     /**
-     * 物料
+     * 厂别
+     */
+    private String plant;
+
+    /**
+     * 机种
+     */
+    private String product;
+
+    /**
+     * 料号
      */
     private String material;
 
     /**
-     * 物料名
+     * 物料描述
      */
     private String materialName;
 
     /**
-     * 损耗率
+     * 替代比例
      */
-    private Double lossRate;
+    private double substituteRate;
 
     /**
      * 生效日期
@@ -55,8 +67,4 @@ public class MaterialLossRate extends AutoIncreaseEntityModel {
      */
     private boolean effectFlag;
 
-    /**
-     * 说明
-     */
-    private String memo;
 }

@@ -143,6 +143,7 @@ public class MrpController {
             map.put("materialName", mrpMaterial.getMaterialName());
             map.put("products", mrpMaterial.getProducts());
             map.put("materialGroup", mrpMaterial.getMaterialGroup());
+            map.put("supplers", mrpMaterial.getSupplier());
             for(String month : months) {
                 Map<String, Double> subMap = new HashMap<>();
                 subMap.put("demandQty", 0D);
@@ -172,6 +173,7 @@ public class MrpController {
                 mrpDataMap.put("lossQty", mrpData.getLossQty());
                 mrpDataMap.put("arrivalQty", mrpData.getArrivalQty());
                 mrpDataMap.put("balanceQty", mrpData.getBalanceQty());
+                mrpDataMap.put("shortQt", mrpData.getShortQty());
                 mrpDataMap.put("memo", mrpData.getMemo());
                 map.put(mrpData.getFabDate().toString(), mrpDataMap);
                 // 计算月份汇总

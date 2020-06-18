@@ -3,6 +3,8 @@ package com.ivo.mrp2.service;
 import com.ivo.mrp2.entity.MaterialSupplier;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 /**
  * @author wj
  * @version 1.0
@@ -19,4 +21,25 @@ public interface MaterialSupplierService {
      */
     Page<MaterialSupplier> getPageMaterialSupplier(int page, int limit, String material, String supplierCode);
 
+    /**
+     * 同步品名无赖哦组
+     * @param materialSupplier MaterialSupplier
+     */
+    void syncMaterialGroupAndMaterialName(MaterialSupplier materialSupplier);
+
+
+    /**
+     * 获取材料的供应商
+     * @param material 料号
+     * @return List<MaterialSupplier>
+     */
+    List<MaterialSupplier> getMaterialSupplier(String material);
+
+
+    /**
+     * 获取供应名称
+     * @param supplerCode ID
+     * @return String
+     */
+    String getSupplerName(String supplerCode);
 }
