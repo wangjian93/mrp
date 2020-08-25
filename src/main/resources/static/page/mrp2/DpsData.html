@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>DPS</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- 引入图标 -->
+    <link rel="stylesheet" href="../../assets/iconfont/iconfont.css">
+
+
+    <!-- 表格单元格高宽 -->
+    <style>
+        .layui-table-view .layui-table td .layui-table-cell, .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .layui-table-view .layui-table th .layui-table-cell, .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+
+        .layui-table-view .layui-table td, .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+    </style>
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover {
+            background-color: transparent;
+        }
+    </style>
+    <!-- 增加单元格鼠标悬停效果 -->
+    <style>
+        div .demo:hover{
+            box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+            background-color: lightyellow;
+        }
+    </style>
+</head>
+<body>
+<!-- 页面加载loading -->
+<div class="page-loading">
+    <div class="ball-loader">
+        <span></span><span></span><span></span><span></span>
+    </div>
+</div>
+<!-- 正文开始 -->
+<div class="theme-my layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <!-- 数据表格 -->
+            <table id="tableDps" lay-filter="tableDps"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表头日期格式模板 -->
+<script type="text/html" id="tableTitleDemo">
+    <div {{ d.style }}>
+        <div>{{d.day}}</div>
+        <div style='font-size: 10px;'>{{d.week}}</div>
+    </div>
+</script>
+<!-- DPS模板 -->
+<script type="text/html" id="dpsDataDemo">
+    <div class="demo" style="height: 30px;" onclick="contextMenuClick(this, '{{ d.product }}', '{{ d.fabDate }}')">
+        <div style="font-size: 12px;line-height: 20px;">
+            {{# if(d.sum) { }}
+            <span>{{ d.sum }}</span>
+            {{# } }}
+        </div>
+        <div style="font-size: 10px;line-height: 10px;text-align: right;color: red;">
+            {{# if(d.small) { }}
+            {{# if(d.small<0) { }}
+            <span class="iconfont icon-xiajiang" style="font-size: 10px;"></span>{{ d.small }}
+            {{# } else { }}
+            <span class="iconfont icon-shangsheng" style="font-size: 10px;"></span>{{ d.small }}
+            {{# } }}
+            {{# } }}
+        </div>
+    </div>
+</script>
+
+
+<!-- 表格头部工具栏 -->
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="addProduct">
+            <i class="layui-icon layui-icon-add-1"></i>添加机种
+        </button>
+    </div>
+</script>
+
+<!-- 添加弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">机种</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="product_" name="product" autocomplete="off" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">日期</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="fabDate_" name="fabDate" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">数量</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" name="qty" value="">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script>
+    layui.use(['admin', 'form', 'table', 'notice', 'laytpl', 'contextMenu', 'yutons_sug', 'laydate'], function() {
+        var admin = layui.admin;
+        var form = layui.form;
+        var table = layui.table;
+        var notice = layui.notice;
+        var laytpl = layui.laytpl;
+        var $ = layui.$;
+        var contextMenu = layui.contextMenu;
+        var yutons_sug = layui.yutons_sug;
+        var laydate = layui.laydate;
+
+        /* 获取URL请求的参数 */
+        var getQueryVariable = function (variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if(pair[0] === variable){return pair[1];}
+            }
+            return(false);
+        };
+        var ver = getQueryVariable("ver");
+
+        //获取DPS的版本信息
+        var getDpsVer = function(ver) {
+            var dpsVer = {};
+            $.ajaxSettings.async = false;
+            $.get('/mrp/dps/getDpsVer', {ver: ver}, function(res) {
+                dpsVer=res.data;
+            });
+            $.ajaxSettings.async = true;
+            return dpsVer;
+        };
+
+        /**
+         * 获取Dps版本的日历
+         * @param ver dps版本
+         */
+        var getDpsCalendar = function(ver) {
+            var URL_getCalendar = "/mrp/dps/getDpsCalendar";
+            var calendar = {};
+            $.ajax({
+                type : "get",
+                url: URL_getCalendar,
+                data: {
+                    ver: ver
+                },
+                async : false,
+                success : function(data){
+                    if(data.code === 200) {
+                        calendar =  data.data;
+                    } else {
+                        notice.msg(data.msg, {icon: 2});
+                    }
+                },
+                error: function(res) {
+                    notice.msg("获取Dps版本的日历请求失败，" + res.status, {icon: 2});
+                }
+            });
+            return calendar;
+        };
+
+        /**
+         * 添加表格日期配置
+         * @param days[] 日期数组
+         * @param weeks[]  星期数组
+         */
+        var addColsDay = function(cols, days, weeks) {
+           var col = cols[0];
+            for(var i=0; i<days.length; i++) {
+                (function(day, week) {
+                    var day_ = day.substring(5, 10);
+                    if(day_.indexOf('0') === 0) {
+                        day_ = day_.substring(1, 5);
+                    }
+                    var style = '';
+                    if(week === '星期六' || week === '星期日') {
+                        style = 'style="background-color: yellow"';
+                    } else {
+                        style = 'style="background-color: yellowgreen"';
+                    }
+                    var title = laytpl(tableTitleDemo.innerHTML).render({day: day_, week: week, style: style});
+                    col.push({
+                        field: day,
+                        title: title,
+                        align: 'center',
+                        width: 60,
+                        templet: function (data) {
+                            var mode = {product: data.product, fabDate: day};
+                            if(data[day]) {
+                                mode.qty = data[day].qty;
+                                mode.small = data[day].small;
+                                mode.sum = format(data[day].sum);
+                            } else {
+                                mode.qty = '';
+                                mode.small = '';
+                                mode.sum = '';
+                            }
+                            return laytpl(dpsDataDemo.innerHTML).render(mode);
+                        }
+                    });
+
+                })(days[i], weeks[i]);
+            }
+        };
+
+        //千分位
+        var format = function(num) {
+            var reg=/\d{1,3}(?=(\d{3})+$)/g;
+            return (num + '').replace(reg, '$&,');
+        };
+
+        //渲染DPS数据表格
+        var tableRender = function(ver) {
+            var dpsVer = getDpsVer(ver);
+            var calendar = getDpsCalendar(ver);
+            var cols = [[
+                {type: 'numbers', align: 'center', fixed: 'left'},
+                {field: 'product', title: '产品', align: 'center', width: 150, fixed: 'left'},
+                {field: 'fab', title: '厂别', align: 'center', width: 80},
+                {field: 'totalQty', title: 'Total', align: 'center', width: 80, templet: function(d) { return format(d.totalQty) }}
+            ]];
+            if(dpsVer.fab === 'LCM1' || dpsVer.fab === 'LCM2') {
+                cols[0].push( {field: 'model', title: 'Size', align: 'center', width: 90});
+            }
+            addColsDay(cols, calendar.days, calendar.weeks);
+
+            table.render({
+                elem: '#tableDps',
+                method: 'get',
+                url: '/mrp/dps/getDps',
+                where: {
+                    ver: ver
+                },
+                cols: cols,
+                done: function(res, curr, count){
+                    $(".layui-table-main  tr").each(function (index ,val) {
+                        $($(".layui-table-fixed .layui-table-body tbody tr")[index]).height($(val).height());
+                        $($(".layui-table-fixed .layui-table-header thead tr")[0]).height('40px');
+                    });
+                },
+                // height: 'full-10',
+                page: {layout:['count']},
+                size: 'sm',
+                even: true,
+                toolbar: '#toolbarDemo',
+                height: 'full-20'
+            });
+
+            //头工具栏事件
+            table.on('toolbar(tableDps)', function(obj){
+                if(obj.event === 'addProduct') {
+                    showAddDialog();
+                }
+            });
+        };
+        tableRender(ver);
+
+        //单元格点击事件，展开菜单
+        window.contextMenuClick = function(obj, product, fabDate) {
+            var items = [
+                {
+                    icon: 'iconfont icon-shangsheng',
+                    name: '增量',
+                    click: function () {
+                        resizeQty(obj, ver, product, fabDate, 1);
+                    }
+                },
+                {
+                    icon: 'iconfont icon-xiajiang',
+                    name: '减量',
+                    click: function () {
+                        resizeQty(obj, ver, product, fabDate, 2);
+                    }
+                },
+                {
+                    icon: 'layui-icon layui-icon-delete',
+                    name: '取消调整',
+                    click: function () {
+                        cancelResize(obj, ver, product, fabDate);
+                    }
+                },
+                {
+                    icon: 'layui-icon layui-icon-search',
+                    name: '详情',
+                    click: function () {
+                        layer.msg('点击了' + this.name);
+                    }
+                }
+            ];
+
+            var x = $(obj).offset().left;
+            var y = $(obj).offset().top + $(obj).outerHeight() - $('html,body').scrollTop();
+            contextMenu.show(items, x, y);
+            //阻止事件冒泡
+            event.stopPropagation();
+        };
+
+        //调整请求
+        var resizeQty = function(obj, ver, product, fabData, type) {
+            layer.prompt({  value: '0', title: '调整数量'},function(val, index){
+                layer.close(index);
+                if(type===1) {    //加量
+                    val = val>0 ? val : -val;
+                } else {          //减量
+                    val = val<0 ? val : -val;
+                }
+                $.post('/mrp/dps/resizeQty', {ver: ver, product: product, fabDate: fabData, resizeQty: val }, function(res) {
+                    if(res.code === 200) {
+                        var mode = res.data;
+                        if(mode) {
+                            $(obj).replaceWith(laytpl(dpsDataDemo.innerHTML).render(mode));
+                        }
+                    } else {
+                        notice.msg(res.msg, {icon: 2});
+                    }
+                } );
+            });
+        };
+
+        //取消调整请求
+        var cancelResize = function(obj, ver, product, fabData) {
+            $.post('/mrp/dps/cancelResize', {ver: ver, product: product, fabDate: fabData}, function(res) {
+                if(res.code === 200) {
+                    var mode = res.data;
+                    if(mode) {
+                        $(obj).replaceWith(laytpl(dpsDataDemo.innerHTML).render(mode));
+                    }
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            } );
+        };
+
+        //添加弹框
+        var showAddDialog = function() {
+            admin.open({
+                type: 1,
+                title: '添加',
+                content: $('#addDialog').html(),
+                // area: ['400px', '400px'],
+                btn: ['提交', '取消'],
+                success: function (layero, dIndex) {
+                    yutons_sug.render({
+                        id: "product_",
+                        type: 'sug',
+                        url: '/mrp/product/list',
+                        search: 'product'
+                    });
+                    laydate.render({
+                        elem: '#fabDate_'
+                        ,type: 'date'
+                    });
+                },
+                yes: function(index, layero) {
+                    var data = form.val("addFrom");
+                    $.post('/mrp/dps/resizeQty', {ver: ver, product: data.product, fabDate: data.fabDate, resizeQty: data.qty }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("提交成功", {icon: 5});
+                            layer.close(index);
+                            table.reload('tableDps');
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    } );
+                }
+            });
+        };
+    });
+</script>
+</body>
+</html>

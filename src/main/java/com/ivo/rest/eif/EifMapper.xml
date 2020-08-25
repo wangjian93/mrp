@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ivo.rest.eif.EifMapper">
+  <!-- 获取料号数据 -->
+  <select id="getMaterial" resultType="java.util.HashMap">
+    select Material_ID as material, materialName, MaterialGroup_FK as materialGroup, MeasureUnit_FK as measureUnit
+    from MM_O_Material
+  </select>
+
+  <!-- 获取物料组数据 -->
+  <select id="getMaterialGroup" resultType="java.util.HashMap">
+    select MaterialGroup_id as materialGroup, materialGroupName
+    from MM_O_MaterialGroup
+  </select>
+
+  <!-- 获取机种数据 -->
+  <select id="getProject" resultType="java.util.HashMap">
+    select distinct Substring(ProjectName,0, Len(ProjectName)-len(Substring(ProjectName,CHARINDEX('-',ProjectName)+1,Len(ProjectName)))) as project ,
+                    cut, application, Size_FK as size
+    from  BG_O_Project b
+    where ValidFlag = 1
+      and cut &lt;&gt; ''
+      and cut &lt;&gt; 'NA'
+    order by Substring(ProjectName,0, Len(ProjectName)-len(Substring(ProjectName,CHARINDEX('-',ProjectName)+1,Len(ProjectName)))) ;
+  </select>
+</mapper>
