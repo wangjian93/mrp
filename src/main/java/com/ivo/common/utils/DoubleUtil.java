@@ -10,9 +10,21 @@ import java.math.BigDecimal;
 public class DoubleUtil {
 
     // 保留小数
-    private static final int SCALE = 0;
+    private static final int SCALE = 4;
     // 向上模式
-    private static final int ROUND = BigDecimal.ROUND_CEILING;
+    private static final int ROUND = BigDecimal.ROUND_HALF_UP;
+
+    /**
+     * 数字精度计算，采用的是向上取整
+     * @param num 数字
+     * @param scale 精度
+     * @return Double
+     */
+    public static Double upPrecision(Double num, int scale) {
+        if(num == null) return null;
+        BigDecimal bigDecimal = new BigDecimal(num);
+        return bigDecimal.setScale(scale, BigDecimal.ROUND_UP).doubleValue();
+    }
 
     /**
      * 求和
@@ -47,7 +59,8 @@ public class DoubleUtil {
         }
         BigDecimal bigDecimal1 = new BigDecimal(number1);
         BigDecimal bigDecimal2 = new BigDecimal(number2);
-        return bigDecimal1.subtract(bigDecimal2).doubleValue();
+        BigDecimal d = bigDecimal1.subtract(bigDecimal2);
+        return d.setScale(SCALE, ROUND).doubleValue();
     }
 
     /**
@@ -60,7 +73,7 @@ public class DoubleUtil {
         BigDecimal bigDecimal = new BigDecimal(1);
         for (Double v : values) {
             if (v == null) {
-                return null;
+                return 0D;
             } else {
                 bigDecimal = bigDecimal.multiply(new BigDecimal(v));
                 d = bigDecimal.setScale(SCALE, ROUND).doubleValue();

@@ -6,19 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>权限管理</title>
     <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
 <body>
-<!-- 页面加载loading -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 <!-- 正文开始 -->
 <div class="layui-fluid">
     <div class="layui-card">
@@ -48,9 +42,6 @@
                         <button class="layui-btn icon-btn" lay-filter="authoritiesTbSearch" lay-submit>
                             <i class="layui-icon">&#xe615;</i>搜索
                         </button>&nbsp;
-                        <button id="authoritiesAddBtn" class="layui-btn icon-btn" type="button">
-                            <i class="layui-icon">&#xe654;</i>添加
-                        </button>
                     </div>
                 </div>
             </form>
@@ -129,7 +120,7 @@
 </script>
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['layer', 'form', 'admin', 'treeTable', 'util', 'xmSelect'], function () {
         var $ = layui.jquery;
@@ -141,42 +132,107 @@
         var xmSelect = layui.xmSelect;
         var tbDataList = [];
 
-        // 渲染表格
-        var insTb = treeTable.render({
+        treeTable.render({
             elem: '#authoritiesTable',
+            data: [],
             tree: {
-                iconIndex: 1,
-                idName: 'authorityId',
-                pidName: 'parentId',
+                iconIndex: 2,
+                idName: 'id',
+                pidName: 'pid',
                 isPidData: true
             },
-            cellMinWidth: 100,
-            cols: [
+            cols: [[
                 {type: 'numbers'},
-                {field: 'authorityName', title: '权限名称', width: 300},
-                {title: '菜单图标', templet: '<p><i class="{{d.menuIcon}}"></i></p>', align: 'center', width: 100},
-                {field: 'menuUrl', title: '菜单url'},
-                {field: 'authority', title: '权限标识'},
-                {field: 'orderNumber', title: '排序号', align: 'center', width: 80},
-                {
-                    title: '类型', templet: function (d) {
-                        var strs = [
-                            '<span class="layui-badge layui-badge-green">菜单</span>',
-                            '<span class="layui-badge layui-badge-gray">按钮</span>'
-                        ];
-                        return strs[d.isMenu];
-                    }, align: 'center', width: 80
-                },
-                {title: '创建时间', templet: '<p>{{layui.util.toDateString(d.createTime)}}</p>', align: 'center'},
-                {title: '操作', templet: '#authoritiesTbBar', singleLine: false, align: 'center', width: 120}
-            ],
-            reqData: function (data, callback) {
-                $.get('../../json/authorities.json', function (res) {
-                    tbDataList = res.data ? res.data : [];
-                    callback(res.data);
-                });
-            }
+                {type: 'checkbox'},
+                {field: 'label', title: '料号', width: '10%'},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: '8%'},
+                {field: 'materialGroupName', title: '物料组名', align: 'center', width: '10%', templet: function(d) {
+                        return '<div style="text-align: left">' + d.materialGroupName + '</div>';
+                    }},
+                {field: 'materialName', title: '物料名', align: 'center', width: '36%', templet: function(d) {
+                        return '<div style="text-align: left">' + d.materialName + '</div>';
+                    }},
+                {field: 'measureUnit', title: '单位', align: 'center', width: '8%'},
+                {field: 'usageQty', title: '使用数量', align: 'center', width: '10%'}
+            ]]
         });
+
+
+        var reload = function() {
+            $.get('/mrp/bom/getProductBom', {
+                plant: 'CELL',
+                product: 'G1019 E01/R9/RA(IA)'
+            }, function(res) {
+                var data = res.data;
+                for(var i=0; i<data.length; i++) {
+                    var d = data[i];
+                    if(d.material_!=='') {
+                        d.label = d.material_;
+                        d.pid =  d.material;
+                        d.id = d.material_;
+                    } else {
+                        d.label = d.material;
+                        d.pid =  -1;
+                        d.id = d.material;
+                    }
+                }
+                treeTable.reload('authoritiesTable', {data: data});
+            });
+        };
+        reload();
+
+        // 渲染表格
+        // var insTb = treeTable.render({
+        //     elem: '#authoritiesTable',
+        //     url: '/mrp/bom/getProductBom',
+        //     where: {
+        //         plant: 'CELL',
+        //         product: 'G1019 E01/R9/RA(IA)'
+        //     },
+        //     toolbar: ['<p>',
+        //         '<button lay-event="add" class="layui-btn layui-btn-sm icon-btn"><i class="layui-icon">&#xe654;</i>添加</button>&nbsp;',
+        //         '<button lay-event="del" class="layui-btn layui-btn-sm layui-btn-danger icon-btn"><i class="layui-icon">&#xe640;</i>删除</button>',
+        //         '</p>'].join(''),
+        //     tree: {
+        //         iconIndex: 2,
+        //         idName: 'material_',
+        //         pidName: 'material',
+        //         isPidData: true
+        //     },
+        //     cols: [[
+        //         {type: 'checkbox'},
+        //         {type: 'numbers'},
+        //         {field: 'authorityName', title: '权限名称', minWidth: 150},
+        //         {field: 'material', title: '料号', align: 'center',  width: '15%'},
+        //         {field: 'material_', title: '料号', align: 'center',  width: '15%'},
+        //         {field: 'materialGroup', title: '物料组', align: 'center', width: '8%'},
+        //         {field: 'materialGroupName', title: '物料组名', align: 'center', width: '10%', templet: function(d) {
+        //                 return '<div style="text-align: left">' + d.materialGroupName + '</div>';
+        //             }},
+        //         {field: 'materialName', title: '物料名', align: 'center', width: '36%', templet: function(d) {
+        //                 return '<div style="text-align: left">' + d.materialName + '</div>';
+        //             }},
+        //         {field: 'measureUnit', title: '单位', align: 'center', width: '8%'},
+        //         {field: 'usageQty', title: '使用数量', align: 'center', width: '10%'},
+        //         {title: '菜单图标', templet: '<p><i class="{{d.menuIcon}}"></i></p>', align: 'center', width: 100},
+        //         {field: 'menuUrl', title: '菜单url'},
+        //         {field: 'authority', title: '权限标识'},
+        //         {field: 'orderNumber', title: '排序号', align: 'center', width: 80},
+        //         {
+        //             title: '类型', templet: function (d) {
+        //                 return [
+        //                     '<span class="layui-badge layui-badge-green">菜单</span>',
+        //                     '<span class="layui-badge layui-badge-gray">按钮</span>'
+        //                 ][d.isMenu];
+        //             }, align: 'center', width: 80
+        //         },
+        //         {title: '创建时间', templet: '<p>{{layui.util.toDateString(d.createTime)}}</p>', align: 'center'},
+        //         {title: '操作', toolbar: '#authoritiesTbBar', align: 'center', width: 120}
+        //     ]],
+        //     done: function (data) {
+        //         tbDataList = data;
+        //     }
+        // });
 
         /* 表格操作列点击事件 */
         treeTable.on('tool(authoritiesTable)', function (obj) {
@@ -184,6 +240,23 @@
                 showEditModel(obj.data);
             } else if (obj.event === 'del') { // 删除
                 doDel(obj);
+            }
+        });
+
+        /* 表格头工具栏点击事件 */
+        treeTable.on('toolbar(authoritiesTable)', function (obj) {
+            if (obj.event === 'add') { // 添加
+                showEditModel();
+            } else if (obj.event === 'del') { // 删除
+                var checkRows = insTb.checkStatus();
+                if (checkRows.length === 0) {
+                    layer.msg('请选择要删除的数据', {icon: 2});
+                    return;
+                }
+                var ids = checkRows.map(function (d) {
+                    return d.authorityId;
+                });
+                doDel({ids: ids});
             }
         });
 
@@ -252,13 +325,13 @@
 
         /* 删除 */
         function doDel(obj) {
-            layer.confirm('确定要删除“' + obj.data.authorityName + '”权限吗？', {
+            layer.confirm('确定要删除选中数据吗？', {
                 skin: 'layui-layer-admin',
                 shade: .1
             }, function (i) {
                 layer.close(i);
                 var loadIndex = layer.load(2);
-                $.get('../../json/ok.json', {id: obj.data.authorityId}, function (res) {
+                $.get('../../json/ok.json', {id: obj.data ? obj.data.authorityId : obj.ids}, function (res) {
                     layer.close(loadIndex);
                     if (res.code === 200) {
                         layer.msg(res.msg, {icon: 1});

@@ -53,7 +53,7 @@
         if(mrpVer && material && fabDate) {
             table.render({
                 elem: '#tableMaterialDemandDetail',
-                url: '/mrp/getMaterialDemandDetail',
+                url: '/mrp/mrpData/getMaterialDemandDetail',
                 where: {
                     mrpVer: mrpVer,
                     material: material,
@@ -62,17 +62,17 @@
                 method: 'get',
                 cols: [[
                     {type: 'numbers', align: 'center'},
-                    {field: 'fab', title: 'FAB', align: 'center'},
                     {field: 'dpsVer', title: 'DPS版本', align: 'center', minWidth: 140},
-                    {field: 'fabDate', title: '日期', align: 'center', minWidth: 100},
                     {field: 'product', title: '机种', align: 'center', minWidth: 140},
                     {field: 'dpsQty', title: 'DPS数量', align: 'center'},
                     {field: 'usageQty', title: 'BOM用量', align: 'center'},
                     {field: 'slice', title: '切片数', align: 'center'},
+                    {field: 'substituteRate', title: '替代比', align: 'center'},
                     {field: 'demandQty', title: '需求量', align: 'center'}
                 ]],
-                page: false,
-                size: 'sm'
+                page: {layout: ['count']},
+                size: 'sm',
+                height: 240
             });
         }
     });

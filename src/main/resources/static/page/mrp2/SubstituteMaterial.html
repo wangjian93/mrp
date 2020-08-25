@@ -108,6 +108,18 @@
 
         /** ---------------------------theme-my主题end----------------------------------- */
     </style>
+
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table thead tr, .layui-table-click, .layui-table-header, .layui-table-hover, .layui-table-mend, .layui-table-patch, .layui-table-tool, .layui-table[lay-even] tr:nth-child(even) {
+            background-color: transparent;
+        }
+    </style>
+    <style>
+        .layui-table-view .layui-table[lay-size="sm"] .layui-table-cell {
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 <!-- 页面加载loading -->
@@ -117,36 +129,40 @@
     </div>
 </div>
 <!-- 正文开始 -->
-<div class="theme-my">
+<div class="layui-fluid theme-my">
     <div class="layui-card">
         <div class="layui-card-body">
             <!-- 表格工具栏 -->
             <form class="layui-form toolbar">
                 <div class="layui-form-item">
                     <div class="layui-inline">
-                        <label class="layui-form-label">厂别:</label>
+                        <label class="layui-form-label" style="width: auto;padding-left: 0px;">厂别</label>
                         <div class="layui-input-inline">
-                            <input class="layui-input" name="plant" placeholder="请输入搜索厂别">
+                            <select id="plant" name="plant" lay-filter="plant" class="layui-select">
+                                <option value="LCM1">LCM1</option>
+                                <option value="LCM2">LCM2</option>
+                                <option value="CELL">CELL</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="layui-inline">
-                        <label class="layui-form-label">机种:</label>
+                        <label class="layui-form-label" style="width: auto;">机种</label>
                         <div class="layui-input-inline">
-                            <input class="layui-input" name="product" placeholder="请输入搜索机种">
+                            <input class="layui-input" id="product" name="product" autocomplete="off" placeholder="请输入搜索机种">
                         </div>
                     </div>
 
                     <div class="layui-inline">
-                        <label class="layui-form-label">料号:</label>
+                        <label class="layui-form-label" style="width: auto;">物料组</label>
                         <div class="layui-input-inline">
-                            <input class="layui-input" name="material" placeholder="请输入搜索料号">
+                            <input class="layui-input" id="materialGroup" name="materialGroup" autocomplete="off" placeholder="请输入搜索物料组">
                         </div>
                     </div>
                     &nbsp;
                     <div class="layui-inline">
                         <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
-                            <i class="layui-icon">&#xe615;</i>搜索
+                            <i class="layui-icon">&#xe615;</i>查询
                         </button>
 
                         <button type="button" id="import" hidden></button>
@@ -190,55 +206,66 @@
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['form', 'table', 'laytpl', 'tableX', 'admin'], function() {
+    layui.use(['form', 'table', 'laytpl', 'tableX', 'admin', 'yutons_sug'], function() {
         var form = layui.form;
         var table = layui.table;
         var laytpl = layui.laytpl;
         var tableX = layui.tableX;
         var admin = layui.admin;
+        var yutons_sug = layui.yutons_sug;
 
         // 渲染表格
         table.render({
             elem: '#tableSubstituteMaterial',
-            url: '/mrp/substituteMaterial/getPageSubstituteMaterial',
+            url: '/mrp/materialSubstitute/list',
             cols: [[
                 {type: 'numbers', align: 'center'},
                 {field: 'plant', title: '厂别', align: 'center', width: 80},
-                {field: 'product', title: '机种', align: 'center', width: 140},
-                // {field: 'substituteGroup', title: '替代组', align: 'center', width: 80},
+                {field: 'product', title: '机种', align: 'center', width: 160},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
+                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 80, templet: function(d) {
+                        return '<div style="text-align: left">'+ d.materialGroupName +'</div>'
+                    }},
                 {field: 'material', title: '料号', align: 'center', width: 140},
-                {field: 'materialName', title: '物料名', align: 'center', minWidth: 240},
+                {field: 'materialName', title: '物料名', align: 'center', minWidth: 240, templet: function(d) {
+                     return '<div style="text-align: left">'+ d.materialName +'</div>'
+                    }},
                 {field: 'substituteRate', title: '替代比例', align: 'center', width: 80},
-                {field: 'effectDate', title: '生效日期', align: 'center', width: 100},
-                {field: 'expireDate', title: '失效日期', align: 'center', width: 100},
-                {field: 'effectFlag', title: '有效性', align: 'center', width: 80,
-                    templet: function(d) {
-                        if(d.effectFlag)
-                            return '<span style="color: #409eff;">是</span>';
-                        else
-                            return '<span>否</span>';
-                    }
-                },
                 {field:'substituteGroup', title:'操作', align: 'center', width: 80,
                     templet: function(d) {
-                        if(d.effectFlag)
-                            return laytpl(barDemo.innerHTML).render(d);
-                        else
-                            return '';
+                        return laytpl(barDemo.innerHTML).render(d);
                     }
                 }
             ]],
             where: {
-                plant: '',
+                plant: 'LCM1',
                 product: '',
-                material: ''
+                materialGroup: ''
             },
             page: true,
+            limit: 200,
+            limits: [200],
             size: 'sm',
             toolbar: "#toolbarDemo",
-            height: 'full-50',
-            done: function () {
-                tableX.merges('tableSubstituteMaterial', [1,2]);
+
+            done: function (res, curr, count) {
+                var str = "";
+                var flag = true;
+                for(var i=0; i<res.data.length; i++) {
+                    var plant = res.data[i].plant;
+                    var product = res.data[i].product;
+                    var materialGroup = res.data[i].materialGroup;
+                    var LAY_TABLE_INDEX = res.data[i].LAY_TABLE_INDEX;
+                    if(str !== plant+"-"+product+"-"+materialGroup) {
+                        str = plant+"-"+product+"-"+materialGroup;
+                        flag = !flag;
+                    }
+                    if(flag) {
+                        layui.$('[lay-id="tableSubstituteMaterial"] .layui-table-body tbody tr[data-index="'+LAY_TABLE_INDEX+'"]').css('background-color', '#FDF5E6');
+                    }
+                }
+                var mergeFields = ['plant','product','materialGroup'];
+                tableX.merges('tableSubstituteMaterial', [1,2,3,4,8], [mergeFields,mergeFields,mergeFields,mergeFields,mergeFields]);
             }
         });
 
@@ -306,6 +333,19 @@
                 }
             });
         }
+
+        //输入框输入提示
+        yutons_sug.render({
+            id: "product",
+            type: 'sug',
+            url: '/mrp/product/list?product='
+        });
+        yutons_sug.render({
+            id: "materialGroup",
+            type: 'sug',
+            url: '/mrp/materialGroup/list?materialGroup='
+        });
+
     });
 </script>
 

@@ -272,7 +272,7 @@ public class ExcelUtil {
      * @param cell 单元格
      * @return 单元格内的值
      */
-    private static Object getValue(Cell cell) {
+    public static Object getValue(Cell cell) {
         if (null == cell) {
             return null;
         }
@@ -336,6 +336,25 @@ public class ExcelUtil {
             cell.setCellValue(value.toString());
         }
 
+    }
+
+    public static List<List<Object>> readExcelFirstSheet(InputStream inputStream, String fileName) {
+        List<List<Object>> list;
+        try {
+            if (fileName.endsWith("xls")) {
+                list =  readXlsFirstSheet(inputStream);
+            }
+            else if (fileName.endsWith("xlsx")) {
+                list =  readXlsxFirstSheet(inputStream);
+            }
+            else {
+                throw new IOException("文件类型错误");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("excel读取失败," + e.getMessage(), e);
+        }
+        return list;
     }
 
 }

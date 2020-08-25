@@ -26,166 +26,156 @@
 </div>
 
 <!-- 正文开始 -->
-<div class="layui-card">
-    <form class="layui-form">
-        <div class="layui-card-body">
-            <table id="tableArrivalPlan" lay-filter="tableArrivalPlan"></table>
-        </div>
+<div class="layui-card" style="padding: 0px 10px;">
+    <div class="layui-card-body">
+        <!-- 表格 -->
+        <table id="tableArrivalPlan" lay-filter="tableArrivalPlan"></table>
+        <!-- 按钮 -->
         <div class="text-center" style="padding-top: 15px;padding-bottom: 15px;">
-            <button class="layui-btn layui-btn-sm" lay-filter="saveBtn" lay-submit>保存</button>
-            <button type="button" class="layui-btn layui-btn-sm" ew-event="closeDialog">关闭</button>
+<!--            <button type="button" class="layui-btn layui-btn-sm" id="addBtn" lay-submit>添加</button>-->
+            <button type="button" class="layui-btn layui-btn-sm" id="saveBtn" lay-submit>保存</button>
+            <button type="button" class="layui-btn layui-btn-sm" id="closeBtn" ew-event="closeDialog">关闭</button>
         </div>
-    </form>
+    </div>
 </div>
-<!-- 表格工具列 -->
-<script type="text/html" id="addSupplierToolBar">
-    <div class="dropdown-menu">
-        <button type="button" class="layui-btn layui-btn-sm icon-btn">
-            <i class="layui-icon">&#xe615;</i>添加供应商
-        </button>
-        <div class="dropdown-menu-nav dropdown-bottom-left" style="width: 400px;padding: 15px 15px 0 0;">
-            <div class="dropdown-anchor"></div>
-            <div class="layui-form">
+
+<!-- 弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom">
                 <div class="layui-form-item">
-                    <label class="layui-form-label">供应商:</label>
-                    <div class="layui-input-block">
-                        <input name="supplier" class="layui-input" placeholder="请输入要添加的供应商"/>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">厂商</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="supplier_" name="supplier" autocomplete="off" value="">
+                            <input class="layui-input" id="supplierName_" name="supplierName" autocomplete="off" value="" style="display: none">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">到货量</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="arrivalQty_" name="arrivalQty" autocomplete="off" value="">
+                        </div>
                     </div>
                 </div>
-                <div class="layui-form-item text-right">
-                    <button class="layui-btn icon-btn" lay-filter="addSupplier" lay-submit>
-                        <i class="layui-icon">&#xe615;</i>确定
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['layer', 'steps', 'form', 'table', "notice", "dropdown"], function () {
+    layui.use(['layer', 'steps', 'form', 'table', "notice", "dropdown", 'admin'], function () {
         var table = layui.table;
         var form = layui.form;
         var $ = layui.$;
         var notice = layui.notice;
-        var dropdown = layui.dropdown;
+        var admin = layui.admin;
 
-        /* 获取URL请求的参数 */
-        var getQueryVariable = function (variable) {
-            var query = window.location.search.substring(1);
-            var vars = query.split("&");
-            for (var i=0;i<vars.length;i++) {
-                var pair = vars[i].split("=");
-                if(pair[0] === variable){return pair[1];}
-            }
-            return(false);
-        };
-        var mrpVer = getQueryVariable("mrpVer");
-        var material = getQueryVariable("material");
-        var fabDate = getQueryVariable("fabDate");
+        var plant = admin.getLayerData().plant;
+        var material = admin.getLayerData().material;
+        var fabDate = admin.getLayerData().fabDate;
 
-        if(mrpVer && material && fabDate) {
-            /* 获取关于分配的数据 */
-            $.ajax({
-                type: 'get',
-                url: '/mrp/supplierArrivalPlan/getAllocationList',
-                data: {
-                    mrpVer: mrpVer,
-                    material: material,
-                    fabDate: fabDate
-                },
-                success: function(res){
-                    if(res.code === 200) {
-                        tableRender(res.data);
-                    } else {
-                        notice.msg(res.msg, {icon: 2});
-                    }
-                },
-                error: function(res) {
-                    notice.msg("获取关于分配的数据请求失败，" + res.status, {icon: 2});
-                }
-            });
-        }
-
-        var tableRender = function(data) {
+        $.get('/mrp/supplierArrivalPlan/getMaterialArrivalPlan', {
+            plant: plant,
+            material: material,
+            fabDate: fabDate
+        }, function(res) {
             table.render({
                 elem: '#tableArrivalPlan',
-                data: data,
+                data: res.data,
                 cols: [[
                     {type: 'numbers', align: 'center'},
-                    {field: 'fabDate', title: '日期', align: 'center', minWidth: 110},
-                    {field: 'material', title: '料号', align: 'center', minWidth: 120},
-                    {field: 'supplierCode', title: '供应商ID', align: 'center', minWidth: 100},
-                    {field: 'supplier', title: '供应商', align: 'center', minWidth: 100},
-                    {field: 'arrivalQty', title: '计划到货', align: 'center'},
-                    {field: 'allocationQty', title: '本次分配', align: 'center', minWidth: 100, edit: 'text'}
+                    {field: 'supplier', title: '供应商ID', align: 'center', minWidth: 100},
+                    {field: 'supplierName', title: '供应商', align: 'center', minWidth: 100},
+                    {field: 'arrivalQty', title: '到货量', align: 'center', edit: 'text'}
                 ]],
-                toolbar: '#addSupplierToolBar',
-                page: false,
+                page: {layout: ['count']},
                 size: 'sm'
             });
-        }
-
-        form.on('submit(saveBtn)', function (data) {
-            var tableDate = table.cache["tableArrivalPlan"];
-            var allocation = [];
-            for(var i=0; i<tableDate.length; i++) {
-                allocation.push({supplier: tableDate[i].supplierCode, allocationQty: tableDate[i].allocationQty});
-            }
-            $.ajax({
-                type: 'post',
-                url: '/mrp/supplierArrivalPlan/submit',
-                data: {
-                    mrpVer: mrpVer,
-                    material: material,
-                    fabDate: fabDate,
-                    allocation: JSON.stringify(allocation)
-                },
-                success: function(res){
-                    if(res.code === 200) {
-                        notice.msg(res.msg, {icon: 5});
-                        admin.putLayerData('formOk', true, '#tableArrivalPlan');
-                        admin.closeDialog('#tableArrivalPlan');
-                    } else {
-                        notice.msg(res.msg, {icon: 2});
-                    }
-                },
-                error: function(res) {
-                    notice.msg("供应商分配请求提交失败，" + res.status, {icon: 2});
-                }
-            });
-            return false;
         });
 
-        form.on('submit(addSupplier)', function (data) {
-            var supplier = data.field.supplier;
-            if(!supplier) {
-                notice.msg("填写供应商", {icon: 5});
-                return false;
-            }
-            var oldData = table.cache["tableArrivalPlan"];
-            for(var i=0; i<oldData.length; i++) {
-                if(supplier == oldData[i].supplierCode) {
-                    notice.msg("供应商已存在", {icon: 5});
-                    return false;
-                }
-            }
-            var d = {
-                fabDate: fabDate,
+        // //添加
+        // $("#addBtn").click(function() {
+        //     showAddDialog();
+        // });
+
+        // //修改
+        // table.on('tool(tableArrivalPlan)', function(obj){
+        //     if(obj.event === 'edit') {
+        //         var data = {
+        //             supplier: obj.data.supplier,
+        //             supplierName: obj.data.supplierName,
+        //             arrivalQty: obj.data.arrivalQty
+        //         };
+        //         showAddDialog(data);
+        //     }
+        // });
+
+        // //添加、修改弹框
+        // var showAddDialog = function(data) {
+        //     var title = data ? "修改到货量" : "添加到货量";
+        //     admin.open({
+        //         type: 1,
+        //         title: title,
+        //         content: $('#addDialog').html(),
+        //         btn: ['确定', '取消'],
+        //         area: ['700px', '200px'],
+        //         success: function (layero, dIndex) {
+        //             form.val("addFrom", data);
+        //             if(data) {
+        //                 $('#supplier_').attr("readonly","readonly");
+        //             }
+        //         },
+        //         yes: function(index, layero) {
+        //             var f = form.val("addFrom");
+        //             var data = layui.table.cache['tableArrivalPlan'];
+        //             var edit = false;
+        //             for(var i=0; i<data.length; i++) {
+        //                 if( data[i].supplier === f.supplier ) {
+        //                     data[i].arrivalQty = f.arrivalQty;
+        //                     edit = true;
+        //                     break;
+        //                 }
+        //             }
+        //             if(!edit) {
+        //                 data.push({
+        //                     plant: plant,
+        //                     material: material,
+        //                     date: fabDate,
+        //                     supplier: f.supplier,
+        //                     supplierName: f.supplierName,
+        //                     arrivalQty: f.arrivalQty
+        //                 });
+        //             }
+        //             table.reload('tableArrivalPlan', {data: data});
+        //             layer.close(index);
+        //         }
+        //     });
+        // };
+
+        //保存提交
+        $("#saveBtn").click(function() {
+            var data = layui.table.cache['tableArrivalPlan'];
+            console.log(data);
+            $.post('/mrp/supplierArrivalPlan/bachSubmitArrival', {
+                plant: plant,
                 material: material,
-                supplierCode: supplier,
-                supplier: supplier,
-                arrivalQty: 0,
-                allocationQty: 0
-            };
-            oldData.push(d);
-            table.reload('tableArrivalPlan', {
-                data: oldData
+                fabDate: fabDate,
+                jsons: JSON.stringify(data)
+            }, function(res) {
+                if(res.code === 200) {
+                    admin.putLayerData('editOk', true);
+                    admin.closeThisDialog();
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
             });
-            return false;
         });
+
     });
 </script>
 </body>

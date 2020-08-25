@@ -239,8 +239,9 @@
                 {type: 'checkbox'},
                 {type: 'numbers', align: 'center'},
                 {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
+                {field: 'materialGroupName', title: '组名', align: 'center', minWidth: 200},
                 {field: 'material', title: '料号', align: 'center', minWidth: 100},
-                {field: 'materialName', title: '物料名', align: 'center', minWidth: 300},
+                {field: 'materialName', title: '物料名', align: 'center', minWidth: 200},
                 {field: 'lossRate', title: '损耗率', align: 'center', width: 80},
                 {field: 'expireDate', title: '失效日期', align: 'center'},
                 {title: '有效', align: 'center',
@@ -251,7 +252,7 @@
                             return '<span>否</span>';
                     }
                 },
-                {field: 'memo', title: '说明', align: 'center', minWidth: 200},
+                {field: 'memo', title: '说明', align: 'center', minWidth: 100},
                 {title:'操作', align: 'center',
                     templet: function(d) {
                         if(d.effectFlag)
@@ -265,7 +266,7 @@
             even: true,
             defaultToolbar: [],
             toolbar: "#toolbarDemo",
-            height: 'full-10'
+            height: 'full-65'
         });
 
         /* 表格搜索 */
@@ -378,11 +379,16 @@
         };
 
         // 上传
+        var loadIndex;
         upload.render({
             elem: '#import',
             accept: 'file',
             url: '/mrp/lossRate/importLossRate', //上传接口
+            before: function() {
+                loadIndex = layer.msg('请求中...', {icon: 16, shade: 0.01, time: false});
+            },
             done: function(res){ //上传成功后的回调
+                if(loadIndex) layer.close(loadIndex);
                 if(res.code === 200) {
                     notice.msg('上传成功', {icon: 5});
                     table.reload('tableMaterialScrapRate');

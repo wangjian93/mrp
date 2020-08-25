@@ -259,7 +259,8 @@
             limit: 100,
             limits: [20, 50, 70, 100, 200, 300],
             even: true,
-            toolbar: "#toolbarDemo"
+            toolbar: "#toolbarDemo",
+            height: 'full-65'
         });
 
         table.render({
@@ -354,8 +355,8 @@
             // 第一行表头
             var col1 = [
                 {type: 'numbers', align: 'center', fixed: 'left'},
+                {field: 'model', title: 'Size', align: 'center', fixed: 'left', width: 90, sort: true},
                 {field: 'product', title: '产品', align: 'center', fixed: 'left', width: 150, sort: true},
-                {field: 'model', title: 'Model', align: 'center', fixed: 'left', width: 90, sort: true},
                 {field: 'fab', title: '厂别', align: 'center', fixed: 'left', width: 80},
                 {field: 'total', title: 'QTY', align: 'center', fixed: 'left', width: 80, sort: true}
             ];
@@ -425,15 +426,16 @@
 
         //头工具栏事件
         table.on('toolbar(tableDps)', function(obj){
+            var dpsVer = $("#dpsVer").val();
             switch(obj.event){
                 case 'import':
                     $("#file-btn-upload").click();
                     break;
                 case 'export':
-                    layer.msg('功能开发中。。。');
+                    window.open('/mrp/dps/exportDps?dpsVer=' + dpsVer);
                     break;
                 case 'importDemo':
-                    layer.msg('功能开发中。。。');
+                    window.open('/mrp/dps/exportDpsDemo');
                     break;
             }
         });

@@ -12,6 +12,15 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <style>
+        .layui-layout-admin .layui-logo {
+            font-size: 38px;
+        }
+        .layui-layout-admin .layui-header .layui-logo img {
+            height: 38px;
+        }
+    </style>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -19,7 +28,7 @@
     <div class="layui-header">
         <div class="layui-logo">
             <img src="assets/images/logo.png"/>
-            <cite>&nbsp;MRP</cite>
+            <cite>MRP</cite>
         </div>
         <ul class="layui-nav layui-layout-left">
             <li class="layui-nav-item" lay-unselect>
@@ -48,13 +57,13 @@
             <li class="layui-nav-item" lay-unselect>
                 <a>
                     <img src="assets/images/head.jpg" class="layui-nav-img">
-                    <cite>管理员</cite>
+                    <cite id="user">管理员</cite>
                 </a>
                 <dl class="layui-nav-child">
-                    <dd lay-unselect><a ew-href="page/template/user-info.html">个人中心</a></dd>
-                    <dd lay-unselect><a ew-event="psw">修改密码</a></dd>
-                    <hr>
-                    <dd lay-unselect><a ew-event="logout" data-url="page/template/login/login.html">退出</a></dd>
+<!--                    <dd lay-unselect><a ew-href="page/template/user-info.html">个人中心</a></dd>-->
+<!--                    <dd lay-unselect><a ew-event="psw">修改密码</a></dd>-->
+<!--                    <hr>-->
+                    <dd lay-unselect><a ew-event="logout" data-url="/logout">退出</a></dd>
                 </dl>
             </li>
             <li class="layui-nav-item" lay-unselect>
@@ -68,39 +77,56 @@
         <div class="layui-side-scroll">
             <ul class="layui-nav layui-nav-tree arrow2" lay-filter="admin-side-nav" lay-shrink="all">
                 <li class="layui-nav-item">
-                    <a lay-href="page/mrp/materialScrapRate.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>物料损耗率</cite></a>
+                    <a lay-href="page/mrp2/MaterialLossRate.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>物料损耗率维护</cite></a>
                 </li>
                 <li class="layui-nav-item">
-                    <a lay-href="page/mrp/mrp_bom.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>BOM清单</cite></a>
+                    <a lay-href="page/mrp2/MaterialSubstitute.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>替代料维护</cite></a>
                 </li>
                 <li class="layui-nav-item">
-                    <a lay-href="page/mrp/mrp_dps.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>DPS</cite></a>
-                </li>
-                <li class="layui-nav-item">
-                    <a lay-href="page/mrp2/MrpVerInfo.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>MRP</cite></a>
-                </li>
-                <li class="layui-nav-item">
-                    <a lay-href="page/mrp2/SupplierArrivalPlan.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>供应商到货计划</cite></a>
+                    <a lay-href="page/mrp2/Bom2.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>机种BOM</cite></a>
                 </li>
                 <li class="layui-nav-item">
                     <a lay-href="page/mrp2/MaterialSupplier.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>材料与供应商</cite></a>
                 </li>
                 <li class="layui-nav-item">
-                    <a lay-href="page/mrp2/Allocation.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>缺料分配</cite></a>
+                    <a lay-href="page/mrp2/DpsVer.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>DPS</cite></a>
                 </li>
                 <li class="layui-nav-item">
-                    <a lay-href="page/mrp2/SubstituteMaterial.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>替代料维护</cite></a>
+                    <a lay-href="page/mrp2/MpsVer.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>MPS</cite></a>
                 </li>
+                <li class="layui-nav-item">
+                    <a lay-href="page/mrp2/MonthSettlement.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>机种跨月结算</cite></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a lay-href="page/mrp2/MrpVerInfo.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>MRP</cite></a>
+                </li>
+<!--                <li class="layui-nav-item">-->
+<!--                    <a lay-href="page/mrp2/Allocation.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>缺料分配</cite></a>-->
+<!--                </li>-->
+
+<!--                <li class="layui-nav-item">-->
+<!--                    <a lay-href="page/mrp2/MrpAllocation.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>分配结果汇总</cite></a>-->
+<!--                </li>-->
+                <li class="layui-nav-item">
+                    <a lay-href="page/mrp2/SupplierArrivalPlan2.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>供应商到货计划</cite></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a lay-href="page/mrp2/ShortMaterial.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>缺料报表</cite></a>
+                </li>
+<!--                <li class="layui-nav-item">-->
+<!--                    <a lay-href="page/mrp2/kunnr.html"><i class="layui-icon layui-icon-template"></i>&emsp;<cite>机种与客户</cite></a>-->
+<!--                </li>-->
             </ul>
         </div>
     </div>
 
     <!-- 主体部分 -->
     <div class="layui-body"></div>
+
     <!-- 底部 -->
     <div class="layui-footer layui-text">
-        copyright © 2020 <a href="http://easyweb.vip" target="_blank">easyweb.vip</a> all rights reserved.
-        <span class="pull-right">Version 3.1.7</span>
+        MRP © 2020 <a href="http://myivo.ivo.com.cn" target="_blank">myivo</a>
+        <span class="pull-right">Version 0.0.3</span>
     </div>
 </div>
 
@@ -119,12 +145,17 @@
         var $ = layui.jquery;
         var index = layui.index;
 
+        $.get('/getLoginUser',{}, function(res) {
+            if(res.code === 200) {
+                $("#user").html(res.data);
+            }
+        });
+
         // 默认加载主页
         index.loadHome({
             menuPath: 'page/console/console.html',
             menuName: '<i class="layui-icon layui-icon-home"></i>'
         });
-
     });
 </script>
 </body>

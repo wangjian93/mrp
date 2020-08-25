@@ -1,13 +1,20 @@
+debug:
+  false
 server:
-  port: 8083
-
+  port: 8080
 spring:
   datasource:
     # 主数据源  Mysql
     primary:
-      url: jdbc:mysql://localhost:3306/mrp_db2?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      url: jdbc:mysql://10.20.46.54:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
       password: root
+#      url: jdbc:mysql://10.20.2.9/clienterp?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+#      username: test
+#      password: test
+#      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+#      username: scm
+#      password: scmdb
     # DPS数据库
     dpsdb:
       url: jdbc:mysql://10.10.2.115:3306/dps_lcm?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
@@ -19,11 +26,22 @@ spring:
       username: SYS_ARC
       password: SYS_ARC_201908_00_admin
       validation-query: SELECT 1
+    # FCSTDB数据库
+    fcstdb:
+      url: jdbc:jtds:sqlserver://10.20.2.187/FCSTDB
+      username: EIM_FCST
+      password: EIM_FCST@2019_ERP
+      validation-query: SELECT 1
     # ORACLE数据库
     oracle:
       url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.233)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.234)(PORT=1521))(LOAD_BALANCE=yes)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kabedw)))
       username: etl
       password: etl
+    #CELL的DPS数据库
+    celldpsdb:
+      url: jdbc:mysql://10.20.2.75:3306/dps?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: Ivo123
 
     druid:
       aop-patterns: com.ivo.*

@@ -32,7 +32,10 @@
             <div class="layui-card">
                 <div class="layui-card-header">点击方式触发</div>
                 <div class="layui-card-body text-center" style="padding: 43px 0;">
-                    <button id="ctxMenuBtn" class="layui-btn">请点击我</button>
+                    <button id="ctxMenuBtn" class="layui-btn" onclick="ctxMenuBtn(this)">请点击我</button>
+                </div>
+                <div class="layui-card-body text-center" style="padding: 43px 0;">
+                    <button id="ctxMenuBtn2" class="layui-btn">请点击我</button>
                 </div>
             </div>
         </div>
@@ -132,12 +135,23 @@
         contextMenu.bind('#ctxMenuDiv', items);
 
         // 点击方式触发
-        $('#ctxMenuBtn').click(function (e) {
+        $('#ctxMenuBtn2').click(function (e) {
             var x = $(this).offset().left;
             var y = $(this).offset().top + $(this).outerHeight() - $('html,body').scrollTop();
+            console.log(x + "    " + y);
+            console.log(e);
             contextMenu.show(items, x, y);
             e.stopPropagation();
         });
+        window.ctxMenuBtn = function(obj) {
+            //阻止事件冒泡
+            event.stopPropagation();
+            console.log(event);
+            var x = $(obj).offset().left;
+            var y = $(obj).offset().top + $(obj).outerHeight() - $('html,body').scrollTop();
+            contextMenu.show(items, x, y);
+            console.log(x+"   "+y);
+        };
 
         // 全局鼠标右键菜单
         contextMenu.bind('html', [

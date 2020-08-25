@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  * @version 1.0
  */
 @Configuration
-@MapperScan(basePackages = "com.ivo.rest.eif.mapper", sqlSessionFactoryRef = "eifSqlSessionFactory")
+@MapperScan(basePackages = {"com.ivo.rest.eif"}, sqlSessionFactoryRef = "eifSqlSessionFactory")
 public class EifMybatisConfig {
 
     private DataSource eifDatasource;
@@ -32,7 +32,7 @@ public class EifMybatisConfig {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(eifDatasource);
         bean.setMapperLocations(
-                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/eif/mapper/*.xml"));
+                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/eif/*.xml"));
         return bean.getObject();
     }
 

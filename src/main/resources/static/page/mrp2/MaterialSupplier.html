@@ -117,34 +117,66 @@
     </div>
 </div>
 <!-- 正文开始 -->
-<div class="theme-my">
+<div class="theme-my layui-fluid">
     <div class="layui-card">
         <div class="layui-card-body">
-            <!-- 表格工具栏 -->
-            <form class="layui-form toolbar">
-                <div class="layui-form-item">
-                    <div class="layui-inline">
-                        <label class="layui-form-label">料号:</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="material" placeholder="请输入搜索料号">
-                        </div>
-                    </div>
-                    <div class="layui-inline">
-                        <label class="layui-form-label">供应商:</label>
-                        <div class="layui-input-inline">
-                            <input class="layui-input" name="supplierCode" placeholder="请输入搜索料号">
-                        </div>
+            <div class="layui-tab layui-tab-brief">
+                <ul class="layui-tab-title">
+                    <li class="layui-this">材料与供应商关联</li>
+                    <li>供应商信息维护</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <!-- 表格工具栏 -->
+                        <form class="layui-form toolbar" lay-filter="searchFrom">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label" style="width: auto;padding-left: 0px;">料号:</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" id="material" name="material" placeholder="请输入搜索料号" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div class="layui-inline">
+                                    <label class="layui-form-label" style="width: auto;">供应商:</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" id="supplier" name="supplier" placeholder="请输入搜索供应商名" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <div class="layui-inline">
+                                    <button type="button" class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
+                                        <i class="layui-icon">&#xe615;</i>查询
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- 表格 -->
+                        <table id="tableMaterialSupplier" lay-filter="tableMaterialSupplier"></table>
                     </div>
 
-                    <div class="layui-inline">
-                        <button type="button" class="layui-btn icon-btn layui-btn-sm"  lay-filter="search" lay-submit>
-                            <i class="layui-icon">&#xe615;</i>查询
-                        </button>
+                    <div class="layui-tab-item">
+                        <!-- 表格工具栏 -->
+                        <form class="layui-form toolbar">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label" style="width: auto;">供应商:</label>
+                                    <div class="layui-input-inline">
+                                        <input class="layui-input" id="supplier_2" name="supplier" placeholder="请输入搜索供应商名" autocomplete="off">
+                                    </div>
+                                </div>
+                                <div class="layui-inline">
+                                    <button type="button" class="layui-btn icon-btn layui-btn-sm"  lay-filter="search_2" lay-submit>
+                                        <i class="layui-icon">&#xe615;</i>查询
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- 表格 -->
+                        <table id="tableSupplier" lay-filter="tableSupplier"></table>
                     </div>
                 </div>
-            </form>
-            <!-- 表格 -->
-            <table id="tableMaterialSupplier" lay-filter="tableMaterialSupplier"></table>
+            </div>
         </div>
     </div>
 </div>
@@ -153,10 +185,10 @@
 <script type="text/html" id="toolbarDemo">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm icon-btn" lay-event="add">
-            <i class="layui-icon layui-icon-add-1"></i>&nbsp;添加
+            <i class="layui-icon layui-icon-add-1"></i>&nbsp;材料添加供应商
         </button>
-        <button class="layui-btn layui-btn-sm icon-btn" lay-event="abolish">
-            <i class="layui-icon layui-icon-edit"></i>&nbsp;删除
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="delete">
+            <i class="layui-icon layui-icon-edit"></i>&nbsp;材料删除供应商
         </button>
         <button class="layui-btn layui-btn-sm icon-btn" lay-event="importDemo">
             <i class="layui-icon layui-icon-template-1"></i>&nbsp;导入模板
@@ -169,34 +201,129 @@
         </button>
     </div>
 </script>
+
+<!-- 表格单元格模板 -->
+<script type="text/html" id="materialNameDemo">
+    <div style="text-align: left">{{ d.materialName }}</div>
+</script>
+<script type="text/html" id="supplierDemo">
+    <div style="text-align: left">{{ d.supplier }}</div>
+</script>
+<script type="text/html" id="sNameDemo">
+    <div style="text-align: left">{{ d.sName }}</div>
+</script>
+
+
+<!-- 添加弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">料号选择</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="material_" name="material" autocomplete="off" value="">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">供应商选择</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="supplier_" name="supplier_" autocomplete="off" value="">
+                            <input class="layui-input" id="supplierCode_" name="supplierCode" autocomplete="off" value="" style="display: none">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
+
+<!-- 表格头部工具栏 -->
+<script type="text/html" id="toolbarDemo_supplier">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="import">
+            <i class="layui-icon layui-icon-upload-circle"></i>&nbsp;导入
+        </button>
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="export">
+            <i class="layui-icon layui-icon-download-circle"></i>&nbsp;导出
+        </button>
+    </div>
+</script>
+
+<!-- 表格工具栏 -->
+<script type="text/html" id="editBarDemo">
+    <i class="layui-icon layui-icon-edit" style="font-size: 18px; color: #1E9FFF;" lay-event="edit"></i>
+</script>
+
+<!-- 表格单元格模板 -->
+<script type="text/html" id="supplierNameDemo">
+    <div style="text-align: left">{{ d.name }}</div>
+</script>
+<script type="text/html" id="supplierSnameDemo">
+    <div style="text-align: left">{{ d.sname }}</div>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['form', 'table'], function () {
+    layui.use(['form', 'table', 'yutons_sug', 'notice', 'admin', 'element', 'layer'], function () {
         var form = layui.form;
         var table = layui.table;
+        var yutons_sug = layui.yutons_sug;
+        var notice = layui.notice;
+        var admin = layui.admin;
+        var $=layui.$;
+        var element = layui.element;
+        var layer = layui.layer;
+
+        //输入框输入提示
+        yutons_sug.render({
+            id: "material",
+            type: 'sug',
+            url: '/mrp/material/list',
+            search: 'material'
+        });
+        yutons_sug.render({
+            id: "supplier",
+            type: 'sug',
+            url: '/mrp/supplier/list2',
+            search: 'supplier'
+        });
+        yutons_sug.render({
+            id: "supplier_2",
+            type: 'sug',
+            url: '/mrp/supplier/list2',
+            search: 'supplier'
+        });
+
 
         /* 表格渲染 */
         table.render({
             elem: '#tableMaterialSupplier',
-            url: '/mrp/materialSupplier/listMaterialSupplier',
-            method: 'get',
+            url: '/mrp/materialSupplier/list',
             where: {
                 material: '',
                 supplier: ''
             },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {type: 'checkbox', align: 'center'},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: '7%'},
+                {field: 'material', title: '料号', align: 'center', width: '13%'},
+                {field: 'materialName', title: '品名', align: 'center', templet: '#materialNameDemo'},
+                {field: 'supplierCode', title: '供应商ID', align: 'center', width: '10%'},
+                {field: 'supplier', title: '供应商', align: 'center', width: '20%', templet: '#supplierDemo'},
+                {field: 'sName', title: '简称', align: 'center', width: '15%', templet: '#sNameDemo'}
+            ]],
             page: true,
             limit: 50,
-            cols: [[
-                {type: 'checkbox', align: 'center'},
-                {type: 'numbers', align: 'center'},
-                {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
-                {field: 'material', title: '料号', align: 'center', width: 140},
-                {field: 'materialName', title: '品名', align: 'center', minWidth: 300},
-                {field: 'supplierCode', title: '供应商ID', align: 'center', width: 80},
-                {field: 'supplier', title: '供应商', align: 'center', minWidth: 300}
-            ]],
             size: 'sm',
             even: true,
             toolbar: '#toolbarDemo',
@@ -210,6 +337,153 @@
                 page: { curr: 1 }
             });
             return false;
+        });
+
+        //头工具栏事件
+        table.on('toolbar(tableMaterialSupplier)', function(obj){
+            switch(obj.event){
+                case 'add':
+                    add();
+                    break;
+                case 'delete':
+                    var checkStatus = table.checkStatus('tableMaterialSupplier');
+                    del(checkStatus.data);
+                    break;
+            }
+        });
+
+        //添加
+        var add =  function() {
+            admin.open({
+                type: 1,
+                title: '添加',
+                content: $('#addDialog').html(),
+                btn: ['提交', '取消'],
+                area: ['600px', '400px'],
+                success: function (layero, dIndex) {
+                    //输入框输入提示
+                    yutons_sug.render({
+                        id: "material_",
+                        type: 'sug',
+                        url: '/mrp/material/list',
+                        search: 'material'
+                    });
+                    yutons_sug.render({
+                        id: "supplier_",
+                        type: 'sugTable',
+                        url: '/mrp/supplier/list?supplier=',
+                        cols: [[
+                            {type: 'numbers', align: 'center'},
+                            {field: 'id', title: 'ID', align: 'center', width: 70},
+                            {field: 'name', title: '名称', align: 'left', width: 200},
+                            {field: 'sname', title: '简称', align: 'left', width: 120}
+                        ]],
+                        page: {layout:['count']},
+                        params: [
+                            {name: 'supplierCode', field: 'id'},
+                            {name: 'supplier_', field: 'name'}
+                        ]
+                    });
+                },
+                yes: function(index, layero) {
+                    var data = form.val("addFrom");
+                    $.get('/mrp/materialSupplier/add', data, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("提交成功", {icon: 5});
+                            layer.close(index);
+                            form.val('searchFrom', {
+                                plant: data.material,
+                                month: data.supplier
+                            });
+                            table.reload('tableMaterialSupplier', {
+                                where: {
+                                    plant: data.material,
+                                    month: data.supplier
+                                },
+                                page: {curr: 1}
+                            });
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    });
+                }
+            });
+        };
+
+        //删除
+        var del = function(data) {
+            var materialSupplier = [];
+            for(var i=0; i<data.length; i++) {
+                materialSupplier.push({
+                    material: data[i].material,
+                    supplierCode: data[i].supplierCode
+                })
+            }
+            $.post('/mrp/materialSupplier/delete', {materialSupplierJsons: JSON.stringify(materialSupplier)}, function(res) {
+                if(res.code === 200) {
+                    table.reload('tableMaterialSupplier');
+                    notice.msg("删除成功", {icon: 5});
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            });
+        };
+
+
+        //渲染表格
+        table.render({
+            elem: '#tableSupplier',
+            url: '/mrp/supplier/getPageSupplier',
+            where: {
+                supplier: ''
+            },
+            width: 800,
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'id', title: '供应商ID', align: 'center', width: 90},
+                {field: 'name', title: '供应商名称', align: 'center', templet: '#supplierNameDemo', width: 300},
+                {field: 'sname', title: '简称', align: 'center', width: 150 },
+                {title: '简称修改', align: 'center', width: 150, templet: '#editBarDemo'}
+            ]],
+            page: true,
+            limit: 50,
+            even: true,
+            size: 'sm',
+            toolbar: '#toolbarDemo_supplier',
+            height: 'full-10'
+        });
+
+        /* 表格搜索 */
+        form.on('submit(search_2)', function (data) {
+            table.reload('tableSupplier', {
+                where: data.field,
+                page: { curr: 1 }
+            });
+            return false;
+        });
+
+        //监听行工具事件
+        table.on('tool(tableSupplier)', function(obj) {
+            if(obj.event === 'edit') {
+                var data = obj.data;
+                var title = '修改'+data.name+"简称";
+                layer.prompt({title: title, formType: 0}, function(text, index){
+                    $.get('/mrp/supplier/editName', {
+                        supplierCode: data.id,
+                        sName: text
+                    }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("修改成功", {icon: 5});
+                            data.sname = text;
+                            obj.update(data);
+                            layer.close(index);
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+
+                    });
+                });
+            }
         });
     });
 </script>

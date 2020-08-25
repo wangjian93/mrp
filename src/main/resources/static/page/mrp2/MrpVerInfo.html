@@ -109,6 +109,17 @@
         /** ---------------------------theme-my主题end----------------------------------- */
     </style>
 
+    <style>
+        .layui-table-view .layui-table[lay-size="sm"] .layui-table-cell {
+            height: auto;
+        }
+    </style>
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover {
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body>
 <!-- 加载动画 -->
@@ -119,7 +130,7 @@
 </div>
 
 <!-- 正文开始 -->
-<div class="theme-my">
+<div class="theme-my layui-fluid">
     <div class="layui-card" style="min-height:700px">
         <div class="layui-card-body">
             <!-- 表格工具栏 -->
@@ -144,14 +155,71 @@
     </div>
 </div>
 
+<!-- 表格头部工具栏 -->
 <script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm icon-btn" lay-event="runMrp">
+            <i class="layui-icon layui-icon-add-1"></i>运行MRP
+        </button>
+    </div>
 </script>
+
+<!-- 表格工具栏 -->
+<script type="text/html" id="toolDemo">
+    <button type="button" class="layui-btn layui-btn-xs" lay-event="show">
+        <i class="layui-icon layui-icon-form"/>查看
+    </button>
+<!--    <button type="button" class="layui-btn layui-btn-xs" lay-event="update">-->
+<!--        <i class="layui-icon layui-icon-refresh"/>更新-->
+<!--    </button>-->
+    <button type="button" class="layui-btn layui-btn-xs" lay-event="delete">
+        <i class="layui-icon layui-icon-delete"/>删除
+    </button>
+    <button type="button" class="layui-btn layui-btn-xs" lay-event="allocation">
+        <i class="layui-icon layui-icon-edit"/>分配
+    </button>
+    <button type="button" class="layui-btn layui-btn-xs" lay-event="update">
+        <i class="layui-icon layui-icon-refresh"/>更新
+    </button>
+</script>
+
+
+<!-- 添加弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">DPS版本</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="dpsVer_" name="dpsVer" autocomplete="off" value="">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">MPS版本</label>
+                        <div class="layui-input-inline">
+                            <input class="layui-input" id="mpsVer_" name="mpsVer" autocomplete="off" value="">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['layer', 'steps', 'form', 'table'], function () {
+    layui.use(['form', 'layer', 'steps', 'form', 'table', 'admin', 'notice'], function () {
         var table = layui.table;
+        var admin = layui.admin;
+        var form = layui.form;
+        var $ = layui.$;
+        var notice = layui.notice;
 
         /* 表格渲染 */
         table.render({
@@ -160,15 +228,18 @@
             method: 'get',
             cols: [[
                 {type: 'numbers', align: 'center'},
-                {title: 'MRP版本', align: 'center', minWidth: 200,
+                {title: 'MRP版本', align: 'center', width: 140,
                     templet: '<div><a href="javascript:;" class="layui-table-link" onclick="showMrpData(\'{{d.mrpVer}}\')">{{d.mrpVer}}</a></div>'
                 },
-                {field: 'dpsVer', title: 'DPS版本', align: 'center', minWidth: 180},
-                {field: 'mpsVer', title: 'MPS版本', align: 'center'},
-                {field: 'startDate', title: '开始日期', align: 'center'},
-                {field: 'endDate', title: '结束日期', align: 'center'},
-                {field: 'plant', title: '厂别', align: 'center'},
-                {field: 'status', title: '状态', align: 'center'}
+                {field: 'plant', title: '厂别', align: 'center', width: 80},
+                {field: 'dpsVer', title: 'DPS版本', align: 'center', width: 160, templet: function(d) {
+                    return '<span>'+d.dpsVer.replace(/,/g, '<br>')+'</span>';
+                }},
+                {field: 'mpsVer', title: 'MPS版本', align: 'center', width: 160},
+                {field: 'startDate', title: '开始日期', align: 'center', width: 120},
+                {field: 'endDate', title: '结束日期', align: 'center', width: 120},
+                //{field: 'status', title: '状态', align: 'center', templet: function() {return '完成'}},
+                {title: '操作', align: 'center', templet: '#toolDemo'}
             ]],
             height: 'full-50',
             page: true,
@@ -178,10 +249,83 @@
             toolbar: '#toolbarDemo'
         });
 
+        //头工具栏事件
+        table.on('toolbar(tableMrpVer)', function(obj){
+            if(obj.event === 'runMrp') {
+                showAddDialog();
+            }
+        });
+
+        //表格行工具栏事件
+        table.on('tool(tableMrpVer)', function(obj){
+            if(obj.event === 'show') {
+                showMrpData(obj.data.mrpVer);
+            }
+            if(obj.event === 'allocation') {
+                var URL ="/page/mrp2/Allocation.html?mrpVer="+obj.data.mrpVer;
+                window.open(URL);
+            }
+            if(obj.event === 'update') {
+                update(obj.data.mrpVer);
+            }
+            if(obj.event === 'delete') {
+                del(obj.data.mrpVer);
+            }
+        });
+
         /* 打开MRP数据页面 */
         window.showMrpData = function(mrpVer) {
-            var URL ="/page/mrp2/MrpData2.html?mrpVer="+mrpVer;
+            var URL ="/page/mrp2/MrpData.html?mrpVer="+mrpVer;
             window.open(URL);
+        };
+
+        //添加弹框
+        var showAddDialog = function() {
+            admin.open({
+                type: 1,
+                title: '选择DPS & MPS版本',
+                content: $('#addDialog').html(),
+                btn: ['提交', '取消'],
+                success: function (layero, dIndex) {
+                },
+                yes: function(index, layero) {
+                    var data = form.val("addFrom");
+                    var loadIndex = layer.msg('MRP执行计算中...', {icon: 16, shade: 0.01, time: false});
+                    $.post('/mrp/runMrp', {dpsVer: data.dpsVer, mpsVer: data.mpsVer }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("提交成功", {icon: 5});
+                            table.reload('tableMrpVer');
+                            layer.close(loadIndex);
+                        } else {
+                            layer.close(loadIndex);
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    } );
+                    layer.close(index);
+                }
+            });
+        };
+
+        //更新MRP
+        var update = function(mrpVer) {
+            $.get('/mrp/mrpData/updateMrp', {mrpVer: mrpVer}, function(res) {
+                if(res.code === 200) {
+                    notice.msg(mrpVer+"版本MRP更新完成", {icon: 5});
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            });
+        };
+
+        //删除版本
+        var del = function(mrpVer) {
+            $.get('/mrp/mrpVer/deleteMrp', {mrpVer: mrpVer}, function(res) {
+                if(res.code === 200) {
+                    table.reload('tableMrpVer');
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            });
         };
     });
 </script>

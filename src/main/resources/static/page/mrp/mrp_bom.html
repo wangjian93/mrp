@@ -127,7 +127,11 @@
                     <div class="layui-inline">
                         <label class="layui-form-label">厂别:</label>
                         <div class="layui-input-inline">
-                            <input class="layui-input" name="plant" placeholder="请输入搜索厂别">
+                            <select name="plant" id="plant" lay-search="">
+                                <option value="LCM1">LCM1</option>
+                                <option value="LCM2">LCM2</option>
+                                <option value="CELL">CELL</option>
+                            </select>
                         </div>
                     </div>
 
@@ -168,6 +172,7 @@
     layui.use(['form', 'table'], function () {
         var form = layui.form;
         var table = layui.table;
+        var $ = layui.$;
 
         /* 表格渲染 */
         table.render({
@@ -190,11 +195,13 @@
                 {field: 'materialName', title: '物料名', align: 'center', width: 300},
                 {field: 'measureUnit', title: '计量单位', align: 'center'},
                 {field: 'usageQty', title: '使用数量', align: 'center'},
-                {title: '替代比', align: 'center', templet: function(d) { return 1; }}
+                {field: 'substituteGroup', title: '组', align: 'center', width: 60},
+                {field: 'substituteRate', title: '替代比', align: 'center', width: 80}
             ]],
             size: 'sm',
             even: true,
-            toolbar: '#toolbarDemo'
+            toolbar: '#toolbarDemo',
+            height: 'full-65'
         });
 
         /* 表格搜索 */
@@ -205,6 +212,22 @@
             });
             return false;
         });
+
+        // // 下拉框选项
+        // $.ajax({
+        //     type: 'get',
+        //     url: '/mrp/bom/getAllProducts',
+        //     success: function(data){
+        //         if(data.code === 200) {
+        //             for(var i=0; i<data.data.length; i++) {
+        //                 $('#product').append(new Option(data.data[i], data.data[i]));
+        //             }
+        //             form.render('select');
+        //         } else {
+        //             notice.msg(data.msg, {icon: 2});
+        //         }
+        //     }
+        // });
     });
 </script>
 </body>

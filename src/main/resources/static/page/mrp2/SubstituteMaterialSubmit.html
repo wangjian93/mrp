@@ -105,9 +105,10 @@
             data: [],
             cols: [[
                 {type: 'numbers', align: 'center'},
-                {field: 'material', title: '料号', align: 'center', edit: 'text', minWidth: 140},
+                {field: 'materialGroup', title: '物料组', align: 'center', minWidth: 80},
+                {field: 'material', title: '料号', align: 'center', edit: 'text', minWidth: 120},
                 {field: 'materialName', title: '物料描述', align: 'center', minWidth: 200},
-                {field: 'substituteRate', title: '替代比例', align: 'center', edit: 'text'},
+                {field: 'substituteRate', title: '比例', align: 'center', edit: 'text'},
                 {align: 'center', toolbar: '#eTbCrudTbBar', title: '操作', minWidth: 80}
             ]],
             page: false,
@@ -153,7 +154,7 @@
             /* 获取关于分配的数据 */
             $.ajax({
                 type: 'get',
-                url: '/mrp/substituteMaterial/getSubstituteMaterial',
+                url: '/mrp/materialSubstitute/getSubstituteMaterial',
                 data: {
                     plant: plant,
                     product: product,
@@ -177,42 +178,44 @@
 
 
         form.on('submit(saveBtn)', function (data) {
-            console.log(data.field);
-            if(!data.field.plant || !data.field.product) {
-                notice.msg("填写产别、机种", {icon: 2});
-                return false;
-            }
-            var tableDate = table.cache["substituteMaterialSubmitTable"];
-            var substituteMaterials = [];
-            console.log(tableDate);
-            for(var i=0; i<tableDate.length; i++) {
-                var substituteMaterial = {};
-                substituteMaterial.material=tableDate[i].material;
-                substituteMaterial.substituteRate=tableDate[i].substituteRate+"";
-                substituteMaterials.push(substituteMaterial);
-            }
-            console.log(substituteMaterials);
-            $.ajax({
-                type: 'post',
-                url: '/mrp/substituteMaterial/submit',
-                data: {
-                    group: data.field.group,
-                    plant: data.field.plant,
-                    product: data.field.product,
-                    substituteMaterials: JSON.stringify(substituteMaterials)
-                },
-                success: function(res){
-                    if(res.code === 200) {
-                        notice.msg(res.msg, {icon: 5});
-                    } else {
-                        notice.msg(res.msg, {icon: 2});
-                    }
-                },
-                error: function(res) {
-                    notice.msg("供应商分配请求提交失败，" + res.status, {icon: 2});
-                }
-            });
+            admin.closeThisDialog();
             return false;
+            // console.log(data.field);
+            // if(!data.field.plant || !data.field.product) {
+            //     notice.msg("填写产别、机种", {icon: 2});
+            //     return false;
+            // }
+            // var tableDate = table.cache["substituteMaterialSubmitTable"];
+            // var substituteMaterials = [];
+            // console.log(tableDate);
+            // for(var i=0; i<tableDate.length; i++) {
+            //     var materialSubstitute = {};
+            //     materialSubstitute.material=tableDate[i].material;
+            //     materialSubstitute.substituteRate=tableDate[i].substituteRate+"";
+            //     substituteMaterials.push(materialSubstitute);
+            // }
+            // console.log(substituteMaterials);
+            // $.ajax({
+            //     type: 'post',
+            //     url: '/mrp/substituteMaterial/submit',
+            //     data: {
+            //         group: data.field.group,
+            //         plant: data.field.plant,
+            //         product: data.field.product,
+            //         substituteMaterials: JSON.stringify(substituteMaterials)
+            //     },
+            //     success: function(res){
+            //         if(res.code === 200) {
+            //             notice.msg(res.msg, {icon: 5});
+            //         } else {
+            //             notice.msg(res.msg, {icon: 2});
+            //         }
+            //     },
+            //     error: function(res) {
+            //         notice.msg("供应商分配请求提交失败，" + res.status, {icon: 2});
+            //     }
+            // });
+            // return false;
         });
     });
 </script>

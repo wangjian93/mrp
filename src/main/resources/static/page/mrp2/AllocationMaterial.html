@@ -12,8 +12,14 @@
     <script src="../../assets/libs/respond/respond.min.js"></script>
     <![endif]-->
     <style>
-        .layui-table-view .layui-table .layui-table-cell {
+        div[lay-id="tableArrivalPlan"] .layui-table .layui-table-cell {
             height: auto;
+            padding: 0px 0px;
+        }
+        div[lay-id="tableArrivalPlan"] .layui-table .layui-table-cell .layui-input{
+            height: 20px;
+            font-size: 12px;
+            border: none;
         }
     </style>
 </head>
@@ -26,151 +32,87 @@
 </div>
 <!-- 正文开始 -->
 <div class="layui-card">
-    <form class="layui-form">
-        <div class="layui-inline">
-            <label class="layui-form-label">机种:</label>
-            <div class="layui-input-inline">
-                <input class="layui-input" id="product" name="product">
-            </div>
+    <div class="layui-card-body">
+        <!-- 表格 -->
+        <table id="tableArrivalPlan" lay-filter="tableArrivalPlan"></table>
+        <!-- 按钮 -->
+        <div class="text-center" style="padding-top: 15px;padding-bottom: 15px;">
+            <button type="button" class="layui-btn layui-btn-sm" id="saveBtn" lay-submit>保存</button>
+            <button type="button" class="layui-btn layui-btn-sm" id="closeBtn" ew-event="closeDialog">关闭</button>
         </div>
-
-        <div class="layui-inline">
-            <label class="layui-form-label">料号:</label>
-            <div class="layui-input-inline">
-                <input class="layui-input" id="material" name="material">
-            </div>
-        </div>
-
-        <div class="layui-inline">
-            <label class="layui-form-label">日期:</label>
-            <div class="layui-input-inline">
-                <input class="layui-input" id="fabDate" name="fabDate">
-            </div>
-        </div>
-
-        <div class="layui-inline">
-            <label class="layui-form-label">缺料:</label>
-            <div class="layui-input-inline">
-                <input class="layui-input" id="shortQty" name="shortQty">
-            </div>
-        </div>
-
-
-
-        <div class="layui-card-body" style="height: 280px">
-            <table id="tableArrivalPlan" lay-filter="tableArrivalPlan"></table>
-        </div>
-        <div class="text-center btn-block" style="padding-top: 15px;padding-bottom: 15px;">
-            <button class="layui-btn layui-btn-sm" lay-filter="saveBtn" lay-submit>保存</button>
-            <button type="button" class="layui-btn layui-btn-sm" ew-event="closeDialog">关闭</button>
-        </div>
-    </form>
+    </div>
 </div>
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
 <script>
-    layui.use(['layer', 'steps', 'form', 'table', "notice", "dropdown"], function () {
+    layui.use(['layer', 'steps', 'form', 'table', "notice", "dropdown", 'admin', 'laydate'], function () {
         var table = layui.table;
         var form = layui.form;
         var $ = layui.$;
         var notice = layui.notice;
-        var dropdown = layui.dropdown;
+        var admin = layui.admin;
+        var laydate = layui.laydate;
 
-        /* 获取URL请求的参数 */
-        var getQueryVariable = function (variable) {
-            var query = window.location.search.substring(1);
-            var vars = query.split("&");
-            for (var i=0;i<vars.length;i++) {
-                var pair = vars[i].split("=");
-                if(pair[0] === variable){return pair[1];}
-            }
-            return(false);
-        };
-        var mrpVer = getQueryVariable("mrpVer");
-        var material = getQueryVariable("material");
-        var fabDate = getQueryVariable("fabDate");
+        var mrpVer = admin.getLayerData().mrpVer;
+        var plant = admin.getLayerData().plant;
+        var material = admin.getLayerData().material;
+        var fabDate = admin.getLayerData().fabDate;
 
-        if(mrpVer && material && fabDate) {
-            /* 获取关于分配的数据 */
-            $.ajax({
-                type: 'get',
-                url: '/mrp/allocation/getSupplier',
-                data: {
-                    material: material
-                },
-                success: function(res){
-                    if(res.code === 200) {
-                        tableRender(res.data);
-                    } else {
-                        notice.msg(res.msg, {icon: 2});
-                    }
-                },
-                error: function(res) {
-                    notice.msg("获取关于分配的数据请求失败，" + res.status, {icon: 2});
-                }
-            });
-        }
-
-        var tableRender = function(data) {
+        $.get('/mrp/allocation/getMaterialAllocation', {
+            plant: plant,
+            material: material,
+            fabDate: fabDate
+        }, function(res) {
             table.render({
                 elem: '#tableArrivalPlan',
-                data: data,
+                data: res.data,
                 cols: [[
-                    {type: 'numbers', align: 'center', totalRowText: '合计'},
-                    // {field: 'material', title: '材料', align: 'center', minWidth: 100},
-                    {field: 'supplierCode', title: '供应商ID', align: 'center', width: 80},
-                    {field: 'supplier', title: '供应商', align: 'center', minWidth: 200},
-                    {field: 'allocationQty', title: '分配', align: 'center', edit: 'text', totalRow: true}
+                    {type: 'numbers', align: 'center'},
+                    {field: 'supplier', title: '供应商ID', align: 'center'},
+                    {field: 'supplierName', title: '供应商', align: 'center'},
+                    {field: 'fabDate', title: '要望日期', align: 'center', width:120, templet: function(d) {
+                        return '<input type="text" class="layui-input" id="allocationDate_' + d.supplier +'" value="'+d.allocationDate+'">'
+                        }},
+                    {field: 'allocationQty', title: '分配', align: 'center', edit: 'text'}
                 ]],
-                // toolbar: '#addSupplierToolBar',
-                page: false,
+                page: {layout: ['count']},
                 size: 'sm',
-                totalRow: true
-            });
-        };
-
-        form.on('submit(saveBtn)', function (data) {
-            var tableDate = table.cache["tableArrivalPlan"];
-            var allocation = [];
-            for(var i=0; i<tableDate.length; i++) {
-                if(tableDate[i].allocationQty>0) {
-                    allocation.push({supplier: tableDate[i].supplierCode, allocationQty: tableDate[i].allocationQty});
-                }
-            }
-            $.ajax({
-                type: 'post',
-                url: '/mrp/supplierArrivalPlan/submit',
-                data: {
-                    mrpVer: mrpVer,
-                    material: material,
-                    fabDate: getNextDate(fabDate, -1),
-                    allocation: JSON.stringify(allocation)
-                },
-                success: function(res){
-                    if(res.code === 200) {
-                        notice.msg(res.msg, {icon: 5});
-                        admin.putLayerData('formOk', true, '#tableArrivalPlan');
-                        admin.closeDialog('#tableArrivalPlan');
-                    } else {
-                        notice.msg(res.msg, {icon: 2});
+                done: function(res){
+                    var data = res.data;
+                    console.log(data);
+                    for(var i=0; i<data.length; i++) {
+                        var elem = '#allocationDate_'+data[i].supplier;
+                        laydate.render({
+                            elem: elem //指定元素
+                        });
                     }
-                },
-                error: function(res) {
-                    notice.msg("供应商分配请求提交失败，" + res.status, {icon: 2});
                 }
             });
-            return false;
         });
 
-        var getNextDate = function (date, day) {
-            var dd = new Date(date);
-            dd.setDate(dd.getDate() + day);
-            var y = dd.getFullYear();
-            var m = dd.getMonth() + 1 < 10 ? "0" + (dd.getMonth() + 1) : dd.getMonth() + 1;
-            var d = dd.getDate() < 10 ? "0" + dd.getDate() : dd.getDate();
-            return y + "-" + m + "-" + d;
-        };
+        //保存提交
+        $("#saveBtn").click(function() {
+            var data = layui.table.cache['tableArrivalPlan'];
+            for(var i=0; i<data.length; i++) {
+                data[i].allocationDate = $("#allocationDate_"+data[i].supplier).val();
+            }
+            $.post('/mrp/allocation/saveAllocations', {
+                mrpVer: mrpVer,
+                plant: plant,
+                material: material,
+                fabDate: fabDate,
+                jsons: JSON.stringify(data)
+            }, function(res) {
+                if(res.code === 200) {
+                    admin.putLayerData('editOk', true);
+                    admin.putLayerData('allocationTotal', res.data);
+                    admin.closeThisDialog();
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            });
+        });
     });
 </script>
 </body>
