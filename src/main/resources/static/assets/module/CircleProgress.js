@@ -1,7 +1,3 @@
-/**
- * 圆形进度条模块
- * date:2019-08-08   License By http://easyweb.vip
- */
 /*!
  * Circle Progress - v0.0.0 - 2019-07-13
  * https://tigrr.github.io/circle-progress

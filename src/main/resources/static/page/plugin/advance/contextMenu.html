@@ -6,19 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>右键菜单</title>
     <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
 <body>
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 <!-- 正文开始 -->
 <div class="layui-fluid ">
     <div class="layui-row layui-col-space15">
@@ -32,10 +26,7 @@
             <div class="layui-card">
                 <div class="layui-card-header">点击方式触发</div>
                 <div class="layui-card-body text-center" style="padding: 43px 0;">
-                    <button id="ctxMenuBtn" class="layui-btn" onclick="ctxMenuBtn(this)">请点击我</button>
-                </div>
-                <div class="layui-card-body text-center" style="padding: 43px 0;">
-                    <button id="ctxMenuBtn2" class="layui-btn">请点击我</button>
+                    <button id="ctxMenuBtn" class="layui-btn">请点击我</button>
                 </div>
             </div>
         </div>
@@ -59,7 +50,7 @@
 
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['layer', 'contextMenu', 'table', 'tableX'], function () {
         var $ = layui.jquery;
@@ -135,23 +126,12 @@
         contextMenu.bind('#ctxMenuDiv', items);
 
         // 点击方式触发
-        $('#ctxMenuBtn2').click(function (e) {
+        $('#ctxMenuBtn').click(function (e) {
             var x = $(this).offset().left;
             var y = $(this).offset().top + $(this).outerHeight() - $('html,body').scrollTop();
-            console.log(x + "    " + y);
-            console.log(e);
             contextMenu.show(items, x, y);
             e.stopPropagation();
         });
-        window.ctxMenuBtn = function(obj) {
-            //阻止事件冒泡
-            event.stopPropagation();
-            console.log(event);
-            var x = $(obj).offset().left;
-            var y = $(obj).offset().top + $(obj).outerHeight() - $('html,body').scrollTop();
-            contextMenu.show(items, x, y);
-            console.log(x+"   "+y);
-        };
 
         // 全局鼠标右键菜单
         contextMenu.bind('html', [
@@ -196,69 +176,72 @@
             ]],
             done: function () {
                 // 绑定鼠标右键
-                tableX.bindCtxMenu('ctxMenuTable', [
-                    {
-                        icon: 'layui-icon layui-icon-password',
-                        name: '锁定用户',
-                        click: function (d) {
-                            layer.msg('点击了锁定，userId：' + d.userId);
-                        }
-                    },
-                    {
-                        icon: 'layui-icon layui-icon-key',
-                        name: '重置密码',
-                        click: function (d) {
-                            layer.msg('点击了重置，userId：' + d.userId);
-                        }
-                    },
-                    {
-                        icon: 'layui-icon layui-icon-delete text-danger',
-                        name: '<span class="text-danger">删除用户</span>',
-                        click: function (d) {
-                            layer.msg('点击了删除，userId：' + d.userId);
-                        }
-                    },
-                    {
-                        icon: 'layui-icon layui-icon-upload-drag',
-                        name: '上传资料',
-                        subs: [
-                            {
-                                icon: 'layui-icon layui-icon-camera',
-                                name: '上传头像',
-                                click: function (d) {
-                                    layer.msg('点击了上传头像，userId：' + d.userId);
-                                }
-                            },
-                            {
-                                icon: 'layui-icon layui-icon-picture-fine',
-                                name: '上传照片',
-                                click: function (d) {
-                                    layer.msg('点击了上传照片，userId：' + d.userId);
-                                }
-                            },
-                            {
-                                icon: 'layui-icon layui-icon-note',
-                                name: '上传附件',
-                                subs: [
-                                    {
-                                        icon: 'layui-icon layui-icon-mike',
-                                        name: '上传音频',
-                                        click: function (d) {
-                                            layer.msg('点击了上传音频，userId：' + d.userId);
-                                        }
-                                    },
-                                    {
-                                        icon: 'layui-icon layui-icon-video',
-                                        name: '上传视频',
-                                        click: function (d) {
-                                            layer.msg('点击了上传视频，userId：' + d.userId);
-                                        }
-                                    }
-                                ]
+                tableX.bindCtxMenu('ctxMenuTable', function (d) {
+                    if (d.sex === '女') return items;
+                    return [
+                        {
+                            icon: 'layui-icon layui-icon-password',
+                            name: '锁定用户',
+                            click: function (d) {
+                                layer.msg('点击了锁定，userId：' + d.userId);
                             }
-                        ]
-                    }
-                ]);
+                        },
+                        {
+                            icon: 'layui-icon layui-icon-key',
+                            name: '重置密码',
+                            click: function (d) {
+                                layer.msg('点击了重置，userId：' + d.userId);
+                            }
+                        },
+                        {
+                            icon: 'layui-icon layui-icon-delete text-danger',
+                            name: '<span class="text-danger">删除用户</span>',
+                            click: function (d) {
+                                layer.msg('点击了删除，userId：' + d.userId);
+                            }
+                        },
+                        {
+                            icon: 'layui-icon layui-icon-upload-drag',
+                            name: '上传资料',
+                            subs: [
+                                {
+                                    icon: 'layui-icon layui-icon-camera',
+                                    name: '上传头像',
+                                    click: function (d) {
+                                        layer.msg('点击了上传头像，userId：' + d.userId);
+                                    }
+                                },
+                                {
+                                    icon: 'layui-icon layui-icon-picture-fine',
+                                    name: '上传照片',
+                                    click: function (d) {
+                                        layer.msg('点击了上传照片，userId：' + d.userId);
+                                    }
+                                },
+                                {
+                                    icon: 'layui-icon layui-icon-note',
+                                    name: '上传附件',
+                                    subs: [
+                                        {
+                                            icon: 'layui-icon layui-icon-mike',
+                                            name: '上传音频',
+                                            click: function (d) {
+                                                layer.msg('点击了上传音频，userId：' + d.userId);
+                                            }
+                                        },
+                                        {
+                                            icon: 'layui-icon layui-icon-video',
+                                            name: '上传视频',
+                                            click: function (d) {
+                                                layer.msg('点击了上传视频，userId：' + d.userId);
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ];
+                });
             }
         });
 

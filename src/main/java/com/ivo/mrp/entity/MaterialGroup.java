@@ -31,9 +31,19 @@ public class MaterialGroup {
      */
     private String materialGroupName;
 
+
+    /**
+     * 备注
+     */
     private String memo = "同步自81的表MM_O_MaterialGroup";
 
+    /**
+     * 创建者
+     */
     private String creator = "SYS";
 
+    /**
+     * 创建时间
+     */
     private Date createDate = new Date();
 }

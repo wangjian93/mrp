@@ -1,8 +1,6 @@
-﻿/** EasyWeb iframe v3.1.7 date:2020-03-11 License By http://easyweb.vip */
-
-// 以下代码是配置layui扩展模块的目录，每个页面都需要引入
-layui.config({
-    version: '317',
+/** EasyWeb iframe v3.1.8 date:2020-05-04 License By http://easyweb.vip */
+layui.config({  // common.js是配置layui扩展模块的目录，每个页面都需要引入
+    version: '318',   // 更新组件缓存，设为true不缓存，也可以设一个固定值
     base: getProjectUrl() + 'assets/module/'
 }).extend({
     steps: 'steps/steps',
@@ -10,7 +8,6 @@ layui.config({
     cascader: 'cascader/cascader',
     dropdown: 'dropdown/dropdown',
     fileChoose: 'fileChoose/fileChoose',
-    treeTable: 'treeTable/treeTable',
     Split: 'Split/Split',
     Cropper: 'Cropper/Cropper',
     tagsInput: 'tagsInput/tagsInput',
@@ -22,14 +19,9 @@ layui.config({
     var layer = layui.layer;
     var admin = layui.admin;
 
-    // 移除loading动画
-    setTimeout(function () {
-        admin.removeLoading();
-    }, window === top ? 300 : 0);
-
 });
 
-// 获取当前项目的根路径，通过获取layui.js全路径截取assets之前的地址
+/** 获取当前项目的根路径，通过获取layui.js全路径截取assets之前的地址 */
 function getProjectUrl() {
     var layuiDir = layui.cache.dir;
     if (!layuiDir) {

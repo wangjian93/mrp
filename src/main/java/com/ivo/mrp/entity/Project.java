@@ -41,9 +41,19 @@ public class Project {
      */
     private String size;
 
+
+    /**
+     * 备注
+     */
     private String memo = "同步自81的表BG_O_Project";
 
+    /**
+     * 创建者
+     */
     private String creator = "SYS";
 
+    /**
+     * 创建时间
+     */
     private Date createDate = new Date();
 }

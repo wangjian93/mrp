@@ -1,5 +1,7 @@
 package com.ivo.common.utils;
 
+import org.springframework.util.StringUtils;
+
 import java.math.BigDecimal;
 
 /**
@@ -96,6 +98,22 @@ public class DoubleUtil {
             BigDecimal bigDecimal2 = new BigDecimal(denominator);
             return bigDecimal1.divide(bigDecimal2, SCALE, ROUND).doubleValue();
         }
+    }
+
+    /**
+     * 将对象转换为Double
+     * @param o
+     * @return Double
+     */
+    public static Double converDouble(Object o) {
+        if(o == null) return null;
+        if(o instanceof Double) return (Double) o;
+        if(o instanceof String) {
+            if(StringUtils.isEmpty(o)) return null;
+            return Double.valueOf((String)o);
+        }
+        if(o instanceof BigDecimal) return ((BigDecimal) o).doubleValue();
+        return (Double) o;
     }
 }
 

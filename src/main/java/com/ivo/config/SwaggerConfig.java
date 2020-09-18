@@ -31,7 +31,7 @@ public class SwaggerConfig {
                 .apiInfo(apiInfo())
                 .select()
                 //指定需要扫描的controller
-                .apis(RequestHandlerSelectors.basePackage("com.ivo.mrp2.controller"))
+                .apis(RequestHandlerSelectors.basePackage("com.ivo.mrp.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
@@ -44,11 +44,9 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 //标题
-                .title("Spring Boot2中采用Swagger2构建RESTful APIs")
-                .description("通过访问swagger-ui.html,实现接口测试、文档生成")
-                .termsOfServiceUrl("http://localhost:8080")
+                .title("MRP系统API")
+                .termsOfServiceUrl("http://localhost:8082")
                 //设置联系方式
-                .contact(new Contact("西红柿丶番茄", "https://blog.csdn.net/p_programmer", "xxxxx@qq.com"))
                 .version("1.0")
                 .build();
     }

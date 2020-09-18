@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  * @version 1.0
  */
 @Configuration
-@MapperScan(basePackages = "com.ivo.rest.oracle.mapper", sqlSessionFactoryRef = "oracleSqlSessionFactory")
+@MapperScan(basePackages = "com.ivo.rest.oracle", sqlSessionFactoryRef = "oracleSqlSessionFactory")
 public class OracleMybatisConfig {
     private DataSource oracleDataSource;
 
@@ -31,7 +31,7 @@ public class OracleMybatisConfig {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(oracleDataSource);
         bean.setMapperLocations(
-                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/oracle/mapper/*.xml"));
+                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/oracle/*.xml"));
         return bean.getObject();
     }
 

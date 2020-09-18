@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>表格缩略图</title>
     <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -31,12 +31,6 @@
     </style>
 </head>
 <body>
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 <!-- 正文开始 -->
 <div class="layui-fluid">
     <div class="layui-card">
@@ -68,7 +62,7 @@
 
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['layer', 'table'], function () {
         var $ = layui.jquery;
@@ -86,7 +80,7 @@
                 {
                     title: '头像', templet: function (d) {
                         var url = d.imgUrl || '../../../assets/images/head.jpg';
-                        return '<img src="' + url + '" class="tb-img-circle" tb-img alt=""/>';
+                        return '<img data-index="' + (d.LAY_INDEX - 1) + '" src="' + url + '" class="tb-img-circle" tb-img alt=""/>';
                     }, align: 'center', width: 90, unresize: true
                 },
                 {field: 'username', title: '账号', align: 'center', sort: true},
@@ -99,7 +93,13 @@
 
         /* 点击图片放大 */
         $(document).off('click.tbImg').on('click.tbImg', '[tb-img]', function () {
-            layer.photos({photos: {data: [{src: $(this).attr('src')}]}, shade: .1, closeBtn: true});
+            var imgList = table.cache['tbImgTable'].map(function (d) {
+                return {
+                    alt: d.nickName,
+                    src: d.imgUrl || '../../../assets/images/head.jpg'
+                }
+            });
+            layer.photos({photos: {data: imgList, start: $(this).data('index')}, shade: .1, closeBtn: true});
         });
 
     });

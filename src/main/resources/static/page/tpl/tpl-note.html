@@ -24,12 +24,13 @@
             if (dataList === undefined) dataList = [];
             for (var i = 0; i < dataList.length; i++) {
                 var item = dataList[i];
-                var str = '<div class="note-item" data-id="' + item.id + '">';
-                str += '      <div class="note-item-content">' + item.content + '</div>';
-                str += '      <div class="note-item-time">' + item.time + '</div>';
-                str += '      <i class="layui-icon layui-icon-close-fill note-item-del"></i>';
-                str += '   </div>';
-                $noteWrapper.prepend(str);
+                $noteWrapper.prepend([
+                    '<div class="note-item" data-id="', item.id, '">',
+                    '   <div class="note-item-content">', util.escape(item.content), '</div>',
+                    '   <div class="note-item-time">', item.time, '</div>',
+                    '   <i class="layui-icon layui-icon-close-fill note-item-del"></i>',
+                    '</div>'
+                ].join(''));
             }
             $('.note-empty').css('display', dataList.length === 0 ? 'block' : 'none');
             // 点击修改
@@ -47,9 +48,7 @@
                 }, function (index) {
                     layer.close(index);
                     dataList.splice(id, 1);
-                    for (var i = 0; i < dataList.length; i++) {
-                        dataList[i].id = i;
-                    }
+                    for (var i = 0; i < dataList.length; i++) dataList[i].id = i;
                     putDataList();
                     renderList();
                 });
@@ -84,17 +83,14 @@
                     if (id !== undefined) {
                         if (!content) {
                             dataList.splice(id, 1);
-                            for (var i = 0; i < dataList.length; i++) {
-                                dataList[i].id = i;
-                            }
+                            for (var i = 0; i < dataList.length; i++) dataList[i].id = i;
                         } else if (content !== dataList[id].content) {
                             dataList[id].content = content;
                             dataList[id].time = util.toDateString(new Date(), 'yyyy-MM-dd HH:mm');
                         }
                     } else if (content) {
                         dataList.push({
-                            id: dataList.length,
-                            content: content,
+                            id: dataList.length, content: content,
                             time: util.toDateString(new Date(), 'yyyy-MM-dd HH:mm')
                         });
                     }

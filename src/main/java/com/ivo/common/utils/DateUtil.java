@@ -219,4 +219,32 @@ public class DateUtil {
 
         return result;
     }
+
+    /**
+     * 获取日期的上一个月份
+     * @param date 日期
+     * @return 上月 "2020-01"
+     */
+    public static String getLastMonth(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.MONTH,-1);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        return sdf.format(c.getTime());
+    }
+
+    /**
+     * 获取日期当月的月初日期
+     * @param date 日期
+     * @return Date
+     */
+    public static Date getFirstDayOfMonth(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        //获取某月最小天数
+        int firstDay = cal.getMinimum(Calendar.DATE);
+        //设置日历中月份的最小天数
+        cal.set(Calendar.DAY_OF_MONTH,firstDay);
+        return cal.getTime();
+    }
 }

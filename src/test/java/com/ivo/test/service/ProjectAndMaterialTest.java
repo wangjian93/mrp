@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * 机种与料号数据同步测试
  * @author wj
  * @version 1.0
  */

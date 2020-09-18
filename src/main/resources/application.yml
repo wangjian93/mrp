@@ -1,7 +1,7 @@
 debug:
   false
 server:
-  port: 8080
+  port: 8082
 spring:
   datasource:
     # 主数据源  Mysql
@@ -15,8 +15,8 @@ spring:
 #      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
 #      username: scm
 #      password: scmdb
-    # DPS数据库
-    dpsdb:
+    #LCM的DPS数据库
+    dpslcm:
       url: jdbc:mysql://10.10.2.115:3306/dps_lcm?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: ivodis
       password: dis@2020
@@ -37,8 +37,8 @@ spring:
       url: jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.233)(PORT=1521))(ADDRESS=(PROTOCOL=TCP)(HOST=10.10.2.234)(PORT=1521))(LOAD_BALANCE=yes)(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=kabedw)))
       username: etl
       password: etl
-    #CELL的DPS数据库
-    celldpsdb:
+    #CRY ELL的DPS数据库
+    dpsarycell:
       url: jdbc:mysql://10.20.2.75:3306/dps?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: root
       password: Ivo123

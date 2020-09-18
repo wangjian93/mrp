@@ -25,4 +25,61 @@
       and cut &lt;&gt; 'NA'
     order by Substring(ProjectName,0, Len(ProjectName)-len(Substring(ProjectName,CHARINDEX('-',ProjectName)+1,Len(ProjectName)))) ;
   </select>
+
+  <!-- 获取LCM1的BOM -->
+  <select id="getBomLcm1" resultType="java.util.HashMap">
+    select
+      PLANT as plant, ProductModel_FK as product, MATERIAL_FK as material, MeasureUnit_FK as measureUnit,
+      MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
+      [usage] as usageQty
+    from MM_V_BOM_M1
+  </select>
+
+  <!-- 获取LCM2的BOM -->
+  <select id="getBomLcm2" resultType="java.util.HashMap">
+    select
+      PLANT as plant, ProductModel_FK as product, MATERIAL_FK as material, MeasureUnit_FK as measureUnit,
+      MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
+      [usage] as usageQty
+    from MM_V_BOM_M2
+  </select>
+
+  <!-- 获取ARY的BOM -->
+  <select id="getBomAry" resultType="java.util.HashMap">
+    SELECT
+      t.plant, t.product, t.MTRL_ID as material, t.MEASURE_UNIT as measureUnit,
+      m.MaterialName as materialName, g.MaterialGroup_ID as materialGroup, g.MaterialGroupName as materialGroupName,
+      t.usageqty as usageQty
+    FROM MM_O_ARYBOM t
+        LEFT JOIN MM_O_Material m on m.Material_ID=t.MTRL_ID
+        LEFT JOIN MM_O_MaterialGroup g on g.MaterialGroup_ID=m.MaterialGroup_FK
+  </select>
+
+  <!-- 获取LCM1的替代料关系 -->
+  <select id="getMaterialSubstituteLcm1" resultType="java.util.Map">
+    SELECT
+      'LCM1' as fab, a.productModel_fk as product, a.materialGroup_fk as materialGroup, a.material_fk as material, a.usageProbability as rate,
+      a.MaterialName as materialName, a.Mtrl_GroupName as materialGroupName, a.AltItemGroup
+    FROM mm_v_bom_m1replace a
+    order by a.productModel_FK, a.MaterialGroup_FK, a.Material_FK
+  </select>
+
+  <!-- 获取LCM2的替代料关系 -->
+  <select id="getMaterialSubstituteLcm2" resultType="java.util.Map">
+    SELECT
+      'LCM2' as fab, a.productModel_fk as product, a.materialGroup_fk as materialGroup, a.material_fk as material, a.usageProbability as rate,
+      a.MaterialName as materialName, a.Mtrl_GroupName as materialGroupName, a.AltItemGroup
+    FROM mm_v_bom_m2replace a
+    order by a.productModel_FK, a.MaterialGroup_FK, a.Material_FK
+  </select>
+
+  <!-- 获取CELL的替代料关系 -->
+  <select id="getMaterialSubstituteCell" resultType="java.util.Map">
+    select
+      'CELL' as fab, a.PRODUCT as product, b.MaterialGroup_FK as materialGroup, a.MTRL_ID as material, a.MEASURE_UNIT,
+      b.MaterialName as materialName, c.MaterialGroupName as materialGroupName,  A.ALT_ITEM_GROUP
+    from MM_O_CELLBOM_REPLACE a, MM_O_Material b, MM_O_MaterialGroup c
+    where a.MTRL_ID=b.Material_ID and b.MaterialGroup_FK=c.MaterialGroup_ID and a.ValidFlag =1
+    ORDER BY a.plant,a.PRODUCT,ALT_ITEM_GROUP
+  </select>
 </mapper>

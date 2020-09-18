@@ -42,32 +42,14 @@ layui.define(['layer', 'table', 'laytpl', 'contextMenu'], function (exports) {
             if (data.length > 0) {
                 var lastValue, spanNum = 1;
                 if (field) {
-                    // 增加多个列作为合并条件
-                    if(field instanceof Array) {
-                        lastValue = "";
-                        for(var j=0; j<field.length; j++) {
-                            var f = field[j];
-                            lastValue += data[0][f];
-                        }
-                    } else {
-                        lastValue = data[0][field];
-                    }
+                    lastValue = data[0][field];
                 } else {
                     lastValue = $trs.eq(0).find('td').eq(index).find('.layui-table-cell').html();
                 }
                 for (var i = 1; i < data.length; i++) {
                     var currentValue;
                     if (field) {
-                        // 增加多个列作为合并条件
-                        if(field instanceof Array) {
-                            currentValue = "";
-                            for(var j=0; j<field.length; j++) {
-                                var f = field[j];
-                                currentValue += data[i][f];
-                            }
-                        } else {
-                            currentValue = data[i][field];
-                        }
+                        currentValue = data[i][field];
                     } else {
                         currentValue = $trs.eq(i).find('td').eq(index).find('.layui-table-cell').html();
                     }

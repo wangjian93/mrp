@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>更多扩展插件</title>
     <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -38,7 +38,16 @@
                             <div class="layui-tab-item">内容2</div>
                             <div class="layui-tab-item">内容3</div>
                             <div class="layui-tab-item">内容4</div>
-                            <div class="layui-tab-item">内容5</div>
+                            <div class="layui-tab-item">
+                                <div class="layui-row" style="float: left;width: 100%;">
+                                    <div class="layui-col-md6">
+                                        内容5
+                                    </div>
+                                    <div class="layui-col-md6">
+                                        内容使用栅格
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -78,6 +87,7 @@
                     <button id="btnShowLoading1" class="layui-btn layui-btn-sm">样式一</button>
                     <button id="btnShowLoading2" class="layui-btn layui-btn-sm">样式二</button>
                     <button id="btnShowLoading3" class="layui-btn layui-btn-sm">样式三</button>
+                    <button id="btnShowLoading4" class="layui-btn layui-btn-sm">样式四</button>
                     <button id="btnLoading" class="layui-btn layui-btn-sm">按钮loading</button>
                 </div>
             </div>
@@ -99,7 +109,7 @@
             <div class="layui-card">
                 <div class="layui-card-header">折叠面板</div>
                 <div class="layui-card-body" style="min-height: 240px;">
-                    <div class="layui-collapse" lay-accordion>
+                    <div class="layui-collapse" lay-shrink="_all">
                         <div class="layui-colla-item">
                             <h2 class="layui-colla-title">徽章扩展</h2>
                             <div class="layui-colla-content layui-show">
@@ -111,16 +121,16 @@
                             </div>
                         </div>
                         <div class="layui-colla-item">
-                            <h2 class="layui-colla-title">杜甫</h2>
-                            <div class="layui-colla-content">内容区域</div>
+                            <h2 class="layui-colla-title">折叠面板</h2>
+                            <div class="layui-colla-content">展开折叠带有过渡效果</div>
                         </div>
                         <div class="layui-colla-item">
-                            <h2 class="layui-colla-title">李清照</h2>
-                            <div class="layui-colla-content">内容区域</div>
+                            <h2 class="layui-colla-title">垂直导航</h2>
+                            <div class="layui-colla-content">垂直导航展开折叠带有过渡效果</div>
                         </div>
                         <div class="layui-colla-item">
-                            <h2 class="layui-colla-title">鲁迅</h2>
-                            <div class="layui-colla-content">内容区域</div>
+                            <h2 class="layui-colla-title">导航箭头</h2>
+                            <div class="layui-colla-content">垂直导航的箭头支持三种样式</div>
                         </div>
                     </div>
                 </div>
@@ -129,12 +139,12 @@
         <div class="layui-col-xs12 layui-col-sm6">
             <div class="layui-card">
                 <div class="layui-card-header">垂直导航</div>
-                <div class="layui-card-body" style="min-height: 240px;white-space: nowrap;overflow: hidden;">
-                    <ul class="layui-nav layui-nav-tree" lay-shrink="all"
+                <div class="layui-card-body" style="min-height: 240px;white-space: nowrap;overflow-x: auto;">
+                    <ul class="layui-nav layui-nav-tree" lay-shrink="_all"
                         style="display: inline-block;vertical-align: top;">
                         <li class="layui-nav-item layui-nav-itemed">
                             <a href="javascript:;">默认展开</a>
-                            <dl class="layui-nav-child" style="display: block;">
+                            <dl class="layui-nav-child">
                                 <dd class="layui-this"><a href="javascript:;">选项1</a></dd>
                                 <dd><a href="javascript:;">选项2</a></dd>
                                 <dd><a href="javascript:;">选项3</a></dd>
@@ -149,11 +159,11 @@
                             </dl>
                         </li>
                     </ul>
-                    <ul class="layui-nav layui-nav-tree arrow2 layui-bg-cyan" lay-shrink="all"
+                    <ul class="layui-nav layui-nav-tree arrow2 layui-bg-cyan" lay-shrink="_all"
                         style="display: inline-block;vertical-align: top;">
                         <li class="layui-nav-item layui-nav-itemed">
                             <a href="javascript:;">默认展开</a>
-                            <dl class="layui-nav-child" style="display: block;">
+                            <dl class="layui-nav-child">
                                 <dd><a href="javascript:;">选项1</a></dd>
                                 <dd><a href="javascript:;">选项2</a></dd>
                                 <dd><a href="javascript:;">选项3</a></dd>
@@ -168,11 +178,11 @@
                             </dl>
                         </li>
                     </ul>
-                    <ul class="layui-nav layui-nav-tree arrow3 layui-bg-blue" lay-shrink="all"
+                    <ul class="layui-nav layui-nav-tree arrow3 layui-bg-blue" lay-shrink="_all"
                         style="display: inline-block;vertical-align: top;">
                         <li class="layui-nav-item layui-nav-itemed">
                             <a href="javascript:;">默认展开</a>
-                            <dl class="layui-nav-child" style="display: block;">
+                            <dl class="layui-nav-child">
                                 <dd><a href="javascript:;">选项1</a></dd>
                                 <dd><a href="javascript:;">选项2</a></dd>
                                 <dd><a href="javascript:;">选项3</a></dd>
@@ -220,15 +230,9 @@
         </div>
     </div>
 </div>
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['admin', 'table', 'element'], function () {
         var $ = layui.jquery;
@@ -251,6 +255,12 @@
         });
         $('#btnShowLoading3').click(function () {
             admin.showLoading('#divLoading', 3, '.8');
+            setTimeout(function () {
+                admin.removeLoading('#divLoading', true, true);
+            }, 2000);
+        });
+        $('#btnShowLoading4').click(function () {
+            admin.showLoading('#divLoading', 4, '.8');
             setTimeout(function () {
                 admin.removeLoading('#divLoading', true, true);
             }, 2000);

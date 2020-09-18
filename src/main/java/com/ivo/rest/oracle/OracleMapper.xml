@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ivo.rest.oracle.OracleMapper">
+
+  <!--获取成品料号的材料 -->
+  <select id="getCellMtrl" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select plant, product, cellMtrl, mtrl_id , measure_unit, usageQty, subFlag, memo
+    from V_BOM_CELL_C
+    where cellmtrl =#{cellMtrl} ORDER BY mtrl_id
+  </select>
+
+  <!-- 批量获取库存 -->
+  <select id="getInventory" resultType="java.lang.Double">
+    select SUM(LABST) as qty
+    from EXF.SZA_STOCK
+    WHERE WERKS = #{plant}
+    AND FAB_DATE= TO_DATE(#{fabDate},'YYYY-MM-DD')
+    AND MATNR=#{material}
+    AND LGORT IN
+    <foreach item="item" index="index" collection="positionList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <!-- 批量获取库存 -->
+  <select id="getInventoryBatch" resultType="java.util.Map">
+    select MATNR as material, SUM(LABST) as qty
+    from EXF.SZA_STOCK
+    WHERE WERKS = #{plant}
+    AND FAB_DATE= TO_DATE(#{fabDate},'YYYY-MM-DD')
+    AND MATNR IN
+    <foreach item="item" index="index" collection="materialList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    AND LGORT IN
+    <foreach item="item" index="index" collection="positionList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    GROUP BY MATNR
+  </select>
+
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ivo.rest.fcst.FcstMapper">
+
+  <!-- 获取MPS中的CELL BOM成品料号 -->
+  <select id="getBomCell" resultType="java.util.HashMap">
+    select  CellInPut, Material_FK, project, type
+    from SD_O_MPSModelDetail
+    WHERE ValidFlag=1 AND CellInPut is not null and type='cell' order by CellInPut
+  </select>
+
+</mapper>

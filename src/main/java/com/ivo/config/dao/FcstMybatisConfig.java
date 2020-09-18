@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  * @version 1.0
  */
 @Configuration
-@MapperScan(basePackages = "com.ivo.rest.fcst.mapper", sqlSessionFactoryRef = "fcstSqlSessionFactory")
+@MapperScan(basePackages = "com.ivo.rest.fcst", sqlSessionFactoryRef = "fcstSqlSessionFactory")
 public class FcstMybatisConfig {
 
     private DataSource fcstDatasource;
@@ -32,7 +32,7 @@ public class FcstMybatisConfig {
         SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
         bean.setDataSource(fcstDatasource);
         bean.setMapperLocations(
-                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/fcst/mapper/*.xml"));
+                new PathMatchingResourcePatternResolver().getResources("classpath*:com/ivo/rest/fcst/*.xml"));
         return bean.getObject();
     }
 

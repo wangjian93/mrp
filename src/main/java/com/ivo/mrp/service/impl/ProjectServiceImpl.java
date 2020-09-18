@@ -1,11 +1,16 @@
 package com.ivo.mrp.service.impl;
 
+import com.ivo.common.result.PageResult;
 import com.ivo.mrp.entity.Project;
 import com.ivo.mrp.repository.ProjectRepository;
 import com.ivo.mrp.service.ProjectService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,5 +50,16 @@ public class ProjectServiceImpl implements ProjectService {
             projectRepository.save(project);
         }
         log.info("机种数据同步>> END");
+    }
+
+    @Override
+    public Project getProject(String project) {
+        return projectRepository.findById(project).orElse(null);
+    }
+
+    @Override
+    public Page<Project> queryProject(int page, int limit, String search) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "project");
+        return projectRepository.findByProjectLike(search+"%", pageable);
     }
 }

@@ -1,5 +1,228 @@
-﻿/**
- * 右键菜单模块
- * date:2019-02-08   License By http://easyweb.vip
- */
-layui.define(["jquery"],function(a){var c=layui.jquery;var b={bind:function(e,d){c(e).bind("contextmenu",function(f){b.show(d,f.clientX,f.clientY,f);return false})},show:function(f,d,k,h){var g="left: "+d+"px; top: "+k+"px;";var j='<div class="ctxMenu" style="'+g+'">';j+=b.getHtml(f,"");j+="   </div>";b.remove();c("body").append(j);var i=c(".ctxMenu");if(d+i.outerWidth()>b.getPageWidth()){d-=i.outerWidth()}if(k+i.outerHeight()>b.getPageHeight()){k=k-i.outerHeight();if(k<0){k=0}}i.css({"top":k,"left":d});b.setEvents(f,h);c(".ctxMenu-item").on("mouseenter",function(p){p.stopPropagation();c(this).parent().find(".ctxMenu-sub").css("display","none");if(!c(this).hasClass("haveMore")){return}var l=c(this).find(">a");var m=c(this).find(">.ctxMenu-sub");var o=l.offset().top-c("body,html").scrollTop();var n=l.offset().left+l.outerWidth()-c("body,html").scrollLeft();if(n+m.outerWidth()>b.getPageWidth()){n=l.offset().left-m.outerWidth()}if(o+m.outerHeight()>b.getPageHeight()){o=o-m.outerHeight()+l.outerHeight();if(o<0){o=0}}c(this).find(">.ctxMenu-sub").css({"top":o,"left":n,"display":"block"})})},remove:function(){var h=parent.window.frames;for(var d=0;d<h.length;d++){var f=h[d];try{f.layui.jquery("body>.ctxMenu").remove()}catch(g){}}try{parent.layui.jquery("body>.ctxMenu").remove()}catch(g){}},setEvents:function(d,f){c(".ctxMenu").off("click").on("click","[lay-id]",function(h){var i=c(this).attr("lay-id");var g=e(i,d);g.click&&g.click(h,f)});function e(l,k){for(var j=0;j<k.length;j++){var h=k[j];if(l==h.itemId){return h}else{if(h.subs&&h.subs.length>0){var g=e(l,h.subs);if(g){return g}}}}}},getHtml:function(e,d){var h="";for(var f=0;f<e.length;f++){var g=e[f];g.itemId="ctxMenu-"+d+f;if(g.subs&&g.subs.length>0){h+='<div class="ctxMenu-item haveMore" lay-id="'+g.itemId+'">';h+="<a>";if(g.icon){h+='<i class="'+g.icon+' ctx-icon"></i>'}h+=g.name;h+='<i class="layui-icon layui-icon-right icon-more"></i>';h+="</a>";h+='<div class="ctxMenu-sub" style="display: none;">';h+=b.getHtml(g.subs,d+f);h+="</div>"}else{h+='<div class="ctxMenu-item" lay-id="'+g.itemId+'">';h+="<a>";if(g.icon){h+='<i class="'+g.icon+' ctx-icon"></i>'}h+=g.name;h+="</a>"}h+="</div>";if(g.hr==true){h+="<hr/>"}}return h},getCommonCss:function(){var d=".ctxMenu, .ctxMenu-sub {";d+="        max-width: 250px;";d+="        min-width: 110px;";d+="        background: white;";d+="        border-radius: 2px;";d+="        padding: 5px 0;";d+="        white-space: nowrap;";d+="        position: fixed;";d+="        z-index: 2147483647;";d+="        box-shadow: 0 2px 4px rgba(0, 0, 0, .12);";d+="        border: 1px solid #d2d2d2;";d+="        overflow: visible;";d+="   }";d+="   .ctxMenu-item {";d+="        position: relative;";d+="   }";d+="   .ctxMenu-item > a {";d+="        font-size: 14px;";d+="        color: #666;";d+="        padding: 0 26px 0 35px;";d+="        cursor: pointer;";d+="        display: block;";d+="        line-height: 36px;";d+="        text-decoration: none;";d+="        position: relative;";d+="   }";d+="   .ctxMenu-item > a:hover {";d+="        background: #f2f2f2;";d+="        color: #666;";d+="   }";d+="   .ctxMenu-item > a > .icon-more {";d+="        position: absolute;";d+="        right: 5px;";d+="        top: 0;";d+="        font-size: 12px;";d+="        color: #666;";d+="   }";d+="   .ctxMenu-item > a > .ctx-icon {";d+="        position: absolute;";d+="        left: 12px;";d+="        top: 0;";d+="        font-size: 15px;";d+="        color: #666;";d+="   }";d+="   .ctxMenu hr {";d+="        background-color: #e6e6e6;";d+="        clear: both;";d+="        margin: 5px 0;";d+="        border: 0;";d+="        height: 1px;";d+="   }";d+="   .ctx-ic-lg {";d+="        font-size: 18px !important;";d+="        left: 11px !important;";d+="    }";return d},getPageHeight:function(){return document.documentElement.clientHeight||document.body.clientHeight},getPageWidth:function(){return document.documentElement.clientWidth||document.body.clientWidth},};c(document).off("click.ctxMenu").on("click.ctxMenu",function(){b.remove()});c(document).off("click.ctxMenuMore").on("click.ctxMenuMore",".ctxMenu-item",function(d){if(c(this).hasClass("haveMore")){if(d!==void 0){d.preventDefault();d.stopPropagation()}}else{b.remove()}});c("head").append('<style id="ew-css-ctx">'+b.getCommonCss()+"</style>");a("contextMenu",b)});
+/** 右键菜单模块 date:2019-02-08   License By http://easyweb.vip */
+layui.define(["jquery"], function (exports) {
+    var $ = layui.jquery;
+
+    var contextMenu = {
+        // 绑定元素
+        bind: function (elem, items) {
+            $(elem).bind('contextmenu', function (e) {
+                contextMenu.show(items, e.clientX, e.clientY, e);
+                return false;
+            });
+        },
+        // 在指定坐标显示菜单
+        show: function (items, x, y, e) {
+            var xy = 'left: ' + x + 'px; top: ' + y + 'px;';
+            var htmlStr = '<div class="ctxMenu" style="' + xy + '">';
+            htmlStr += contextMenu.getHtml(items, '');
+            htmlStr += '   </div>';
+            contextMenu.remove();
+            $('body').append(htmlStr);
+            // 调整溢出位置
+            var $ctxMenu = $('.ctxMenu');
+            if (x + $ctxMenu.outerWidth() > contextMenu.getPageWidth()) {
+                x -= $ctxMenu.outerWidth();
+            }
+            if (y + $ctxMenu.outerHeight() > contextMenu.getPageHeight()) {
+                y = y - $ctxMenu.outerHeight();
+                if (y < 0) {
+                    y = 0;
+                }
+            }
+            $ctxMenu.css({'top': y, 'left': x});
+            // 添加item点击事件
+            contextMenu.setEvents(items, e);
+            // 显示子菜单事件
+            $('.ctxMenu-item').on('mouseenter', function (e) {
+                e.stopPropagation();
+                $(this).parent().find('.ctxMenu-sub').css('display', 'none');
+                if (!$(this).hasClass('haveMore')) return;
+                var $item = $(this).find('>a');
+                var $sub = $(this).find('>.ctxMenu-sub');
+                var top = $item.offset().top - $('body,html').scrollTop();
+                var left = $item.offset().left + $item.outerWidth() - $('body,html').scrollLeft();
+                if (left + $sub.outerWidth() > contextMenu.getPageWidth()) {
+                    left = $item.offset().left - $sub.outerWidth();
+                }
+                if (top + $sub.outerHeight() > contextMenu.getPageHeight()) {
+                    top = top - $sub.outerHeight() + $item.outerHeight();
+                    if (top < 0) {
+                        top = 0;
+                    }
+                }
+                $(this).find('>.ctxMenu-sub').css({
+                    'top': top,
+                    'left': left,
+                    'display': 'block'
+                });
+            })/*.on('mouseleave', function () {
+                $(this).find('>.ctxMenu-sub').css('display', 'none');
+            })*/;
+        },
+        // 移除所有
+        remove: function () {
+            var ifs = parent.window.frames;
+            for (var i = 0; i < ifs.length; i++) {
+                var tif = ifs[i];
+                try {
+                    tif.layui.jquery('body>.ctxMenu').remove();
+                } catch (e) {
+                }
+            }
+            try {
+                parent.layui.jquery('body>.ctxMenu').remove();
+            } catch (e) {
+            }
+        },
+        // 设置事件监听
+        setEvents: function (items, event) {
+            $('.ctxMenu').off('click').on('click', '[lay-id]', function (e) {
+                var itemId = $(this).attr('lay-id');
+                var item = getItemById(itemId, items);
+                item.click && item.click(e, event);
+            });
+
+            function getItemById(id, list) {
+                for (var i = 0; i < list.length; i++) {
+                    var one = list[i];
+                    if (id == one.itemId) {
+                        return one;
+                    } else if (one.subs && one.subs.length > 0) {
+                        var temp = getItemById(id, one.subs);
+                        if (temp) {
+                            return temp;
+                        }
+                    }
+                }
+            }
+        },
+        // 构建无限级
+        getHtml: function (items, pid) {
+            var htmlStr = '';
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                item.itemId = 'ctxMenu-' + pid + i;
+                if (item.subs && item.subs.length > 0) {
+                    htmlStr += '<div class="ctxMenu-item haveMore" lay-id="' + item.itemId + '">';
+                    htmlStr += '<a>';
+                    if (item.icon) {
+                        htmlStr += '<i class="' + item.icon + ' ctx-icon"></i>';
+                    }
+                    htmlStr += item.name;
+                    htmlStr += '<i class="layui-icon layui-icon-right icon-more"></i>';
+                    htmlStr += '</a>';
+                    htmlStr += '<div class="ctxMenu-sub" style="display: none;">';
+                    htmlStr += contextMenu.getHtml(item.subs, pid + i);
+                    htmlStr += '</div>';
+                } else {
+                    htmlStr += '<div class="ctxMenu-item" lay-id="' + item.itemId + '">';
+                    htmlStr += '<a>';
+                    if (item.icon) {
+                        htmlStr += '<i class="' + item.icon + ' ctx-icon"></i>';
+                    }
+                    htmlStr += item.name;
+                    htmlStr += '</a>';
+                }
+                htmlStr += '</div>';
+                if (item.hr == true) {
+                    htmlStr += '<hr/>';
+                }
+            }
+            return htmlStr;
+        },
+        // 获取css代码
+        getCommonCss: function () {
+            var cssStr = '.ctxMenu, .ctxMenu-sub {';
+            cssStr += '        max-width: 250px;';
+            cssStr += '        min-width: 110px;';
+            cssStr += '        background: white;';
+            cssStr += '        border-radius: 2px;';
+            cssStr += '        padding: 5px 0;';
+            cssStr += '        white-space: nowrap;';
+            cssStr += '        position: fixed;';
+            cssStr += '        z-index: 2147483647;';
+            cssStr += '        box-shadow: 0 2px 4px rgba(0, 0, 0, .12);';
+            cssStr += '        border: 1px solid #d2d2d2;';
+            cssStr += '        overflow: visible;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu-item {';
+            cssStr += '        position: relative;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu-item > a {';
+            cssStr += '        font-size: 14px;';
+            cssStr += '        color: #666;';
+            cssStr += '        padding: 0 26px 0 35px;';
+            cssStr += '        cursor: pointer;';
+            cssStr += '        display: block;';
+            cssStr += '        line-height: 36px;';
+            cssStr += '        text-decoration: none;';
+            cssStr += '        position: relative;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu-item > a:hover {';
+            cssStr += '        background: #f2f2f2;';
+            cssStr += '        color: #666;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu-item > a > .icon-more {';
+            cssStr += '        position: absolute;';
+            cssStr += '        right: 5px;';
+            cssStr += '        top: 0;';
+            cssStr += '        font-size: 12px;';
+            cssStr += '        color: #666;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu-item > a > .ctx-icon {';
+            cssStr += '        position: absolute;';
+            cssStr += '        left: 12px;';
+            cssStr += '        top: 0;';
+            cssStr += '        font-size: 15px;';
+            cssStr += '        color: #666;';
+            cssStr += '   }';
+
+            cssStr += '   .ctxMenu hr {';
+            cssStr += '        background-color: #e6e6e6;';
+            cssStr += '        clear: both;';
+            cssStr += '        margin: 5px 0;';
+            cssStr += '        border: 0;';
+            cssStr += '        height: 1px;';
+            cssStr += '   }';
+
+            cssStr += '   .ctx-ic-lg {';
+            cssStr += '        font-size: 18px !important;';
+            cssStr += '        left: 11px !important;';
+            cssStr += '    }';
+            return cssStr;
+        },
+        // 获取浏览器高度
+        getPageHeight: function () {
+            return document.documentElement.clientHeight || document.body.clientHeight;
+        },
+        // 获取浏览器宽度
+        getPageWidth: function () {
+            return document.documentElement.clientWidth || document.body.clientWidth;
+        },
+    };
+
+    // 点击任意位置关闭菜单
+    $(document).off('click.ctxMenu').on('click.ctxMenu', function () {
+        contextMenu.remove();
+    });
+
+    // 点击有子菜单的节点不关闭菜单
+    $(document).off('click.ctxMenuMore').on('click.ctxMenuMore', '.ctxMenu-item', function (e) {
+        if ($(this).hasClass('haveMore')) {
+            if (e !== void 0) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        } else {
+            contextMenu.remove();
+        }
+    });
+
+    $('head').append('<style id="ew-css-ctx">' + contextMenu.getCommonCss() + '</style>');
+    exports("contextMenu", contextMenu);
+});

@@ -1,7 +1,3 @@
-/**
- * 消息通知模块
- * date:2019-04-21   License By http://easyweb.vip
- */
 layui.define([], function (exports) {
     var PLUGIN_NAME = 'iziToast';  // 样式类名
     var BODY = document.querySelector('body');

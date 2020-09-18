@@ -6,11 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>富文本编辑器</title>
     <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+        body .tox-tinymce-aux {
+            z-index: 19892000;
+        }
+    </style>
 </head>
 <body>
 <!-- 正文开始 -->
@@ -28,21 +33,21 @@
         </div>
     </div>
 </div>
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script type="text/javascript" src="../../../assets/libs/tinymce/tinymce.min.js"></script>
 <script>
     layui.use(['layer', 'admin'], function () {
         var $ = layui.jquery;
         var layer = layui.layer;
         var admin = layui.admin;
+        var content = [
+            '<div style="text-align: center;color: #fff;background-image: linear-gradient(to right,#009688,#5fb878);padding: 20px;">',
+            '   <div style="font-size: 28px;margin-bottom: 10px;">EASY WEB 后台管理模板</div>',
+            '   <div style="font-size: 18px">基于Layui的一套通用型后台管理模板，拥有众多原创组件及模板页面</div>',
+            '</div><br/>'
+        ].join('');
 
         // 渲染富文本编辑器
         tinymce.init({
@@ -57,6 +62,9 @@
             file_picker_types: 'media',
             file_picker_callback: function (callback, value, meta) {
                 layer.msg('演示环境不允许上传', {anim: 6});
+            },
+            init_instance_callback: function (editor) {
+                console.log(editor);
             }
         });
 
@@ -74,12 +82,6 @@
 
         // 修改文本
         $('#btnDemoEdtSetContent').click(function () {
-            var content = [
-                '<div style="text-align: center;color: #fff;background-image: linear-gradient(to right,#009688,#5fb878);padding: 20px;">',
-                '   <div style="font-size: 28px;margin-bottom: 10px;">EASY WEB 后台管理模板</div>',
-                '   <div style="font-size: 18px">基于Layui的一套通用型后台管理模板，拥有众多原创组件及模板页面</div>',
-                '</div><br/>'
-            ].join('');
             tinymce.get('demoEditor').setContent(content);
         });
 
@@ -109,6 +111,9 @@
                         file_picker_types: 'media',
                         file_picker_callback: function (callback, value, meta) {
                             layer.msg('演示环境不允许上传', {anim: 6});
+                        },
+                        init_instance_callback: function (editor) {
+                            tinymce.get('demoEditor2').setContent(content);
                         }
                     });
                 },
@@ -120,10 +125,5 @@
 
     });
 </script>
-<style>
-    body .tox-tinymce-aux {
-        z-index: 19892000;
-    }
-</style>
 </body>
 </html>

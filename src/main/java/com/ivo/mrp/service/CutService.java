@@ -5,7 +5,7 @@ package com.ivo.mrp.service;
  * @author wj
  * @version 1.0
  */
-public interface CutService {
+public interface CutService  {
 
     /**
      * 获取机种的切片数

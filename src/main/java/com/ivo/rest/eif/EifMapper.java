@@ -30,4 +30,40 @@ public interface EifMapper {
      * @return List<Map>
      */
     List<Map> getProject();
+
+    /**
+     * 获取LCM1的BOM
+     * @return  List<Map>
+     */
+    List<Map> getBomLcm1();
+
+    /**
+     * 获取LCM2的BOM
+     * @return List<Map>
+     */
+    List<Map> getBomLcm2();
+
+    /**
+     * 获取ARY的BOM
+     * @return List<Map>
+     */
+    List<Map> getBomAry();
+
+    /**
+     * 获取LCM1的替代料关系
+     * @return List<Map>
+     */
+    List<Map> getMaterialSubstituteLcm1();
+
+    /**
+     * 获取LCM2的替代料关系
+     * @return List<Map>
+     */
+    List<Map> getMaterialSubstituteLcm2();
+
+    /**
+     * 获取CELL的替代料关系
+     * @return List<Map>
+     */
+    List<Map> getMaterialSubstituteCell();
 }

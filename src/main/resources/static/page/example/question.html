@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>弹窗实例</title>
     <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../assets/module/admin.css?v=317"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -31,13 +31,6 @@
     </style>
 </head>
 <body>
-
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
 
 <!-- 正文开始 -->
 <div class="layui-fluid">
@@ -82,7 +75,8 @@
                 <div class="layui-form-item">
                     <label class="layui-form-label">试题内容：</label>
                     <div class="layui-input-block">
-                        <textarea name="content" id="eQuestionContentEdt"></textarea>
+                        <textarea name="content" id="eQuestionContentEdt" lay-verType="tips" lay-verify="required"
+                                  style="display: block !important;visibility: hidden;height: 1px;border: none;"></textarea>
                     </div>
                 </div>
                 <div class="layui-form-item layui-form-text" id="eQuestionSelGroup">
@@ -156,7 +150,7 @@
 
 <!-- js部分 -->
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['layer', 'form', 'xmSelect', 'layedit'], function () {
         var $ = layui.jquery;

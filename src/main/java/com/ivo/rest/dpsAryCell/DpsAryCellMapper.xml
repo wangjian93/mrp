@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ivo.rest.dpsAryCell.DpsAryCellMapper">
+
+  <!-- 获取CELL/ARY DPS PC上传的版本 -->
+  <select id="getDpsCellAryVer" resultType="java.lang.String">
+    select DISTINCT file_ver from  dps_excel_arycel
+  </select>
+
+  <!-- 获取CELL的DPS数据 -->
+  <select id="getDpsCell" parameterType="java.lang.String" resultType="java.util.HashMap">
+    SELECT
+    file_ver,
+    fab_date,
+    model_id_dps,
+    output_name,
+    sub_type,
+    colum_name,
+    qty
+    FROM dps_excel_arycel
+    WHERE file_ver = #{ver}
+    and output_name &lt;&gt; ''
+    and sub_type = 'Cell Input'
+    and qty>0
+    ORDER BY model_id,fab_date,colum_name
+  </select>
+
+  <!-- 获取ARY的DPS数据 -->
+  <select id="getDpsAry" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+      file_ver,
+      fab_date,
+      model_id_dps,
+      sub_type,
+      colum_name,
+      qty
+    from dps_excel_arycel
+    WHERE sub_type = 'Array Input'
+      and file_ver = #{ver}
+      and qty>0
+    order by model_id,fab_date,colum_name
+  </select>
+
+  <!-- 获取ARY OC材料的DPS数据 -->
+  <select id="getDpsAryOc" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+      file_ver,
+      fab_date,
+      model_id_dps,
+      sub_type,
+      colum_name,
+      qty
+    from dps_excel_arycel
+    WHERE sub_type = 'Array OC Input'
+      and file_ver = '20200813161111'
+      and qty>0
+    order by model_id,fab_date,colum_name
+  </select>
+
+  <select id="getDpsPackage" resultType="java.util.HashMap">
+    select
+      file_ver,
+      fab_date,
+      model_id_dps,
+      sub_type,
+      colum_name,
+      qty
+    from dps_excel_arycel
+    where file_ver= #{ver}
+      and sub_type = 'Cell Input'
+      and qty>0
+      AND model_id_dps IN
+      <foreach item="item" index="index" collection="productList" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+  </select>
+</mapper>

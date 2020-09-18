@@ -6,19 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>数据表格</title>
     <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
-    <link rel="stylesheet" href="../../../assets/module/admin.css?v=317" media="all"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318" media="all"/>
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style>
+        /** 数据表格中的select尺寸调整 */
+        .layui-table-view .layui-table-cell .layui-select-title .layui-input {
+            height: 28px;
+            line-height: 28px;
+        }
+
+        .layui-table-view [lay-size="lg"] .layui-table-cell .layui-select-title .layui-input {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .layui-table-view [lay-size="lg"] .layui-table-cell .layui-select-title .layui-input {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .layui-table-view [lay-size="sm"] .layui-table-cell .layui-select-title .layui-input {
+            height: 20px;
+            line-height: 20px;
+        }
+
+        .layui-table-view [lay-size="sm"] .layui-table-cell .layui-btn-xs {
+            height: 18px;
+            line-height: 18px;
+        }
+    </style>
 </head>
-<body>
-<!-- 加载动画 -->
-<div class="page-loading">
-    <div class="ball-loader">
-        <span></span><span></span><span></span><span></span>
-    </div>
-</div>
+<body onscroll="layui.admin.hideFixedEl();">
 <!-- 正文开始 -->
 <div class="layui-fluid">
     <div class="layui-card">
@@ -56,6 +77,12 @@
             <table id="tbBasicTable" lay-filter="tbBasicTable"></table>
         </div>
     </div>
+    <div class="layui-card">
+        <div class="layui-card-body">
+            表格中的select下拉框、dropdown下拉按钮等都不需要自己对表格做任何处理就可以完美的显示，
+            因为easyweb提供了fixed定位方式的select和dropdown。
+        </div>
+    </div>
 </div>
 
 <!-- 表格操作列 -->
@@ -67,14 +94,30 @@
     <!-- 下拉菜单 -->
     <ul class="dropdown-menu-nav dropdown-bottom-right layui-hide" id="userTbDrop{{d.LAY_INDEX}}">
         <div class="dropdown-anchor"></div>
-        <li><a lay-event="view"><i class="layui-icon layui-icon-username"></i>查看信息</a></li>
         <li><a lay-event="lock"><i class="layui-icon layui-icon-password"></i>锁定用户</a></li>
         <li><a lay-event="reset"><i class="layui-icon layui-icon-key"></i>重置密码</a></li>
+        <li class="have-more show-left">
+            <a><i class="layui-icon layui-icon-upload-drag"></i>上传资料&nbsp;&nbsp;</a>
+            <ul class="dropdown-menu-nav-child">
+                <li><a><i class="layui-icon layui-icon-camera"></i>上传头像</a></li>
+                <li><a><i class="layui-icon layui-icon-picture-fine"></i>上传照片</a></li>
+            </ul>
+        </li>
     </ul>
+</script>
+<!-- 表格性别选择列 -->
+<script type="text/html" id="tbBasicTbSex">
+    <div class="ew-select-fixed">
+        <select lay-filter="tbBasicTbSexSel">
+            <option value="">请选择</option>
+            <option value="男" {{d.sex=='男'?'selected':''}}>男</option>
+            <option value="女" {{d.sex=='女'?'selected':''}}>女</option>
+        </select>
+    </div>
 </script>
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
-<script type="text/javascript" src="../../../assets/js/common.js?v=317"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
     layui.use(['layer', 'form', 'table', 'util', 'dropdown'], function () {
         var $ = layui.jquery;
@@ -96,7 +139,7 @@
                 {field: 'username', title: '账号', align: 'center', sort: true},
                 {field: 'nickName', title: '用户名', align: 'center', sort: true},
                 {field: 'phone', title: '手机号', align: 'center', sort: true},
-                {field: 'sex', title: '性别', align: 'center', sort: true},
+                {field: 'sex', title: '性别', templet: '#tbBasicTbSex', sort: true},
                 {
                     field: 'createTime', title: '创建时间', templet: function (d) {
                         return util.toDateString(d.createTime);

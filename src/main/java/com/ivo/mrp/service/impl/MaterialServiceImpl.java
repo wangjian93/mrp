@@ -7,6 +7,10 @@ import com.ivo.mrp.service.MaterialService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +34,10 @@ public class MaterialServiceImpl implements MaterialService {
         this.restService = restService;
     }
 
+    private Material getMaterial(String material) {
+        return materialRepository.findById(material).orElse(null);
+    }
+
     @Override
     public void syncMaterial() {
         //从81数据库的表MM_O_Material同步数据
@@ -45,5 +53,31 @@ public class MaterialServiceImpl implements MaterialService {
             materialRepository.save(material);
         }
         log.info("物料数据同步>> END");
+    }
+
+    @Override
+    public String getMaterialGroup(String material) {
+        Material m = getMaterial(material);
+        if(m != null)
+            return m.getMaterialGroup();
+        else
+            log.warn("Material的表中没有料号"+material);
+        return null;
+    }
+
+    @Override
+    public String getMaterialName(String material) {
+        Material m = getMaterial(material);
+        if(m != null)
+            return m.getMaterialName();
+        else
+            log.warn("Material的表中没有料号"+material);
+        return null;
+    }
+
+    @Override
+    public Page<Material> queryMaterial(int page, int limit, String search) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "material");
+        return materialRepository.findByMaterialLikeOrMaterialNameLike(search+"%", search+"%", pageable);
     }
 }

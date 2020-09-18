@@ -41,9 +41,19 @@ public class Material {
      */
     private String measureUnit;
 
+
+    /**
+     * 备注
+     */
     private String memo = "同步自81的表MM_O_Material";
 
+    /**
+     * 创建者
+     */
     private String creator = "SYS";
 
+    /**
+     * 创建时间
+     */
     private Date createDate = new Date();
 }

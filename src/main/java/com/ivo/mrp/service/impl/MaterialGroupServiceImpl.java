@@ -7,6 +7,10 @@ import com.ivo.mrp.repository.MaterialGroupRepository;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +34,10 @@ public class MaterialGroupServiceImpl implements MaterialGroupService {
         this.restService = restService;
     }
 
+    private MaterialGroup getMaterialGroup(String materialGroup) {
+        return materialGroupRepository.findById(materialGroup).orElse(null);
+    }
+
     @Override
     public void syncMaterialGroup() {
         //从81数据库的表MM_O_MaterialGroup同步数据
@@ -43,5 +51,21 @@ public class MaterialGroupServiceImpl implements MaterialGroupService {
             materialGroupRepository.save(materialGroup);
         }
         log.info("物料组数据同步>> END");
+    }
+
+    @Override
+    public String getMaterialGroupName(String materialGroup) {
+        MaterialGroup m = getMaterialGroup(materialGroup);
+        if(m != null)
+            return m.getMaterialGroupName();
+        else
+            log.warn("MaterialGroup表中没有物料组" + materialGroup);
+        return null;
+    }
+
+    @Override
+    public Page<MaterialGroup> queryMaterialGroup(int page, int limit, String search) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "materialGroup");
+        return materialGroupRepository.findByMaterialGroupLikeOrMaterialGroupNameLike(search+"%", search+"%", pageable);
     }
 }

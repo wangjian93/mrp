@@ -1,8 +1,3 @@
-/**
- * 省市区选择器
- * date:2020-03-11   License By http://easyweb.vip
- */
-
 /*!
  * CityPicker v1.2.0
  * https://github.com/tshi0912/citypicker
