@@ -3,6 +3,7 @@ package com.ivo.mrp.service;
 import com.ivo.mrp.entity.direct.ary.BomAry;
 import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.entity.direct.lcm.BomLcm;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -58,4 +59,21 @@ public interface BomService {
      * @return List<BomLcm>
      */
     List<BomCellMtrl> getCellBom(String product);
+
+    /**
+     * 主材查询BOM的机种
+     * @param page 页数
+     * @param limit 分页大小
+     * @param fab 厂别
+     * @param searchProduct 机种查询
+     * @return Page<Map>
+     */
+    Page<Map> queryProduct(int page, int limit, String fab, String searchProduct);
+
+    /**
+     * 获取去CELL的机种BOM
+     * @param product 机种
+     * @return List<Map>
+     */
+    List<Map> queryCellBom(String product);
 }

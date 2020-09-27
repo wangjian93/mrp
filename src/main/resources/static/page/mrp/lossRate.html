@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>损耗率</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318"/>
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> 材料损耗率</div>
+        <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">物料组:</label>
+                        <div class="layui-input-inline">
+                            <input id="materialGroup" name="materialGroup" class="layui-input" type="text" placeholder="搜索物料组"/>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">料号:</label>
+                        <div class="layui-input-inline">
+                            <input id="material" name="material" class="layui-input" type="text" placeholder="搜索料号"/>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                        <button id="bt_add" class="layui-btn icon-btn layui-btn-sm">
+                            <i class="layui-icon">&#xe654;</i>添加
+                        </button>
+                        <button id="bt_downloadExcel" class="layui-btn icon-btn layui-btn-sm" type="button">
+                            <i class="layui-icon">&#xe663;</i>模板
+                        </button>
+                        <button id="bt_import" class="layui-btn icon-btn layui-btn-sm" type="button">
+                            <i class="layui-icon">&#xe67c;</i>导入
+                        </button>
+                        <!-- 导出下拉按钮 -->
+                        <div class="dropdown-menu" style="margin-left: 10px;">
+                            <button class="layui-btn icon-btn layui-btn-sm" type="button">
+                                <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                            </button>
+                            <ul class="dropdown-menu-nav dropdown-right-center">
+                                <li><a id="bt_export">搜索结果</a></li>
+                                <li><a id="bt_exportAll">全部数据</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 损耗率表格 -->
+            <table id="table_lossRate" lay-filter="table_lossRate"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 表格工具栏 -->
+<script type="text/html" id="toolDemo">
+    <div style="margin: -1px;">
+        <button type="button" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon">&#xe642;</i>修改</button>
+        <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon">&#xe640;</i>删除</button>
+    </div>
+</script>
+
+<!-- 添加弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom" style="width: 400px">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物料组</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" id="materialGroup_" name="materialGroup_" autocomplete="off" placeholder="请输入物料组" value="">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物料组名</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input layui-disabled" name="materialGroupName_" disabled>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">料号</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" id="material_" name="material_" autocomplete="off" placeholder="请输入料号" value="">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">物料名</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input layui-disabled" name="materialName_" disabled>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">损耗率</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input inline-block" type="number" name="lossRate_" placeholder="请输入损耗率" value="" style="width: 220px">
+                        <span>&nbsp;&nbsp;%</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+<script>
+    layui.use(['dropdown', 'form', 'table', 'upload', 'layer', 'admin', 'yutons_sug'], function () {
+        var $ = layui.$;
+        var table = layui.table;
+        var form = layui.form;
+        var upload = layui.upload;
+        var layer = layui.layer;
+        var admin = layui.admin;
+        var yutons_sug = layui.yutons_sug;
+
+        // 表格
+        table.render({
+            elem: '#table_lossRate',
+            url: '/mrp/lossRate/queryLossRate',
+            where: {
+                materialGroup: '',
+                material: ''
+            },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 100},
+                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 200},
+                {field: 'material', title: '料号', align: 'center', width: 120},
+                {field: 'lossRate', title: '损耗率（%）', align: 'center', width: 120},
+                {title: '操作', align: 'center', width: 160, templet: '#toolDemo'},
+                {field: 'materialName', title: '品名', align: 'left'}
+            ]],
+            done: function(res, curr, count) {
+                for(var i=0; i<res.data.length; i++) {
+                    var LAY_TABLE_INDEX = res.data[i].LAY_TABLE_INDEX;
+                    if(!res.data[i].material || res.data[i].material==='') {
+                        layui.$('[lay-id="table_lossRate"] .layui-table-body tbody tr[data-index="'+LAY_TABLE_INDEX+'"]').css('background-color', '#FDF5E6');
+                    }
+                }
+            },
+            page: true,
+            limit: 50,
+            size: 'sm'
+        });
+
+        // 表格搜索
+        form.on('submit(search)', function(data) {
+            table.reload('table_lossRate', {where: data.field, page: {curr: 1}});
+            return false;
+        });
+
+        //监听行工具事件
+        table.on('tool(table_lossRate)', function(obj) {
+            var materialGroup = obj.data.materialGroup;
+            var material = obj.data.material;
+            if(obj.event === 'edit') {
+                layer.prompt({title: '修改损耗率', formType: 0}, function(text, index){
+                    var url;
+                    if(!material || material==='') {
+                        url = '/mrp/lossRate/saveLossRateForGroup';
+                    } else {
+                        url = '/mrp/lossRate/saveLossRateForMaterial';
+                    }
+                    $.post(url, {
+                        materialGroup: materialGroup,
+                        material: material,
+                        lossRate: Number(text)
+                    }, function(res) {
+                        if(res.code === 200) {
+                            var data = obj.data;
+                            data.lossRate = Number(text);
+                            obj.update(data);
+                            layer.close(index);
+                        } else {
+                            layer.msg("损耗率修改失败，"+res.msg);
+                        }
+                    });
+                });
+            } else if(obj.event === 'del') {
+                var url;
+                if(!material || material==='') {
+                    url = '/mrp/lossRate/delLossRateForGroup';
+                } else {
+                    url = '/mrp/lossRate/delLossRateForMaterial';
+                }
+                $.post(url, {
+                    materialGroup: materialGroup,
+                    material: material
+                }, function(res) {
+                    if(res.code === 200) {
+                        table.reload('table_lossRate');
+                    } else {
+                        layer.msg("损耗率删除失败，"+res.msg);
+                    }
+                });
+            }
+        });
+
+        //物料组、料号搜索框
+        yutons_sug.render({
+            id: "materialGroup",
+            url: '/mrp/material/queryMaterialGroup' + "?search=",
+            cols: [[
+                {field: 'materialGroup', title: '物料组'}
+            ]],
+            type: 'sugTable',
+            page: {layout: ['prev', 'count', 'next']},
+            limit: 50,
+            size: 'sm',
+            callBack: function(data) {
+                $('input[name=materialGroup]').val(data.materialGroup);
+            }
+        });
+        yutons_sug.render({
+            id: "material",
+            url: '/mrp/material/queryMaterialByGroup' + "?search=",
+            cols: [[
+                {field: 'material', title: '料号'}
+            ]],
+            where: {
+                materialGroup:  function() {return $('input[name=materialGroup]').val();}
+            },
+            type: 'sugTable',
+            page: {layout: ['prev', 'count', 'next']},
+            limit: 50,
+            size: 'sm',
+            callBack: function(data) {
+                $('input[name=material]').val(data.material);
+            }
+        });
+
+        // 下载excel模板
+        $("#bt_downloadExcel").click(function() {
+            window.location.href = '/mrp/lossRate/downloadExcel';
+        });
+
+        // 数据导出
+        $("#bt_export").click(function() {
+            var materialGroup = $('input[name=materialGroup]').val();
+            var material = $('input[name=material]').val();
+            exportData(materialGroup, material);
+        });
+        $("#bt_exportAll").click(function() {
+            exportData();
+        });
+        var exportData = function(materialGroup, material) {
+            if(!materialGroup) materialGroup = '';
+            if(!material) material='';
+            window.location.href = '/mrp/lossRate/exportExcel?materialGroup='+materialGroup+'&material='+material;
+        };
+
+        // 数据导入
+        upload.render({
+            elem: '#bt_import',
+            url: '/mrp/lossRate/importExcel',
+            done: function(res){
+                if(res.code === 200) {
+                    //上传完毕回调
+                    $('input[name=materialGroup]').val('');
+                    $('input[name=material]').val('');
+                    table.reload('table_lossRate', {
+                        where: {
+                            materialGroup: '',
+                            material: ''
+                        },
+                        page: {curr: 1}
+                    });
+                } else {
+                    layer.msg("损耗率excel导入失败,"+res.msg);
+                }
+            },
+            error: function(){
+                //请求异常回调
+                layer.msg("损耗率excel导入失败");
+            },
+            accept: 'file',
+            exts: 'xls|xlsx'
+        });
+
+        // 添加损耗率
+        $("#bt_add").click(function() {
+            admin.open({
+                type: 1,
+                title: '损耗率添加',
+                content: $('#addDialog').html(),
+                btn: ['提交', '取消'],
+                area: ['580px', '480px'],
+                success: function (layero, dIndex) {
+                    yutons_sug.render({
+                        id: "materialGroup_",
+                        url: '/mrp/material/queryMaterialGroup' + "?search=",
+                        cols: [[
+                            {field: 'materialGroup', title: '物料组', width: 100},
+                            {field: 'materialGroupName', title: '物料组名'}
+                        ]],
+                        type: 'sugTable',
+                        page: {layout: ['prev', 'page', 'next', 'count']},
+                        limit: 50,
+                        width: 400,
+                        size: 'sm',
+                        callBack: function(data) {
+                            $('input[name=materialGroup_]').val(data.materialGroup);
+                            $('input[name=materialGroupName_]').val(data.materialGroupName);
+                            $('input[name=material_]').val('');
+                            $('input[name=materialName_]').val('');
+                        }
+                    });
+                    yutons_sug.render({
+                        id: "material_",
+                        url: '/mrp/material/queryMaterialByGroup' + "?search=",
+                        cols: [[
+                            {field: 'material', title: '料号', width: 140},
+                            {field: 'materialName', title: '物料名'}
+                        ]],
+                        where: {
+                            materialGroup:  function() {return $('input[name=materialGroup_]').val();}
+                        },
+                        type: 'sugTable',
+                        page: {layout: ['prev', 'page', 'next', 'count']},
+                        limit: 50,
+                        width: 400,
+                        size: 'sm',
+                        callBack: function(data) {
+                            $('input[name=material_]').val(data.material);
+                            $('input[name=materialName_]').val(data.materialName);
+                        }
+                    });
+                },
+                yes: function(index, layero) {
+                    var data = form.val("addFrom");
+                    var materialGroup = data.materialGroup_;
+                    var material = data.material_;
+                    var lossRate = Number(data.lossRate_);
+                    if(!materialGroup && !material) {
+                        layer.msg("请输入物料组或料号");
+                        return;
+                    }
+                    if(!lossRate>0) {
+                        layer.msg("请维护损耗率");
+                        return;
+                    }
+
+                    var url;
+                    if(!material || material==='') {
+                        url = '/mrp/lossRate/saveLossRateForGroup';
+                    } else {
+                        url = '/mrp/lossRate/saveLossRateForMaterial';
+                    }
+                    $.post(url, {
+                        materialGroup: materialGroup,
+                        material: material,
+                        lossRate: lossRate
+                    }, function(res) {
+                        if(res.code === 200) {
+                            layer.close(index);
+                            table.reload('table_lossRate', {
+                                where: {
+                                    materialGroup: materialGroup,
+                                    material: material
+                                },
+                                page: {curr: 1}
+                            });
+                            $('input[name=materialGroup]').val(materialGroup);
+                            $('input[name=material]').val(material);
+                        } else {
+                            layer.msg("损耗率添加失败,"+res.msg);
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

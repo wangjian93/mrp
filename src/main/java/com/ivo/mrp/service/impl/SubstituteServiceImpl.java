@@ -100,7 +100,11 @@ public class SubstituteServiceImpl implements SubstituteService {
             if(rate == null) {
                 substitute.setSubstituteRate(100d);
             } else {
-                substitute.setSubstituteRate(((BigDecimal) rate).doubleValue());
+                if(rate instanceof BigDecimal) {
+                    substitute.setSubstituteRate(((BigDecimal) rate).doubleValue());
+                } else {
+                    substitute.setSubstituteRate((Double) rate);
+                }
             }
             substituteRepository.save(substitute);
         }

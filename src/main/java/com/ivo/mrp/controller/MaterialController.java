@@ -61,4 +61,20 @@ public class MaterialController {
         Page p = materialGroupService.queryMaterialGroup(page-1, limit, search);
         return ResultUtil.successPage(p.getContent(), p.getTotalElements());
     }
+
+    @ApiOperation("查询物料组下的料号信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "materialGroup", value = "物料组"),
+            @ApiImplicitParam(name = "search", value = "查询条件")
+    })
+    @GetMapping("/queryMaterialByGroup")
+    public Result queryMaterial(@RequestParam(required = false, defaultValue = "1") int page,
+                                @RequestParam(required = false, defaultValue = "50") int limit,
+                                @RequestParam(required = false, defaultValue = "") String materialGroup,
+                                @RequestParam(required = false, defaultValue = "") String search) {
+        Page p = materialService.queryMaterial(page-1, limit, materialGroup, search);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+    }
 }

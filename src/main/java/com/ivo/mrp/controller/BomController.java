@@ -39,6 +39,26 @@ public class BomController {
         this.bomPackageService = bomPackageService;
     }
 
+    @ApiOperation("查询主材Bom的机种")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "fab", value = "厂别", required = true),
+            @ApiImplicitParam(name = "product", value = "查询机种")
+    })
+    @GetMapping("/queryBomProduct")
+    public Result queryBomProduct(@RequestParam(required = false, defaultValue = "1") int page,
+                                  @RequestParam(required = false, defaultValue = "50") int limit,
+                                  String fab,
+                                  @RequestParam(required = false, defaultValue = "") String product) {
+        Page p = bomService.queryProduct(page-1, limit, fab, product);
+        if(p!=null) {
+            return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+        } else {
+            return ResultUtil.successPage(new ArrayList(), 0);
+        }
+    }
+
     @ApiOperation("获取主材的机种Bom")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "fab", value = "厂别", required = true),
@@ -52,7 +72,7 @@ public class BomController {
         } else if(StringUtils.equalsIgnoreCase(fab, "ARY")) {
             list = bomService.getAryBom(product);
         } else if(StringUtils.equalsIgnoreCase(fab, "CELL")) {
-            list = bomService.getCellBom(product);
+            list = bomService.queryCellBom(product);
         }
         return ResultUtil.success(list);
     }

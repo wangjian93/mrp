@@ -80,4 +80,10 @@ public class MaterialServiceImpl implements MaterialService {
         Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "material");
         return materialRepository.findByMaterialLikeOrMaterialNameLike(search+"%", search+"%", pageable);
     }
+
+    @Override
+    public Page<Material> queryMaterial(int page, int limit, String materialGroup, String search) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "material");
+        return materialRepository.findByMaterialGroupLikeAndMaterialLike(materialGroup+"%", search+"%", pageable);
+    }
 }

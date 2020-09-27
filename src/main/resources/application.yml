@@ -56,3 +56,8 @@ spring:
       ddl-auto: update
       primary-dialect: com.ivo.common.mysql.MySQLDialectUTF8
     open-in-view: true
+
+  mvc:
+    view:
+      prefix: /
+      suffix: .html

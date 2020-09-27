@@ -18,4 +18,12 @@ public interface MaterialRepository extends JpaRepository<Material, String> {
      * @return Page<Material>
      */
     Page<Material> findByMaterialLikeOrMaterialNameLike(String searchMaterial, String searchMaterialName, Pageable pageable);
+
+    /**
+     * 分页查询物料组下的料号
+     * @param materialGroup 物料组
+     * @param searchMaterial 模糊查询料号
+     * @return Page<Material>
+     */
+    Page<Material> findByMaterialGroupLikeAndMaterialLike(String materialGroup, String searchMaterial, Pageable pageable);
 }

@@ -3,8 +3,11 @@ package com.ivo.mrp.repository;
 import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.key.BomCellMtrlKey;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj

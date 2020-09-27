@@ -37,4 +37,14 @@ public interface MaterialService {
      * @return Page<Material>
      */
     Page<Material> queryMaterial(int page, int limit, String search);
+
+    /**
+     * 分页查询料号信息
+     * @param page 页数
+     * @param limit 分页大小
+     * @param materialGroup 物料组
+     * @param search 查询条件
+     * @return Page<Material>
+     */
+    Page<Material> queryMaterial(int page, int limit, String materialGroup, String search);
 }

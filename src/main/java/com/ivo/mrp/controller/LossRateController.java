@@ -131,7 +131,7 @@ public class LossRateController {
 
         HttpServletResponse response = HttpServletUtil.getResponse();
         response.setContentType("application/vnd.ms-excel;chartset=utf-8");
-        String fileName = "材料损耗率";
+        String fileName = "损耗率";
         fileName = URLEncoder.encode(fileName, "UTF8");
         response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
         OutputStream out = response.getOutputStream();
@@ -147,7 +147,7 @@ public class LossRateController {
 
         HttpServletResponse response = HttpServletUtil.getResponse();
         response.setContentType("application/vnd.ms-excel;chartset=utf-8");
-        String fileName = "材料损耗率上传模板";
+        String fileName = "损耗率上传模板";
         fileName = URLEncoder.encode(fileName, "UTF8");
         response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
         OutputStream out = response.getOutputStream();

@@ -1,7 +1,5 @@
 package com.ivo.rest;
 
-import org.apache.ibatis.annotations.Param;
-
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;

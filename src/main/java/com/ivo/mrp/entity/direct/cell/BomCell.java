@@ -46,6 +46,12 @@ public class BomCell {
     @Id
     private String cellMtrl;
 
+    private String materialName;
+
+    private String materialGroup;
+
+    private String materialGroupName;
+
     /**
      * 是否使用
      */

@@ -15,9 +15,13 @@ import com.ivo.mrp.service.MaterialGroupService;
 import com.ivo.mrp.service.MaterialService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -206,5 +210,23 @@ public class BomServiceImpl implements BomService {
     @Override
     public List<BomCellMtrl> getCellBom(String product) {
         return bomCellMtrlRepository.findByProductAndUseFlag(product, true);
+    }
+
+    @Override
+    public List<Map> queryCellBom(String product) {
+        return bomCellRepository.findByProduct(product);
+    }
+
+    @Override
+    public Page<Map> queryProduct(int page, int limit, String fab, String searchProduct) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product");
+        if(StringUtils.equalsAnyIgnoreCase(fab, "LCM1", "LCM2")) {
+            return bomLcmRepository.queryProduct(fab, searchProduct+"%", pageable);
+        } else if(StringUtils.equalsIgnoreCase(fab, "CELL")) {
+            return bomCellRepository.queryProduct(fab, searchProduct+"%", pageable);
+        } else if(StringUtils.equalsIgnoreCase(fab, "ARY")) {
+            return bomAryRepository.queryProduct(fab, searchProduct+"%", pageable);
+        }
+        return null;
     }
 }

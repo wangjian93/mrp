@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>LCM2 BOM</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
+    <!--[if lt IE 9]>
+    <script src="../../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- 机种筛选表格行点击样式 -->
+    <style>
+        #table_product + .layui-table-view .layui-table-body tbody > tr.layui-table-click {
+            background-color: #F5DEB3;
+        }
+        #table_product + .layui-table-view .layui-table-body tbody > tr.layui-table-click td:last-child > div:before {
+            position: absolute;
+            right: 6px;
+            content: "\e602";
+            font-size: 12px;
+            font-style: normal;
+            font-family: layui-icon !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
+            background-color: transparent;
+        }
+    </style>
+</head>
+<body>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM2 BOM</div>
+        <div class="layui-card-body">
+            <div class="layui-row layui-col-space30">
+                <div class="layui-col-md3">
+                    <!-- 机种筛选条件 -->
+                    <input id="product" name="product" class="layui-input" placeholder="输入机种" autocomplete="off"/>
+                    <!-- 机种表格 -->
+                    <table id="table_product" lay-filter="table_product"></table>
+                </div>
+                <div class="layui-col-md9">
+                    <div style="padding-top: 8px;"><h5><i class="layui-icon layui-icon-form"></i> 机种的材料:</h5></div>
+                    <!-- BOM表格 -->
+                    <table id="table_bom" lay-filter="table_bom"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+<script>
+    layui.use(['table', 'layer'], function() {
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$;
+        var fab = "LCM2";
+
+        // 机种表格
+        table.render({
+            elem: '#table_product',
+            url: '/mrp/bom/queryBomProduct',
+            where: {
+                fab: fab,
+                product: ''
+            },
+            cols: [[
+                {type: 'numbers'},
+                {field: 'product', title: '机种', align: 'center'}
+            ]],
+            done: function (res, curr, count) {
+                layui.$('[lay-id="table_product"] .layui-table-body tbody>tr:first').trigger('click');
+            },
+            page: {layout: ['prev', 'count', 'next']},
+            limit: 15,
+            size: 'sm'
+        });
+
+        /* 监听机种表格的行单击事件 */
+        table.on('row(table_product)', function (obj) {
+            var product = obj.data.product;
+            obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
+            var index = layer.load(1, {
+                shade: [0.1,'#fff'] //0.1透明度的白色背景
+            });
+            $.get('/mrp/bom/getBom', {
+                fab: fab,
+                product: product
+            }, function(res) {
+                layer.close(index);
+                if(res.code === 200) {
+                    table.reload('table_bom', {data: res.data});
+                } else {
+                    layer.msg("获取机种的BOM数据失败，"+res.msg);
+                }
+            });
+        });
+
+        // 机种输入触发
+        $("#product").on("input", function(e){
+            table.reload('table_product', {
+                where:{
+                    plant: fab,
+                    product: $("#product").val()
+                },
+                page: {
+                    curr: 1
+                }
+            });
+        });
+
+
+        // BOM表格
+        table.render({
+            elem: '#table_bom',
+            data: [],
+            cols: [[
+                {type: 'numbers'},
+                {field: 'material', title: '料号', align: 'center', width: 140},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
+                {field: 'measureUnit', title: '单位', align: 'center', width: 80},
+                {field: 'usageQty', title: '使用量', align: 'center', width: 100},
+                {field: 'fab', title: '厂别', align: 'center', width: 80},
+                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 100, templet: function(d) {
+                        return '<div style="text-align: left">'+d.materialGroupName+'</div>';
+                    }},
+                {field: 'materialName', title: '物料名', align: 'center', templet: function(d) {
+                        return '<div style="text-align: left">'+d.materialName+'</div>';
+                    }},
+            ]],
+            page: false,
+            size: 'sm'
+        });
+    });
+
+</script>
+</body>
+</html>
