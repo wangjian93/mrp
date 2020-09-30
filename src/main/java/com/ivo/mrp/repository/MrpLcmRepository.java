@@ -25,5 +25,13 @@ public interface MrpLcmRepository extends JpaRepository<MrpLcm, MrpKey> {
      * @param ver MRP版本
      * @return List<MrpLcm>
      */
-    List<MrpLcm> findByVerOrderByFabDateAsc(String ver);
+    List<MrpLcm> findByVerOrderByMaterialAsc(String ver);
+
+    /**
+     * 筛选版本、料号集合
+     * @param ver MRP版本
+     * @param materialList 料号集合
+     * @return List<MrpLcm>
+     */
+    List<MrpLcm> findByVerAndMaterialInOrderByMaterialAsc(String ver, List<String> materialList);
 }

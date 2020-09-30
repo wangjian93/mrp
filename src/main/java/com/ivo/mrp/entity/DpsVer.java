@@ -1,5 +1,6 @@
 package com.ivo.mrp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +29,7 @@ public class DpsVer {
     public static final String Type_Ary = "ARY";
     public static final String Type_Cell = "CELL";
     public static final String Type_Package = "包材";
+    public static final String Type_Pol = "POL";
 
 
     /**
@@ -94,6 +96,7 @@ public class DpsVer {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createDate = new Date();
 
 }

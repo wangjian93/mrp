@@ -45,7 +45,7 @@ public interface BomPackageService {
 
     /**
      * 获取包材类机种
-     * @return List<String
+     * @return List<String>
      */
     List<String> getPackageProduct();
 

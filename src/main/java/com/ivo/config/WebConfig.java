@@ -1,6 +1,5 @@
 package com.ivo.config;
 
-import com.ivo.system.LoginInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -20,6 +19,21 @@ public class WebConfig implements WebMvcConfigurer {
         InterceptorRegistration registration = registry.addInterceptor(new LoginInterceptor());
         registration.addPathPatterns("/**");                      //所有路径都被拦截
         registration.excludePathPatterns(                         //添加不拦截路径
+                "/login",
+                "/logout",
+                "/login.html",            //登录
+                "/**/*.js",              //js静态资源
+                "/**/*.css",             //css静态资源
+                "/**/*.woff",
+                "/**/*.ttf",
+                "/assets/**",
+                "/json/**"
+        );
+
+        //http请求日志记录
+        InterceptorRegistration registration2 = registry.addInterceptor(new LoggerIntercptor());
+        registration2.addPathPatterns("/**");                      //所有路径都被拦截
+        registration2.excludePathPatterns(                         //添加不拦截路径
                 "/login",
                 "/logout",
                 "/login.html",            //登录

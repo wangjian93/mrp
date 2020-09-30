@@ -52,7 +52,7 @@ public class BomPol extends AutoIncreaseEntityModel {
     private String type;
 
     /**
-     * 组
+     * 按组分类排序
      */
-    private String group;
+    private String sort;
 }

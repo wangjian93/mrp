@@ -1,4 +1,4 @@
-package com.ivo.system;
+package com.ivo.config;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;

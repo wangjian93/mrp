@@ -170,14 +170,14 @@ public interface MrpService {
     List<MrpCell> getMrpCell(String ver);
 
     /**
-     * 获取LCM料号的MRP
+     * 获取LCM的MRP
      * @param ver MRP版本
      * @return List<MrpLcm>
      */
     List<MrpLcm> getMrpLcm(String ver);
 
     /**
-     * 获取ARY料号的MRP
+     * 获取ARY的MRP
      * @param ver MRP版本
      * @return List<MrpAry>
      */
@@ -256,4 +256,26 @@ public interface MrpService {
      * @return List
      */
     List getMrpDate(String ver);
+
+    /**
+     * 分页获取LCM MRP的料号
+     * @param page 页数
+     * @param limit 分页大小
+     * @param ver mrp版本
+     * @param searchProduct 查询机种
+     * @param searchMaterialGroup 查询物料组
+     * @param searchMaterial 查询料号
+     * @param searchSupplier 查询供应商
+     * @return Page<MrpLcmMaterial>
+     */
+    Page<MrpLcmMaterial> getPageMrpLcmMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup,
+                                               String searchMaterial, String searchSupplier);
+
+    /**
+     * 批量获取LCM料号的MRP
+     * @param ver MRP版本
+     * @param materialList 料号集合
+     * @return List<MrpLcm>
+     */
+    List<MrpLcm> getMrpLcm(String ver, List<String> materialList);
 }

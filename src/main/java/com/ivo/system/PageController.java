@@ -1,7 +1,11 @@
 package com.ivo.system;
 
+import com.ivo.mrp.entity.DpsVer;
+import com.ivo.mrp.entity.MrpVer;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * 系统页面
@@ -20,6 +24,29 @@ public class PageController {
     private static final String bom_pol_view = "page/mrp/bom/bomPol";
     private static final String bom_package_view = "page/mrp/bom/bomPackage";
 
+    private static final String dps_ver_lcm_view = "page/mrp/dps/dpsVerLcm";
+    private static final String dps_ver_ary_view = "page/mrp/dps/dpsVerAry";
+    private static final String dps_ver_cell_view = "page/mrp/dps/dpsVerCell";
+    private static final String dps_ver_package_view = "page/mrp/dps/dpsVerPackage";
+    private static final String dps_ver_pol_view = "page/mrp/dps/dpsVerPol";
+
+    private static final String dps_lcm_view = "page/mrp/dps/dpsLcm";
+    private static final String dps_ary_view = "page/mrp/dps/dpsLcm";
+    private static final String dps_cell_view = "page/mrp/dps/dpsLcm";
+    private static final String dps_package_view = "page/mrp/dps/dpsLcm";
+    private static final String dps_pol_view = "page/mrp/dps/dpsLcm";
+
+    private static final String mrp_ver_lcm_view = "page/mrp/mrp/mrpVerLcm";
+    private static final String mrp_ver_ary_view = "page/mrp/mrp/mrpVerAry";
+    private static final String mrp_ver_cell_view = "page/mrp/mrp/mrpVerCell";
+    private static final String mrp_ver_package_view = "page/mrp/mrp/mrpVerPackage";
+    private static final String mrp_ver_pol_view = "page/mrp/mrp/mrpVerPol";
+
+    private static final String mrp_lcm_view = "page/mrp/mrp/mrpLcm";
+    private static final String mrp_ary_view = "page/mrp/mrp/mrpLcm";
+    private static final String mrp_cell_view = "page/mrp/mrp/mrpLcm";
+    private static final String mrp_package_view = "page/mrp/mrp/mrpLcm";
+    private static final String mrp_pol_view = "page/mrp/mrp/mrpLcm";
 
 
     /**
@@ -92,6 +119,56 @@ public class PageController {
     @GetMapping("/bomPol")
     public String bomPol() {
         return bom_pol_view;
+    }
+
+    /**
+     * DPS版本
+     * @param type DPS类型
+     * @return String
+     */
+    @GetMapping("/dpsVer/{type}")
+    public String dpsVer(@PathVariable String type) {
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Ary)) {
+            return dps_ver_ary_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Cell)) {
+            return dps_ver_cell_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Lcm)) {
+            return dps_ver_lcm_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, "Package")) {
+            return dps_ver_package_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Pol)) {
+            return dps_ver_pol_view;
+        }
+        return null;
+    }
+
+    /**
+     * MRP版本
+     * @param type MRP类型
+     * @return String
+     */
+    @GetMapping("/mrpVer/{type}")
+    public String mrpVer(@PathVariable String type) {
+        if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Ary)) {
+            return mrp_ver_ary_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Cell)) {
+            return mrp_ver_cell_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Lcm)) {
+            return mrp_ver_lcm_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, "Package")) {
+            return mrp_ver_package_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Pol)) {
+            return mrp_ver_pol_view;
+        }
+        return null;
     }
 
 }

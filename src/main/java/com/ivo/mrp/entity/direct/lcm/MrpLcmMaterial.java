@@ -4,11 +4,10 @@ import com.ivo.mrp.key.MrpMaterialKey;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * LCM MRP的料号主数据库存、损耗率等
@@ -104,4 +103,7 @@ public class MrpLcmMaterial {
      * 创建时间
      */
     private Date createDate = new Date();
+
+    @Transient
+    List<MrpLcm> mrpLcmList = new ArrayList<>();
 }

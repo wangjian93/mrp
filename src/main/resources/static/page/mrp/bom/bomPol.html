@@ -1,10 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>POL BOM</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
+    <!--[if lt IE 9]>
+    <script src="../../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
+            background-color: transparent;
+        }
+    </style>
 </head>
 <body>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> POL BOM</div>
+        <div class="layui-card-body">
+            <!-- 表格工具栏 -->
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">机种:</label>
+                        <div class="layui-input-inline">
+                            <input id="searchProduct" name="searchProduct" class="layui-input" type="text" placeholder="搜索机种"/>
+                        </div>
+                    </div>
 
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                        <button id="bt_add" class="layui-btn icon-btn layui-btn-sm">
+                            <i class="layui-icon">&#xe654;</i>添加
+                        </button>
+                        <button id="bt_downloadExcel" class="layui-btn icon-btn layui-btn-sm" type="button">
+                            <i class="layui-icon">&#xe663;</i>模板
+                        </button>
+                        <button id="bt_import" class="layui-btn icon-btn layui-btn-sm" type="button">
+                            <i class="layui-icon">&#xe67c;</i>导入
+                        </button>
+                        <!-- 导出下拉按钮 -->
+                        <div class="dropdown-menu" style="margin-left: 10px;">
+                            <button class="layui-btn icon-btn layui-btn-sm" type="button">
+                                <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                            </button>
+                            <ul class="dropdown-menu-nav dropdown-right-center">
+                                <li><a id="bt_export">搜索结果</a></li>
+                                <li><a id="bt_exportAll">全部数据</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 包材BOM表格 -->
+            <table id="table_bomPol" lay-filter="table_bomPol"></table>
+        </div>
+    </div>
+</div>
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+<script>
+    layui.use(['table', 'layer', 'form', 'upload', 'dropdown'], function() {
+        var table = layui.table;
+        var layer = layui.layer;
+        var $ = layui.$;
+        var form = layui.form;
+        var upload = layui.upload;
+
+        // POL BOM表格
+        table.render({
+            elem: '#table_bomPol',
+            url: '/mrp/bom/queryBomPol',
+            where: {
+                searchProduct: ''
+            },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'product', title: '机种', align: 'center', width: 100},
+                {field: 'material', title: '料号', align: 'center', width: 100},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 100},
+                {field: 'materialName', title: '物料名', align: 'center', width: 300},
+                {field: 'type', title: '类型', align: 'center', width: 100},
+                {field: 'sort', title: '组', align: 'center', width: 100}
+            ]],
+            done: function(res, curr, count) {
+                // 同厂别、机种、物料组的设置合并单元格，设置行变色
+                var mergeFields = ['product'];
+                tableX.merges('table_bomPol', [1], [mergeFields]);
+                var s = "";
+                var flag = true;
+                for(var i=0; i<res.data.length; i++) {
+                    var s_ = res.data[i].fab+res.data[i].product+res.data[i].materialGroup;
+                    var LAY_TABLE_INDEX = res.data[i].LAY_TABLE_INDEX;
+                    if(s !== s_) {
+                        flag = !flag;
+                        s = s_;
+                    }
+                    if(flag) {
+                        layui.$('[lay-id="table_substitute"] .layui-table-body tbody tr[data-index="'+LAY_TABLE_INDEX+'"]').css('background-color', '#FDF5E6');
+                    }
+                }
+            },
+            page: true,
+            limit: 50,
+            even: true,
+            size: 'sm'
+        });
+
+        // 表格搜索
+        form.on('submit(search)', function(data) {
+            table.reload('table_bomPol', {where: data.field, page: {curr: 1}});
+            return false;
+        });
+
+        // 下载excel模板
+        $("#bt_downloadExcel").click(function() {
+            window.location.href = '/mrp/bom/downloadBomPolExcel';
+        });
+
+        // 数据导出
+        $("#bt_export").click(function() {
+            var searchProduct = $('input[name=searchProduct]').val();
+            exportData(searchProduct);
+        });
+        $("#bt_exportAll").click(function() {
+            exportData();
+        });
+        var exportData = function(searchProduct) {
+            if(!searchProduct) searchProduct = '';
+            window.location.href = '/mrp/bom/exportBomPol?product='+searchProduct;
+        };
+
+        // 数据导入
+        upload.render({
+            elem: '#bt_import',
+            url: '/mrp/bom/importBomPol',
+            done: function(res){
+                if(res.code === 200) {
+                    //上传完毕回调
+                    table.reload('table_bomPol');
+                } else {
+                    layer.msg("POL BOM excel导入失败,"+res.msg);
+                }
+            },
+            error: function(){
+                //请求异常回调
+                layer.msg("POL BOM excel导入失败");
+            },
+            accept: 'file',
+            exts: 'xls|xlsx'
+        });
+
+    });
+
+</script>
 </body>
 </html>

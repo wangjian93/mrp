@@ -2,6 +2,7 @@ package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.DateUtil;
 import com.ivo.mrp.entity.MrpVer;
+import com.ivo.mrp.entity.Substitute;
 import com.ivo.mrp.entity.direct.ary.MrpAry;
 import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
 import com.ivo.mrp.entity.direct.cell.MrpCell;
@@ -13,13 +14,16 @@ import com.ivo.mrp.key.MrpMaterialKey;
 import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.MrpService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.Predicate;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -183,7 +187,7 @@ public class MrpServiceImpl implements MrpService {
 
     @Override
     public List<MrpLcm> getMrpLcm(String ver) {
-        return mrpLcmRepository.findByVerOrderByFabDateAsc(ver);
+        return mrpLcmRepository.findByVerOrderByMaterialAsc(ver);
     }
 
     @Override
@@ -241,7 +245,7 @@ public class MrpServiceImpl implements MrpService {
 
     @Override
     public Page<MrpVer> queryMrpVer(int page, int limit, String searchFab, String searchType, String searchVer) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "ver");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "ver");
         return mrpVerRepository.findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchType+"%", searchVer+"%", pageable);
     }
 
@@ -268,5 +272,35 @@ public class MrpServiceImpl implements MrpService {
                 list = new ArrayList();
         }
         return list;
+    }
+
+    @Override
+    public Page<MrpLcmMaterial> getPageMrpLcmMaterial(int page, int limit, String ver, String searchProduct,
+                                                      String searchMaterialGroup, String searchMaterial,
+                                                      String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "materialGroup", "material");
+        Specification<MrpLcmMaterial> spec = (Specification<MrpLcmMaterial>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("ver"), ver));
+            if(StringUtils.isNotEmpty(searchProduct)) {
+                predicates.add(criteriaBuilder.like(root.get("products"), "%"+searchProduct+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterialGroup)) {
+                predicates.add(criteriaBuilder.like(root.get("materialGroup"), searchMaterialGroup+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterial)) {
+                predicates.add(criteriaBuilder.like(root.get("material"), searchMaterial+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchSupplier)) {
+                predicates.add(criteriaBuilder.like(root.get("suppliers"), "%"+searchSupplier+"%"));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return mrpLcmMaterialRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public List<MrpLcm> getMrpLcm(String ver, List<String> materialList) {
+        return mrpLcmRepository.findByVerAndMaterialInOrderByMaterialAsc(ver, materialList);
     }
 }

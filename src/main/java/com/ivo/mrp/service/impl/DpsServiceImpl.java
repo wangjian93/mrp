@@ -1,6 +1,5 @@
 package com.ivo.mrp.service.impl;
 
-import com.ivo.common.utils.ResultUtil;
 import com.ivo.mrp.entity.*;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.ary.DpsAryOc;
@@ -439,7 +438,7 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public Page<DpsVer> queryDpsVer(int page, int limit, String searchFab, String searchType, String searchVer) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "ver");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "ver");
         return dpsVerRepository.findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchType+"%",
                 searchVer+"%", pageable);
     }

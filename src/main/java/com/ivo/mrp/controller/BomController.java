@@ -1,22 +1,28 @@
 package com.ivo.mrp.controller;
 
 import com.ivo.common.result.Result;
+import com.ivo.common.utils.HttpServletUtil;
 import com.ivo.common.utils.ResultUtil;
 import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.service.BomPackageService;
+import com.ivo.mrp.service.BomPolService;
 import com.ivo.mrp.service.BomService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +38,16 @@ public class BomController {
 
     private BomService bomService;
     private BomPackageService bomPackageService;
+    private BomPolService bomPolService;
 
     @Autowired
-    public BomController(BomService bomService,BomPackageService bomPackageService) {
+    public BomController(BomService bomService,BomPackageService bomPackageService, BomPolService bomPolService) {
         this.bomService = bomService;
         this.bomPackageService = bomPackageService;
+        this.bomPolService = bomPolService;
     }
+
+    //** 主材 **//
 
     @ApiOperation("查询主材Bom的机种")
     @ApiImplicitParams({
@@ -76,6 +86,8 @@ public class BomController {
         }
         return ResultUtil.success(list);
     }
+
+    //** 包材 **//
 
     @ApiOperation("获取包材的机种Bom")
     @ApiImplicitParams({
@@ -132,5 +144,76 @@ public class BomController {
             return ResultUtil.error(e.getMessage());
         }
         return ResultUtil.success("Excel导入成功");
+    }
+
+    //** POL **//
+
+    @ApiOperation("查询POL的机种BOM")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "searchProduct", value = "查询机种")
+    })
+    @GetMapping("/queryBomPol")
+    public Result queryBomPol(@RequestParam(required = false, defaultValue = "1") int page,
+                              @RequestParam(required = false, defaultValue = "50") int limit,
+                              @RequestParam(required = false, defaultValue = "") String searchProduct) {
+        Page p = bomPolService.queryBomPol(page-1, limit, searchProduct);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+    }
+
+    @ApiOperation("Excel导入POL BOM")
+    @PostMapping(value = "/importBomPol", headers = "content-type=multipart/form-data")
+    public Result importBomPol(@ApiParam(value = "Excel文件", required = true) @RequestParam("file") MultipartFile file) {
+        try {
+            //IVO文件解密
+            byte[] bytes = IVODecryptionUtils.decrypt(file.getInputStream());
+            InputStream inputStream = new ByteArrayInputStream(bytes);
+            String fileName = file.getOriginalFilename();
+            bomPolService.importBomPol(inputStream, fileName);
+        } catch (IOException e) {
+            log.error("Excel导入POL BOM失败", e);
+            return ResultUtil.error("Excel导入失败，文件读取异常");
+        } catch (DecryptException e) {
+            log.error("Excel导入POL BOM失败", e);
+            return ResultUtil.error("Excel导入失败，文件解密异常");
+        } catch (Exception e) {
+            log.error("Excel导入POL BOM失败", e);
+            return ResultUtil.error(e.getMessage());
+        }
+        return ResultUtil.success("Excel导入成功");
+    }
+
+    @ApiOperation("Excel导出POL BOM")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "product", value = "机种")
+    })
+    @GetMapping("/exportBomPol")
+    public void exportExcel(@RequestParam(required = false, defaultValue = "") String product) throws IOException {
+        Workbook workbook = bomPolService.exportBomPol(product);
+        HttpServletResponse response = HttpServletUtil.getResponse();
+        response.setContentType("application/vnd.ms-excel;chartset=utf-8");
+        String fileName = "POL BOM";
+        fileName = URLEncoder.encode(fileName, "UTF8");
+        response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
+        OutputStream out = response.getOutputStream();
+        workbook.write(out);
+        out.flush();
+        out.close();
+    }
+
+    @ApiOperation("Excel POL BOM模板下载")
+    @GetMapping("/downloadBomPolExcel")
+    public void downloadBomPolExcel() throws IOException {
+        Workbook workbook = bomPolService.downloadBomPolExcel();
+        HttpServletResponse response = HttpServletUtil.getResponse();
+        response.setContentType("application/vnd.ms-excel;chartset=utf-8");
+        String fileName = "POL BOM上传模板";
+        fileName = URLEncoder.encode(fileName, "UTF8");
+        response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
+        OutputStream out = response.getOutputStream();
+        workbook.write(out);
+        out.flush();
+        out.close();
     }
 }
