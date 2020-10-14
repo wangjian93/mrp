@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,5 +131,47 @@ public class DemandServiceImpl implements DemandService {
     public double getDemandQtyCell(String ver, String material, Date fabDate) {
         Double d = demandCellRepository.getDemandQtyCell(ver, material, fabDate);
         return d == null ? 0 : d;
+    }
+
+    @Override
+    public List<DemandAry> getDemandAry(String ver, String material, Date fabDate) {
+        return demandAryRepository.findByVerAndMaterialAndFabDate(ver, material, fabDate);
+    }
+
+    @Override
+    public List<DemandAryOc> getDemandAryOc(String ver, String material, Date fabDate) {
+        return demandAryOcRepository.findByVerAndMaterialAndFabDate(ver, material, fabDate);
+    }
+
+    @Override
+    public List<DemandCell> getDemandCell(String ver, String material, Date fabDate) {
+        return demandCellRepository.findByVerAndMaterialAndFabDate(ver, material, fabDate);
+    }
+
+    @Override
+    public List<DemandLcm> getDemandLcm(String ver, String material, Date fabDate) {
+        return demandLcmRepository.findByVerAndMaterialAndFabDate(ver, material, fabDate);
+    }
+
+    @Override
+    public List<String> getDemandProductLcm(String ver, String material) {
+        return demandLcmRepository.getProduct(ver, material);
+    }
+
+    @Override
+    public List<String> getDemandProductAry(String ver, String material) {
+        List<String> list1 = demandAryRepository.getProduct(ver, material);
+        List<String> list2 = demandAryOcRepository.getProduct(ver, material);
+        List<String> list = new ArrayList<>(list1);
+        for(String product : list2) {
+            if(list.contains(product)) continue;
+            list.add(product);
+        }
+        return list;
+    }
+
+    @Override
+    public List<String> getDemandProductCell(String ver, String material) {
+        return demandCellRepository.getProduct(ver, material);
     }
 }

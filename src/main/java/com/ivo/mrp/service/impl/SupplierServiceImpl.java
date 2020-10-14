@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 供应商与材料的服务接口
@@ -63,8 +60,15 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public List<Supplier> getSupplierByMaterial(String material) {
-        supplierMaterialRepository.findByMaterialAndValidFlag(material, true);
-        return null;
+        List<SupplierMaterial> supplierMaterialList = supplierMaterialRepository.findByMaterialAndValidFlag(material, true);
+        List<Supplier> supplierList = new ArrayList<>();
+        for(SupplierMaterial supplierMaterial : supplierMaterialList) {
+            Supplier supplier = supplierRepository.findById(supplierMaterial.getSupplierCode()).orElse(null);
+            if(supplier != null) {
+                supplierList.add(supplier);
+            }
+        }
+        return supplierList;
     }
 
     @Override

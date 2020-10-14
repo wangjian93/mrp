@@ -39,6 +39,12 @@ public interface MrpService {
      */
     MrpVer getMrpVer(String ver);
 
+    /**
+     * 删除MRP版本
+     * @param ver 版本
+     */
+    void delMrpVer(String ver);
+
 
     /**
      * 版本数组转字符，多个用逗号隔开
@@ -278,4 +284,31 @@ public interface MrpService {
      * @return List<MrpLcm>
      */
     List<MrpLcm> getMrpLcm(String ver, List<String> materialList);
+
+    /**
+     * 获取LCM 料号MRP
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return MrpLcm
+     */
+    MrpLcm getMrpLcm(String ver, String material, Date fabDate);
+
+    /**
+     * 获取CELL 料号MRP
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return MrpCell
+     */
+    MrpCell getMrpCell(String ver, String material, Date fabDate);
+
+    /**
+     * 获取ARY 料号MRP
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return MrpAry
+     */
+    MrpAry getMrpAry(String ver, String material, Date fabDate);
 }

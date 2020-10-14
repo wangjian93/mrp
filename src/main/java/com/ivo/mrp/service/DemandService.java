@@ -112,4 +112,66 @@ public interface DemandService {
      * @return double
      */
     double getDemandQtyCell(String ver, String material, Date fabDate);
+
+    /**
+     * 获取Ary MRP材料的需求量明细
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandAry>
+     */
+    List<DemandAry> getDemandAry(String ver, String material, Date fabDate);
+
+    /**
+     * 获取Ary OC MRP材料的需求量明细
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandAry>
+     */
+    List<DemandAryOc> getDemandAryOc(String ver, String material, Date fabDate);
+
+    /**
+     * 获取CELL MRP材料的需求量明细
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandAry>
+     */
+    List<DemandCell> getDemandCell(String ver, String material, Date fabDate);
+
+    /**
+     * 获取LCM MRP材料的需求量明细
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandAry>
+     */
+    List<DemandLcm> getDemandLcm(String ver, String material, Date fabDate);
+
+
+    /**
+     * 获取LCM 料号的需求机种
+     * @param ver MRP版本
+     * @param material 料号
+     * @return List<String>
+     */
+    List<String> getDemandProductLcm(String ver, String material);
+
+    /**
+     * 统计出ARY 料号的需求机种
+     * @param ver MRP版本
+     * @param material 料号
+     * @return List<String>
+     */
+    List<String> getDemandProductAry(String ver, String material);
+
+
+    /**
+     * 统计出CELL 料号的需求机种
+     * @param ver MRP版本
+     * @param material 料号
+     * @return List<String>
+     */
+    List<String> getDemandProductCell(String ver, String material);
 }

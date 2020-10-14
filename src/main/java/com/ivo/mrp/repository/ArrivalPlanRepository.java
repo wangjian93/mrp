@@ -23,7 +23,16 @@ public interface ArrivalPlanRepository extends JpaRepository<ArrivalPlan, Arriva
      * @return Double
      */
     @Query(value = "select sum(a.arrivalQty) from ArrivalPlan a where a.fab=:fab and a.material=:material and a.fabDate=:fabDate ")
-    Double getArrivalPlan(String fab, String material, Date fabDate);
+    Double getArrivalPlanQty(String fab, String material, Date fabDate);
+
+    /**
+     * 获取供应商到货计划，筛选厂别，料号，日期
+     * @param fab 厂别
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<ArrivalPlan>
+     */
+    List<ArrivalPlan> findByFabAndMaterialAndFabDate(String fab, String material, Date fabDate);
 
     /**
      * 获取总的到货量

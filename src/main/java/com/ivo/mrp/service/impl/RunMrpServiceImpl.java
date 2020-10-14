@@ -2,10 +2,8 @@ package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.DateUtil;
 import com.ivo.common.utils.DoubleUtil;
-import com.ivo.mrp.entity.DpsVer;
-import com.ivo.mrp.entity.MonthSettle;
-import com.ivo.mrp.entity.MpsVer;
-import com.ivo.mrp.entity.MrpVer;
+import com.ivo.common.utils.StringUtil;
+import com.ivo.mrp.entity.*;
 import com.ivo.mrp.entity.direct.ary.*;
 import com.ivo.mrp.entity.direct.cell.*;
 import com.ivo.mrp.entity.direct.lcm.*;
@@ -46,6 +44,9 @@ public class RunMrpServiceImpl implements RunMrpService {
     private ArrivalPlanService arrivalPlanService;
     private AllocationService allocationService;
     private BomPackageService bomPackageService;
+    private MaterialService materialService;
+    private MaterialGroupService materialGroupService;
+    private SupplierService supplierService;
 
     @Autowired
     public RunMrpServiceImpl(DpsService dpsService, MpsService mpsService, MrpService mrpService,
@@ -56,7 +57,10 @@ public class RunMrpServiceImpl implements RunMrpService {
                              RestService restService,
                              ArrivalPlanService arrivalPlanService,
                              AllocationService allocationService,
-                             BomPackageService bomPackageService) {
+                             BomPackageService bomPackageService,
+                              MaterialService materialService,
+                             MaterialGroupService materialGroupService,
+                             SupplierService supplierService) {
         this.dpsService = dpsService;
         this.mpsService = mpsService;
         this.mrpService = mrpService;
@@ -69,6 +73,9 @@ public class RunMrpServiceImpl implements RunMrpService {
         this.arrivalPlanService = arrivalPlanService;
         this.allocationService = allocationService;
         this.bomPackageService = bomPackageService;
+        this.materialService = materialService;
+        this.materialGroupService = materialGroupService;
+        this.supplierService = supplierService;
     }
 
     @Override
@@ -1007,7 +1014,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         //需求量
         Map<java.sql.Date, Double> demandQtyMap = demandService.getDemandQtyLcm(ver, material);
         //到货量
-        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlan(fab, material, dateList);
+        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlanQty(fab, material, dateList);
         //分配量
         Map<java.sql.Date, Double> allocationQtyMap = allocationService.getAllocation(fab, material, dateList);
 
@@ -1130,7 +1137,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         //需求量
         Map<java.sql.Date, Double> demandQtyMap = demandService.getDemandQtyAry(ver, material);
         //到货量
-        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlan(fab, material, dateList);
+        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlanQty(fab, material, dateList);
         //分配量
         Map<java.sql.Date, Double> allocationQtyMap = allocationService.getAllocation(fab, material, dateList);
 
@@ -1255,7 +1262,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         //需求量
         Map<java.sql.Date, Double> demandQtyMap = demandService.getDemandQtyCell(ver, material);
         //到货量
-        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlan(fab, material, dateList);
+        Map<java.sql.Date, Double> arrivalQtyMap = arrivalPlanService.getArrivalPlanQty(fab, material, dateList);
         //分配量
         Map<java.sql.Date, Double> allocationQtyMap = allocationService.getAllocation(fab, material, dateList);
 
@@ -1506,5 +1513,213 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpPackageList.add(mrpPackageTray);
         }
         mrpService.saveMrpPackage(mrpPackageList);
+    }
+
+    @Override
+    public void completeMrpMaterial(String ver) {
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        if(MrpVer.Type_Lcm.equals(mrpVer.getType())) {
+            List<MrpLcmMaterial> materialList = mrpService.getMrpLcmMaterial(ver);
+            for(MrpLcmMaterial mrpLcmMaterial : materialList) {
+                String material = mrpLcmMaterial.getMaterial();
+                String materialName = materialService.getMaterialName(material);
+                String materialGroup = materialService.getMaterialGroup(material);
+                String materialGroupName = materialGroupService.getMaterialGroupName(materialGroup);
+
+                List<Supplier> supplierList = supplierService.getSupplierByMaterial(material);
+                StringBuffer supplierCodeStr = new StringBuffer();
+                StringBuffer supplierStr = new StringBuffer();
+                if(supplierList != null) {
+                    for(Supplier supplier : supplierList) {
+                        if(StringUtils.isNotEmpty(supplierCodeStr)) {
+                            supplierCodeStr.append(",");
+                            supplierStr.append(",");
+                        }
+                        if(StringUtils.isNotEmpty(supplier.getSupplierCode())) {
+                            supplierCodeStr.append(supplier.getSupplierCode());
+                        }
+                        if(StringUtils.isNotEmpty(supplier.getSupplierSname())) {
+                            supplierStr.append(supplier.getSupplierSname());
+                        }
+                    }
+                }
+
+                List<String> productList = demandService.getDemandProductLcm(ver, material);
+                StringBuffer productStr = new StringBuffer();
+                for(String product : productList) {
+                    if(StringUtils.isNotEmpty(productStr)) {
+                        productStr.append(",");
+                    }
+                    if(StringUtils.isNotEmpty(product)) {
+                        productStr.append(product);
+                    }
+                }
+
+                mrpLcmMaterial.setMaterialName(materialName);
+                mrpLcmMaterial.setMaterialGroup(materialGroup);
+                mrpLcmMaterial.setMaterialGroupName(materialGroupName);
+                mrpLcmMaterial.setSupplierCodes(supplierCodeStr.toString());
+                mrpLcmMaterial.setSuppliers(supplierStr.toString());
+                mrpLcmMaterial.setProducts(productStr.toString());
+            }
+            mrpService.saveMrpLcmMaterial(materialList);
+        } else if(MrpVer.Type_Ary.equals(mrpVer.getType())) {
+            List<MrpAryMaterial> materialList = mrpService.getMrpAryMaterial(ver);
+            for(MrpAryMaterial mrpAryMaterial : materialList) {
+                String material = mrpAryMaterial.getMaterial();
+                String materialName = materialService.getMaterialName(material);
+                String materialGroup = materialService.getMaterialGroup(material);
+                String materialGroupName = materialGroupService.getMaterialGroupName(materialGroup);
+
+                List<Supplier> supplierList = supplierService.getSupplierByMaterial(material);
+                StringBuffer supplierCodeStr = new StringBuffer();
+                StringBuffer supplierStr = new StringBuffer();
+                for(Supplier supplier : supplierList) {
+                    if(StringUtils.isNotEmpty(supplierCodeStr)) {
+                        supplierCodeStr.append(",");
+                        supplierStr.append(",");
+                    }
+                    if(StringUtils.isNotEmpty(supplier.getSupplierCode())) {
+                        supplierCodeStr.append(supplier.getSupplierCode());
+                    }
+                    if(StringUtils.isNotEmpty(supplier.getSupplierSname())) {
+                        supplierStr.append(supplier.getSupplierSname());
+                    }
+                }
+
+                List<String> productList = demandService.getDemandProductAry(ver, material);
+                StringBuffer productStr = new StringBuffer();
+                for(String product : productList) {
+                    if(StringUtils.isNotEmpty(productStr)) {
+                        productStr.append(",");
+                    }
+                    if(StringUtils.isNotEmpty(product)) {
+                        productStr.append(product);
+                    }
+                }
+
+                mrpAryMaterial.setMaterialName(materialName);
+                mrpAryMaterial.setMaterialGroup(materialGroup);
+                mrpAryMaterial.setMaterialGroupName(materialGroupName);
+                mrpAryMaterial.setSupplierCodes(supplierCodeStr.toString());
+                mrpAryMaterial.setSuppliers(supplierStr.toString());
+                mrpAryMaterial.setProducts(productStr.toString());
+            }
+            mrpService.saveMrpAryMaterial(materialList);
+        } else if(MrpVer.Type_Cell.equals(mrpVer.getType())) {
+            List<MrpCellMaterial> materialList = mrpService.getMrpCellMaterial(ver);
+            for(MrpCellMaterial mrpCellMaterial : materialList) {
+                String material = mrpCellMaterial.getMaterial();
+                String materialName = materialService.getMaterialName(material);
+                String materialGroup = materialService.getMaterialGroup(material);
+                String materialGroupName = materialGroupService.getMaterialGroupName(materialGroup);
+
+                List<Supplier> supplierList = supplierService.getSupplierByMaterial(material);
+                StringBuffer supplierCodeStr = new StringBuffer();
+                StringBuffer supplierStr = new StringBuffer();
+                for(Supplier supplier : supplierList) {
+                    if(StringUtils.isNotEmpty(supplierCodeStr)) {
+                        supplierCodeStr.append(",");
+                        supplierStr.append(",");
+                    }
+                    if(StringUtils.isNotEmpty(supplier.getSupplierCode())) {
+                        supplierCodeStr.append(supplier.getSupplierCode());
+                    }
+                    if(StringUtils.isNotEmpty(supplier.getSupplierSname())) {
+                        supplierStr.append(supplier.getSupplierSname());
+                    }
+                }
+
+                List<String> productList = demandService.getDemandProductCell(ver, material);
+                StringBuffer productStr = new StringBuffer();
+                for(String product : productList) {
+                    if(StringUtils.isNotEmpty(productStr)) {
+                        productStr.append(",");
+                    }
+                    if(StringUtils.isNotEmpty(product)) {
+                        productStr.append(product);
+                    }
+                }
+
+                mrpCellMaterial.setMaterialName(materialName);
+                mrpCellMaterial.setMaterialGroup(materialGroup);
+                mrpCellMaterial.setMaterialGroupName(materialGroupName);
+                mrpCellMaterial.setSupplierCodes(supplierCodeStr.toString());
+                mrpCellMaterial.setSuppliers(supplierStr.toString());
+                mrpCellMaterial.setProducts(productStr.toString());
+            }
+            mrpService.saveMrpCellMaterial(materialList);
+        }
+
+    }
+
+
+    @Override
+    public void updateMrpMaterial(String ver, String material) {
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String type = mrpVer.getType();
+        switch (type) {
+            case MrpVer.Type_Lcm :
+                computeMrpBalanceLcm(ver, material);
+                break;
+            case MrpVer.Type_Ary :
+                computeMrpBalanceAry(ver, material);
+                break;
+            case MrpVer.Type_Cell :
+                computeMrpBalanceCell(ver, material);
+                break;
+        }
+    }
+
+    @Override
+    public void updateMrpBalanceQty(String ver, String material, java.sql.Date fabDate, double balanceQty) {
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String type = mrpVer.getType();
+        if(MrpVer.Type_Lcm.equals(type)) {
+            MrpLcm mrpLcm = mrpService.getMrpLcm(ver, material, fabDate);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if(mrpLcm.isModifyBalanceFlag()) {
+                mrpLcm.setBalanceQty(balanceQty);
+                mrpLcm.setMemo("结余量修改"+sdf.format(new Date()));
+            } else {
+                mrpLcm.setModifyBalanceFlag(true);
+                mrpLcm.setBalanceQtyHis(mrpLcm.getBalanceQty());
+                mrpLcm.setBalanceQty(balanceQty);
+                mrpLcm.setMemo("结余量修改"+sdf.format(new Date()));
+            }
+            List<MrpLcm> list = new ArrayList<>();
+            list.add(mrpLcm);
+            mrpService.saveMrpLcm(list);
+        } else if(MrpVer.Type_Cell.equals(type)) {
+            MrpCell mrpCell = mrpService.getMrpCell(ver, material, fabDate);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if(mrpCell.isModifyBalanceFlag()) {
+                mrpCell.setBalanceQty(balanceQty);
+                mrpCell.setMemo("结余量修改"+sdf.format(new Date()));
+            } else {
+                mrpCell.setModifyBalanceFlag(true);
+                mrpCell.setBalanceQtyHis(mrpCell.getBalanceQty());
+                mrpCell.setBalanceQty(balanceQty);
+                mrpCell.setMemo("结余量修改"+sdf.format(new Date()));
+            }
+            List<MrpCell> list = new ArrayList<>();
+            list.add(mrpCell);
+            mrpService.saveMrpCell(list);
+        } else if(MrpVer.Type_Ary.equals(type)) {
+            MrpAry mrpAry = mrpService.getMrpAry(ver, material, fabDate);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            if(mrpAry.isModifyBalanceFlag()) {
+                mrpAry.setBalanceQty(balanceQty);
+                mrpAry.setMemo("结余量修改"+sdf.format(new Date()));
+            } else {
+                mrpAry.setModifyBalanceFlag(true);
+                mrpAry.setBalanceQtyHis(mrpAry.getBalanceQty());
+                mrpAry.setBalanceQty(balanceQty);
+                mrpAry.setMemo("结余量修改"+sdf.format(new Date()));
+            }
+            List<MrpAry> list = new ArrayList<>();
+            list.add(mrpAry);
+            mrpService.saveMrpAry(list);
+        }
     }
 }

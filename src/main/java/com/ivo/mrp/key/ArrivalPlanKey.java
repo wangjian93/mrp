@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.sql.Date;
 
 /**
  * @author wj
@@ -32,4 +33,13 @@ public class ArrivalPlanKey implements Serializable {
      * 供应商ID
      */
     private String supplierCode;
+
+    public ArrivalPlanKey(String fab, String material, Date fabDate, String supplierCode) {
+        this.fab = fab;
+        this.material = material;
+        this.fabDate = fabDate;
+        this.supplierCode = supplierCode;
+    }
+
+    public ArrivalPlanKey() {}
 }

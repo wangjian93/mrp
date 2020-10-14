@@ -1,10 +1,11 @@
 package com.ivo.mrp.controller;
 
 import com.ivo.common.result.Result;
+import com.ivo.common.utils.DateUtil;
 import com.ivo.common.utils.ResultUtil;
-import com.ivo.mrp.entity.direct.lcm.MrpLcm;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.service.MrpService;
+import com.ivo.mrp.service.RunMrpService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -16,7 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +34,12 @@ public class MrpController {
 
     private MrpService mrpService;
 
+    private RunMrpService runMrpService;
+
     @Autowired
-    public MrpController(MrpService mrpService) {
+    public MrpController(MrpService mrpService,  RunMrpService runMrpService) {
         this.mrpService = mrpService;
+        this.runMrpService = runMrpService;
     }
 
     @ApiOperation("查询MRP版本信息")
@@ -55,8 +60,31 @@ public class MrpController {
         return ResultUtil.successPage(p.getContent(), p.getTotalElements());
     }
 
+    @ApiOperation("删除MRP版本")
+    @ApiImplicitParam(name = "ver", value = "Mrp版本", required = true)
+    @GetMapping("/delMrpVer")
+    public Result delMrpVer(String ver) {
+        mrpService.delMrpVer(ver);
+        return ResultUtil.success("MRP版本删除成功");
+    }
+
+    @ApiOperation("获取MRP版本的日历")
+    @ApiImplicitParam(name = "ver", value = "Mrp版本", required = true)
+    @GetMapping("/getMrpCalendar")
+    public Result getMrpCalendar(String ver) {
+        List list = mrpService.getMrpCalendar(ver);
+        List<String> days = DateUtil.format_(list);
+        String[] weeks = DateUtil.getWeekDay_(list);
+        List<String> months = DateUtil.getMonthBetween((Date) list.get(0), (Date) list.get(list.size()-1));
+        Map<String, Object> map = new HashMap<>();
+        map.put("days", days);
+        map.put("weeks", weeks);
+        map.put("months", months);
+        return ResultUtil.success(map);
+    }
+
     @ApiOperation("获取MRP版本数据")
-    @ApiImplicitParam(name = "ver", value = "Mps版本", required = true)
+    @ApiImplicitParam(name = "ver", value = "Mrp版本", required = true)
     @GetMapping("/getMrpData")
     public Result getMrpData(String ver) {
         List list = mrpService.getMrpDate(ver);
@@ -83,21 +111,10 @@ public class MrpController {
                                         @RequestParam(required = false, defaultValue = "") String searchMaterial,
                                         @RequestParam(required = false, defaultValue = "") String searchSupplier) {
         Page<MrpLcmMaterial> p = mrpService.getPageMrpLcmMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
-//        List<MrpLcmMaterial> list = p.getContent();
-//        for(MrpLcmMaterial mrpLcmMaterial : list) {
-//            mrpLcmMaterial.setMrpLcmList(mrpService.getMrpLcm(ver, mrpLcmMaterial.getMaterial()));
-//        }
-//        List<MrpLcm> mrpLcmList = mrpService.getMrpLcm(ver, materialList);
-//        for(MrpLcm mrpLcm : mrpLcmList) {
-//            String material = mrpLcm.getMaterial();
-//            int index = materialList.indexOf(material);
-//            MrpLcmMaterial lcmMaterial = list.get(index);
-//            lcmMaterial.getMrpLcmList().add(mrpLcm);
-//        }
         return ResultUtil.successPage(p.getContent(), p.getTotalElements());
     }
 
-    @ApiOperation("获取LCM的MRP数据")
+    @ApiOperation("获取LCM料号的MRP数据")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
             @ApiImplicitParam(name = "material", value = "料号", required = true)
@@ -106,5 +123,28 @@ public class MrpController {
     public Result getMrpLcm(String ver, String material) {
         List list =  mrpService.getMrpLcm(ver, material);
         return ResultUtil.success(list);
+    }
+
+    @ApiOperation("更新料号的MRP")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "material", value = "料号", required = true)
+    })
+    @GetMapping("/updateMrpMaterial")
+    public Result updateMrpMaterial(String ver, String material) {
+        runMrpService.updateMrpMaterial(ver, material);
+        return ResultUtil.success("MRP更新料号成功");
+    }
+
+    @ApiOperation("修改料号的结余量")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "material", value = "料号", required = true)
+    })
+    @GetMapping("/updateMrpBalanceQty")
+    public Result updateMrpBalanceQty(String ver, String material, Date fabDate, double balanceQty) {
+        runMrpService.updateMrpBalanceQty(ver, material, fabDate, balanceQty);
+        runMrpService.updateMrpMaterial(ver, material);
+        return ResultUtil.success("MRP更新料号成功");
     }
 }

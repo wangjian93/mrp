@@ -2,6 +2,8 @@ package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.MrpVer;
 
+import java.sql.Date;
+
 /**
  * MRP运行
  * @author wj
@@ -175,4 +177,27 @@ public interface RunMrpService {
     void computeMrpPackage(String ver, String dpsVer);
 
     void computeMrpPackage(String ver, String dpsVer, String product, String type, Double linkQty, String mode);
+
+
+    /**
+     * 完善MRP的信息
+     * @param ver MRP版本
+     */
+    void completeMrpMaterial(String ver);
+
+    /**
+     * 更新料号的MRP
+     * @param ver MRP版本
+     * @param material 料号
+     */
+    void updateMrpMaterial(String ver, String material);
+
+    /**
+     * 修改MRP料号的结余量
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @param balanceQty 结余量
+     */
+    void updateMrpBalanceQty(String ver, String material, Date fabDate, double balanceQty);
 }

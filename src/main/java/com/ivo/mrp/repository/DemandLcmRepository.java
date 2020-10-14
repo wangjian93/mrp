@@ -41,4 +41,21 @@ public interface DemandLcmRepository extends JpaRepository<DemandLcm, DemandKey>
      */
     @Query(value = "select sum(d.demandQty) as demandQty from DemandLcm d where d.ver=:ver and d.material=:material and d.demandQty>0 and d.fabDate=:fabDate")
     Double getDemandQtyLcm(String ver, String material, Date fabDate);
+
+    /**
+     * 筛选MRP版本、料号、日期
+     * @param ver 版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandLcm>
+     */
+    List<DemandLcm> findByVerAndMaterialAndFabDate(String ver, String material, Date fabDate);
+
+    /**
+     * 获取料号的需求机种
+     * @param ver MRP版本
+     * @return List<String>
+     */
+    @Query(value = "select DISTINCT d.product from DemandLcm d where d.ver=:ver and d.material=:material")
+    List<String> getProduct(String ver, String material);
 }

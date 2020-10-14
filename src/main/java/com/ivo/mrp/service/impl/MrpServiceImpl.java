@@ -10,6 +10,7 @@ import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcm;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.entity.packaging.MrpPackage;
+import com.ivo.mrp.key.MrpKey;
 import com.ivo.mrp.key.MrpMaterialKey;
 import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.MrpService;
@@ -81,6 +82,14 @@ public class MrpServiceImpl implements MrpService {
     @Override
     public MrpVer getMrpVer(String ver) {
         return mrpVerRepository.findById(ver).orElse(null);
+    }
+
+    @Override
+    public void delMrpVer(String ver) {
+        MrpVer mrpVer = getMrpVer(ver);
+        mrpVer.setValidFlag(false);
+        mrpVer.setUpdateDate(new java.util.Date());
+        saveMrpVer(mrpVer);
     }
 
     @Override
@@ -302,5 +311,20 @@ public class MrpServiceImpl implements MrpService {
     @Override
     public List<MrpLcm> getMrpLcm(String ver, List<String> materialList) {
         return mrpLcmRepository.findByVerAndMaterialInOrderByMaterialAsc(ver, materialList);
+    }
+
+    @Override
+    public MrpLcm getMrpLcm(String ver, String material, Date fabDate) {
+        return mrpLcmRepository.findById(new MrpKey(ver, fabDate, material)).orElse(null);
+    }
+
+    @Override
+    public MrpCell getMrpCell(String ver, String material, Date fabDate) {
+        return mrpCellRepository.findById(new MrpKey(ver, fabDate, material)).orElse(null);
+    }
+
+    @Override
+    public MrpAry getMrpAry(String ver, String material, Date fabDate) {
+        return mrpAryRepository.findById(new MrpKey(ver, fabDate, material)).orElse(null);
     }
 }

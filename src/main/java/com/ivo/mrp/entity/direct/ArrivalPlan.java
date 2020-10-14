@@ -52,6 +52,11 @@ public class ArrivalPlan  {
     private double arrivalQty;
 
     /**
+     * 简称
+     */
+    private String supplierSname;
+
+    /**
      * 备注
      */
     private String memo = "";

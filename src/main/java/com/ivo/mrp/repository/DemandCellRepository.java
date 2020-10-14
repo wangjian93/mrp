@@ -1,5 +1,6 @@
 package com.ivo.mrp.repository;
 
+import com.ivo.mrp.entity.direct.ary.DemandAry;
 import com.ivo.mrp.entity.direct.cell.DemandCell;
 import com.ivo.mrp.key.DemandKey;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -41,4 +42,21 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      */
     @Query(value = "select sum(d.demandQty) as demandQty from DemandCell d where d.ver=:ver and d.material=:material and d.demandQty>0 and d.fabDate=:fabDate")
     Double getDemandQtyCell(String ver, String material, Date fabDate);
+
+    /**
+     * 筛选MRP版本、料号、日期
+     * @param ver 版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandLcm>
+     */
+    List<DemandCell> findByVerAndMaterialAndFabDate(String ver, String material, Date fabDate);
+
+    /**
+     * 获取料号的需求机种
+     * @param ver MRP版本
+     * @return List<String>
+     */
+    @Query(value = "select DISTINCT d.product from DemandCell d where d.ver=:ver and d.material=:material")
+    List<String> getProduct(String ver, String material);
 }

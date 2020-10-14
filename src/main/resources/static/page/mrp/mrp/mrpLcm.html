@@ -14,17 +14,51 @@
 
     <!-- 表格单元格高宽 -->
     <style>
-        .layui-table-view .layui-table td .layui-table-cell, .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
+        .mrp .layui-table-view .layui-table td .layui-table-cell,
+        .mrp .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
             height: auto;
             padding: 0px 0px;
         }
-        .layui-table-view .layui-table th .layui-table-cell, .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+        .mrp .layui-table-view .layui-table th .layui-table-cell,
+        .mrp .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
             height: auto;
             padding: 0px 0px;
         }
 
-        .layui-table-view .layui-table td, .layui-table-view .layui-table th {
+        .mrp .layui-table-view .layui-table td,
+        .mrp .layui-table-view .layui-table th {
             padding: 0px 0px;
+        }
+    </style>
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
+            background-color: transparent;
+        }
+    </style>
+
+    <!-- 表格单元格样式 -->
+    <style>
+        div .box_parent {
+            display: inline-block;
+        }
+        div .box {
+            box-sizing:border-box;
+            -moz-box-sizing:border-box; /* Firefox */
+            -webkit-box-sizing:border-box; /* Safari */
+            border-top: none;
+            border-left: none;
+            border-bottom: 1px #e6e6e6 solid;
+            border-right: 1px #e6e6e6 solid;
+            height: 20px;
+            width: 100px;
+        }
+        div .box_parent.hover:hover {
+            background-color: lightyellow;
+            cursor:pointer
+        }
+        div .box.hover:hover {
+            background-color: #f2ffb4;
         }
     </style>
 </head>
@@ -32,88 +66,112 @@
 
 <!-- 正文开始 -->
 <div class="layui-fluid">
-    <div class="layui-row">
-
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM MRP数据</div>
-                <div class="layui-card-body">
-                    <!-- MRP FLOW -->
-                    <ul id="flow">
-                        <li style="border-bottom: 1px #fff3e0 solid;">
-                            <div style="white-space: nowrap;">
-                                <div style="width: 100px;height:30px;display: inline-block;">
-                                    料号
-                                </div>
-                                <div style="width: 100px;height:30px;display: inline-block;">
-                                    物料组
-                                </div>
-                                <div style="width: 100px;height:30px;display: inline-block;">
-                                    物料名
-                                </div>
-                                <div style="width: 100px;height:30px;display: inline-block;">
-                                    物料组名
-                                </div>
-                                <div style="width: 100px;height:30px;display: inline-block;">
-                                    厂别
-                                </div>
+    <div class="layui-card">
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM MRP数据</div>
+        <div class="layui-card-body">
+            <!-- MRP表格 -->
+            <div class="mrp">
+                <!-- 表格工具栏 -->
+                <div class="layui-form toolbar">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">机种:</label>
+                            <div class="layui-input-inline">
+                                <input name="product" class="layui-input" type="text" placeholder="查询机种"/>
                             </div>
-                        </li>
-                    </ul>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">物料组:</label>
+                            <div class="layui-input-inline">
+                                <input name="materialGroup" class="layui-input" type="text" placeholder="查询物料组"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">料号:</label>
+                            <div class="layui-input-inline">
+                                <input name="material" class="layui-input" type="text" placeholder="查询料号"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">供应商:</label>
+                            <div class="layui-input-inline">
+                                <input name="supplier" class="layui-input" type="text" placeholder="查询供应商"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                                <i class="layui-icon">&#xe615;</i>搜索
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                <table id="table_mrp" lay-filter="table_mrp"></table>
             </div>
         </div>
-
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM MRP数据</div>
-                <div class="layui-card-body">
-                    <!-- MRP表格 -->
-                    <table id="table_mrp" lay-filter="table_mrp"></table>
-                </div>
-            </div>
-        </div>
-
-
     </div>
-
 </div>
 
-<!-- 行数据模板 -->
-<script type="text/html" id="rowDemo">
-    <li style="border-bottom: 1px #fff3e0 solid;">
-        <div style="white-space: nowrap;">
-            <div style="width: 100px;height:auto;display: inline-block;">
-                {{ d.material }}
-            </div>
-            <div style="width: 100px;height:auto;display: inline-block;">
-                {{ d.materialName }}
-            </div>
-            <div style="width: 100px;height:auto;display: inline-block;">
-                {{ d.materialGroup }}
-            </div>
-            <div style="width: 100px;height:auto;display: inline-block;">
-                {{ d.materialGroupName }}
-            </div>
-            <div style="width: 100px;height:auto;display: inline-block;">
-                {{ d.fab }}
-            </div>
-            {{# var id = "MRP2_"+d.material }}
-            <div id="{{ id }}" style="width: 6400px;height:140px;display: inline-block;"></div>
-        </div>
-    </li>
-</script>
+
+<!-- MRP日历模板 -->
+<script type="text/html" id="mrpCalendarDemo"><div class="box_parent">
+        <div class="box" style="border-bottom: none">{{d.day}}</div>
+        <div class="box" style="border-bottom: none">{{d.week}}</div>
+    </div></script>
+
+<!-- MRP行数据label模板 -->
+<script type="text/html" id="mrpTitleDemo"><div class="box_parent">
+    <div class="box">需求量</div>
+    <div class="box">损耗量</div>
+    <div class="box" style="color: #01AAED;">到货量</div>
+    <div class="box" style="color: red;">结余量</div>
+    <div class="box">缺料量</div>
+    <div class="box" style="border-bottom: none">分配量</div>
+</div></script>
+
+<!-- MRP月份日历模板 -->
+<script type="text/html" id="mrpCalendarMonthDemo"><div class="box_parent">
+    <div class="box" style="border-bottom: none">{{d.month}}</div>
+</div></script>
+
+<!-- MRP月份汇总数据模板 -->
+<script type="text/html" id="mrpMonthDemo"><div class="box_parent" id="{{ d.material_month }}">
+<div class="box" id="{{ d.material_month }}_demandQty">{{ d.demandQty | '' }}</div>
+<div class="box" id="{{ d.material_month }}_lossQty">{{ d.lossQty | '' }}</div>
+<div class="box" id="{{ d.material_month }}_arrivalQty">{{ d.arrivalQty | '' }}</div>
+<div class="box" id="{{ d.material_month }}_balanceQty">{{ d.balanceQty | '' }}</div>
+<div class="box" id="{{ d.material_month }}_shortQty">{{ d.shortQty | '' }}</div>
+<div class="box" style="border-bottom: none" id="{{ d.material_month }}_allocationQty">{{ d.allocationQty | '' }}</div>
+</div></script>
 
 <!-- MRP行数据模板 -->
-<script type="text/html" id="mrpDemo">
-    <div style="width: 100px;display: inline-block;">
-        <div>{{ d.demandQty }}</div>
-        <div>{{ d.lossQty }}</div>
-        <div>{{ d.arrivalQty }}</div>
-        <div>{{ d.balanceQty }}</div>
-        <div>{{ d.shortQty }}</div>
-        <div>{{ d.allocationQty }}</div>
-        <div>{{ d.fabDate }}</div>
+<script type="text/html" id="mrpDemo"><div class="box_parent hover" id="{{ d.material_fabDate }}">
+        <div class="box hover" id="{{ d.material_fabDate }}_demandQty"  lay-event="{{ d.material_fabDate }}_demandQty">{{ d.demandQty | '' }}</div>
+        <div class="box hover" id="{{ d.material_fabDate }}_lossQty"  lay-event="{{ d.material_fabDate }}_lossQty">{{ d.lossQty | '' }}</div>
+        <div  class="box hover" id="{{ d.material_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty">{{ d.arrivalQty | '' }}</div>
+        <div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty">{{ d.balanceQty | '' }}</div>
+        <div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty">{{ d.shortQty | '' }}</div>
+        <div class="box hover" style="border-bottom: none" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty">{{ d.allocationQty | '' }}</div>
+    </div></script>
+
+<!-- 需求量明细弹框 -->
+<script type="text/html" id="demandQtyDetailDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table_demandQtyDetail" lay-filter="table_demandQtyDetail"></table>
+        </div>
+    </div>
+</script>
+
+<!-- 到货量明细弹框 -->
+<script type="text/html" id="arrivalQtyDetailDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table_arrivalQtyDetail" lay-filter="table_arrivalQtyDetail"></table>
+        </div>
     </div>
 </script>
 
@@ -121,13 +179,67 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
         var laytpl = layui.laytpl;
+        var admin = layui.admin;
+        var form = layui.form;
 
-        var ver = '20200909001';
+        /* 获取URL请求的参数 */
+        var getQueryVariable = function (variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if(pair[0] === variable){return pair[1];}
+            }
+            return(false);
+        };
+        var ver = getQueryVariable("ver");
+        if(!ver) {
+            layer.msg("未能获取MRP的版本");
+        }
+
+        //获取MRP的日历
+        var getMrpCalendar = function(ver) {
+            var calendar = {};
+            $.ajaxSettings.async = false;
+            $.get('/mrp/mrp/getMrpCalendar', {ver: ver}, function(res) {
+                if(res.code === 200) {
+                    calendar = res.data;
+                } else {
+                    layer.msg("获取MRP的日历失败，"+res.msg)
+                }
+            });
+            $.ajaxSettings.async = true;
+            return calendar;
+        };
+        var calendar = getMrpCalendar(ver);
+        var weeks = calendar.weeks;
+        var months = calendar.months;
+        var days = calendar.days;
+
+        //计算MRP表格的日历
+        var calendarTitleLi = [];
+        for(var i=0; i<days.length; i++) {
+            var d = {
+                day: days[i],
+                week: weeks[i]
+            };
+            calendarTitleLi.push(laytpl(mrpCalendarDemo.innerHTML).render(d));
+        }
+        var calendarTitle = '<div style="white-space: nowrap;">'+calendarTitleLi.join("")+'</div>';
+
+        var calendarMonthTitleLi = [];
+        for(var i=0; i<months.length; i++) {
+            var d = {
+                month: months[i]
+            };
+            calendarMonthTitleLi.push(laytpl(mrpCalendarMonthDemo.innerHTML).render(d));
+        }
+        var calendarMonthTitle = '<div style="white-space: nowrap;">'+calendarMonthTitleLi.join("")+'</div>';
 
         //MRP数据表格
         table.render({
@@ -137,22 +249,36 @@
                 ver: ver
             },
             cols: [[
-                {type: 'numbers', align: 'center'},
-                {field: 'material', title: '料号', align: 'center', width: 140},
-                // {field: 'materialName', title: '物料名', align: 'center', width: 140},
-                // {field: 'materialGroup', title: '物料组', align: 'center', width: 140},
-                // {field: 'materialGroupName', title: '物料组名', align: 'center', width: 140},
-                // {field: 'fab', title: '厂别', align: 'center', width: 140},
-                // {field: 'lossRate', title: '损耗率', align: 'center', width: 140},
-                {field: 'goodInventory', title: '良品库存', align: 'center', width: 140},
-                {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 140},
+                {type: 'numbers', align: 'center', fixed: 'left'},
+                {field: 'material', title: '<div style="height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
+                {title: '', align: 'center', width: 100, templet: '#mrpTitleDemo', fixed: 'left'},
+                {title: '物料名', align: 'center', width: 160, templet: function (d) {
+                    return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
+                    }},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
+                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 140},
+                {field: 'fab', title: '厂别', align: 'center', width: 80},
+                {field: 'lossRate', title: '损耗率', align: 'center', width: 80},
+                {field: 'goodInventory', title: '良品库存', align: 'center', width: 80},
+                {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 80},
                 // {field: 'inventorDate', title: '库存日期', align: 'center', width: 140},
-                // {field: 'products', title: '机种', align: 'center', width: 140},
-                // {field: 'suppliers', title: '供应商', align: 'center', width: 140},
+                {field: 'products', title: '机种', align: 'center', width: 160, templet: function(d) {
+                    return '<div style="max-height: 120px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                    }},
+                {field: 'suppliers', title: '供应商', align: 'center', width: 160, templet: function(d) {
+                    return '<div style="max-height: 120px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
+                    }},
                 // {field: 'supplierCodes', title: '供应商', align: 'center', width: 140},
                 // {field: 'customers', title: '客户', align: 'center', width: 140},
                 // {field: 'createDate', title: '创建时间', align: 'center', width: 140},
-                {title: '', align: 'center', width: 64*100,
+                {title: calendarMonthTitle, align: 'center', width: months.length*100,
+                    templet: function(data) {
+                        var material = data.material;
+                        var id = 'mrp_month_'+material;
+                        return '<div id="'+id+'" style="white-space: nowrap;"></div>';
+                    }
+                },
+                {title: calendarTitle, align: 'center', width: days.length*100,
                     templet: function(data) {
                         var material = data.material;
                         var id = 'mrp_'+material;
@@ -163,65 +289,255 @@
             done: function(res, curr, count) {
                 layui.each(res.data, function(index, item){
                     var material = item.material;
-                    var id = 'mrp_'+material;
-                    $.get('/mrp/mrp/getMrpLcm',{
-                        ver: ver,
-                        material: material
-                    }, function(res2){
-                        var lis = [];
-                        layui.each(res2.data, function(index2, item2){
-                            lis.push(laytpl(mrpDemo.innerHTML).render(item2));
-                        });
-                        $('#'+id).html(lis.join(''));
-                    });
+                    renderMaterialMrp(material);
                 });
             },
             page: true,
-            limit: 50,
-            size: 'sm'
+            limit: 100,
+            size: 'sm',
+            height: 'full-20',
+            even: true
         });
 
-        //信息流
-        flow.load({
-            elem: '#flow', //指定列表容器
-            // scrollElem: '#flow',
-            // mb: 8000,
-            done: function(page, next){ //到达临界点（默认滚动触发），触发下一页
+
+        //料号的MRP数据渲染
+        var renderMaterialMrp = function(material) {
+            $.get('/mrp/mrp/getMrpLcm',{
+                ver: ver,
+                material: material
+            }, function(res){
                 var lis = [];
-                var limit = 5;
-
-                $.get('/mrp/mrp/getPageMrpLcmMaterial?ver='+ver+'&limit='+limit+'&page='+page, function(res){
-                    //假设你的列表返回在data集合中
-                    layui.each(res.data, function(index, item){
-                        lis.push(laytpl(rowDemo.innerHTML).render(item));
-                    });
-
-                    //执行下一页渲染，第二参数为：满足“加载更多”的条件，即后面仍有分页
-                    //pages为Ajax返回的总页数，只有当前页小于总页数的情况下，才会继续出现加载更多
-                    var count = res.count;
-                    var pages = count / limit;
-                    if(count % limit > 0) {
-                        pages+=1;
-                    }
-                    next(lis.join(''), page < pages);
-
-                    layui.each(res.data, function(index, item){
-                        var material = item.material;
-                        var id = 'MRP2_'+material;
-                        $.get('/mrp/mrp/getMrpLcm',{
-                            ver: ver,
-                            material: material
-                        }, function(res2){
-                            var lis2 = [];
-                            layui.each(res2.data, function(index2, item2){
-                                lis2.push(laytpl(mrpDemo.innerHTML).render(item2));
-                            });
-                            $('#'+id).html(lis2.join(''));
-                        });
-                    });
+                layui.each(days, function(i, day) {
+                    var d = {
+                        material_fabDate: material+"_"+day
+                    };
+                    lis.push(laytpl(mrpDemo.innerHTML).render(d));
                 });
+                console.log(lis);
+                var id = 'mrp_'+material;
+                $('#'+id).html(lis.join(""));
+
+                //月份汇总
+                var lisMonth = [];
+                layui.each(months, function(i, month) {
+                    var d = {
+                        material_month: material+"_"+month
+                    };
+                    lisMonth.push(laytpl(mrpMonthDemo.innerHTML).render(d));
+                });
+                var id_month = 'mrp_month_'+material;
+                $('#'+id_month).html(lisMonth.join(""));
+
+                var monthSum = {};
+                layui.each(res.data, function(index, item) {
+                    var material_fabDate = item.material+"_"+item.fabDate;
+                    $('#'+material_fabDate+"_demandQty").html(item.demandQty===0? '':item.demandQty);
+                    $('#'+material_fabDate+"_lossQty").html(item.lossQty===0?'':item.lossQty);
+                    $('#'+material_fabDate+"_arrivalQty").html('<span style="color: #01AAED;">'+item.arrivalQty===0?'':item.arrivalQty+'</span>');
+                    if(item.balanceQty<0) {
+                        $('#'+material_fabDate+"_balanceQty").html('<span style="color: red">'+item.balanceQty+'</span>');
+                    } else {
+                        $('#'+material_fabDate+"_balanceQty").html('<span>'+item.balanceQty+'</span>');
+                    }
+
+                    $('#'+material_fabDate+"_shortQty").html('<span style="color: red">'+item.shortQty===0?'':item.shortQty+'</span>');
+                    $('#'+material_fabDate+"_allocationQty").html(item.allocationQty===0?'':item.allocationQty);
+
+                    var fabDate = item.fabDate;
+                    var month = fabDate.substring(0, 7);
+                    if(!monthSum[month]) {
+                        monthSum[month] = {
+                            demandQty: 0,
+                            lossQty: 0,
+                            arrivalQty: 0,
+                            balanceQty: 0,
+                            shortQty: 0,
+                            allocationQty: 0
+                        };
+                    }
+                    monthSum[month].demandQty += item.demandQty;
+                    monthSum[month].lossQty += item.lossQty;
+                    monthSum[month].arrivalQty += item.arrivalQty;
+                    monthSum[month].shortQty += item.shortQty;
+                    monthSum[month].allocationQty += item.allocationQty;
+                    monthSum[month].balanceQty = item.balanceQty;
+                });
+
+                layui.each(Object.keys(monthSum), function(index, month) {
+                    var monthData = monthSum[month];
+                    var material_month = material+"_"+month;
+                    $('#'+material_month+"_demandQty").html(monthData.demandQty);
+                    $('#'+material_month+"_lossQty").html(monthData.lossQty);
+                    $('#'+material_month+"_arrivalQty").html('<span style="color: #01AAED;">'+monthData.arrivalQty+'</span>');
+                    if(monthData.balanceQty < 0) {
+                        $('#'+material_month+"_balanceQty").html('<span style="color: red">'+monthData.balanceQty+'</span>');
+                    } else {
+                        $('#'+material_month+"_balanceQty").html('<span>'+monthData.balanceQty+'</span>');
+                    }
+                    $('#'+material_month+"_shortQty").html(monthData.shortQty);
+                    $('#'+material_month+"_allocationQty").html(monthData.allocationQty);
+                });
+            });
+        };
+
+        // 表格搜索
+        form.on('submit(search)', function(data) {
+            table.reload('table_mrp', {
+                where: {
+                    ver: ver,
+                    searchProduct: data.field.product,
+                    searchMaterialGroup: data.field.materialGroup,
+                    searchMaterial: data.field.material,
+                    searchSupplier: data.field.supplier
+                },
+                page: {curr: 1}
+            });
+            return false;
+        });
+
+        //监听表格点击
+        table.on('tool(table_mrp)', function(obj) {
+            var ars = obj.event.split("_");
+            var material = ars[0];
+            var fabDate = ars[1];
+            var label = ars[2];
+            switch(label){
+                case 'demandQty':
+                    showDemandQtyDetail(material,fabDate);
+                    break;
+                case 'lossQty':
+                    layer.msg(material);
+                    break;
+                case 'arrivalQty':
+                    showArrivalQtyDetail(material,fabDate);
+                    break;
+                case 'balanceQty':
+                    editBalanceQty(material,fabDate);
+                    break;
+                case 'shortQty':
+                    layer.msg(material);
+                    break;
+                case 'allocationQt':
+                    layer.msg(material);
+                    break;
             }
         });
+
+        //显示需求量明细
+        var showDemandQtyDetail = function(material, fabDate) {
+            admin.open({
+                type: 1,
+                title: '需求量明细',
+                content: $('#demandQtyDetailDialog').html(),
+                area: '1030px',
+                success: function (layero, dIndex) {
+                    table.render({
+                        elem: '#table_demandQtyDetail',
+                        url: '/mrp/demand/getDemandByMaterial',
+                        where: {
+                            ver: ver,
+                            material: material,
+                            fabDate: fabDate
+                        },
+                        cols: [[
+                            {type: 'numbers', align: 'center', totalRowText: '合计'},
+                            {field: 'type', title: '类型', align: 'center', width: 80},
+                            {field: 'dpsMpsVer', title: '版本', align: 'center', width: 120},
+                            {field: 'fab', title: '厂别', align: 'center', width: 80},
+                            {field: 'product', title: '机种', align: 'center', width: 160},
+                            {field: 'project', title: 'PROJECT', align: 'center', width: 100},
+                            {field: 'qty', title: '投入量', align: 'center', width: 80},
+                            {field: 'usageQty', title: 'BOM使用量', align: 'center', width: 100},
+                            {field: 'substituteRate', title: '替代比例(%)', align: 'center', width: 120},
+                            {field: 'demandQty', title: '需求量', align: 'center', totalRow: true}
+                        ]],
+                        page: {layout: ['count']},
+                        height: 300,
+                        width: 1000,
+                        size: 'sm',
+                        even: true,
+                        totalRow: true
+                    });
+                }
+            });
+        };
+
+        //显示到货量明细
+        var showArrivalQtyDetail = function(material, fabDate) {
+            admin.open({
+                type: 1,
+                title: '供应商到货计划',
+                content: $('#arrivalQtyDetailDialog').html(),
+                area: '750px',
+                btn: ['提交', '取消'],
+                success: function (layero, dIndex) {
+                    table.render({
+                        elem: '#table_arrivalQtyDetail',
+                        url: '/mrp/arrivalPlan/getArrivalQtyByMaterial2',
+                        where: {
+                            ver: ver,
+                            material: material,
+                            fabDate: fabDate
+                        },
+                        cols: [[
+                            {type: 'numbers', align: 'center', totalRowText: '合计'},
+                            {field: 'fab', title: '厂别', align: 'center', width: 80},
+                            {field: 'material', title: '料号', align: 'center', width: 120},
+                            {field: 'fabDate', title: '日期', align: 'center', width: 120},
+                            {field: 'supplierCode', title: '供应商ID', align: 'center', width: 120},
+                            {field: 'supplierSname', title: '供应商', align: 'center', width: 120},
+                            {field: 'arrivalQty', title: '计划到货量', align: 'center', totalRow: true, edit: 'number', "event": "dataCol"}
+                        ]],
+                        page: {layout: ['count']},
+                        height: 300,
+                        width: 720,
+                        size: 'sm',
+                        even: true,
+                        totalRow: true
+                    });
+                    //将layui表格的编辑框改成Number
+                    table.on('tool(table_arrivalQtyDetail)', function(obj){
+                        if (obj.event === "dataCol"){
+                            $("table input").attr("type","number");
+                            $("table input").attr("step","1");
+                        }
+                    });
+                },
+                yes: function(index, layero) {
+                    $.post('/mrp/arrivalPlan/batchSaveArrivalQty', {
+                        jsons: JSON.stringify(table.cache["table_arrivalQtyDetail"])
+                    }, function(res) {
+                        if(res.code === 200) {
+                            $.get('/mrp/mrp/updateMrpMaterial', {
+                                ver: ver,
+                                material: material
+                            }, function(res) {
+                                if(res.code === 200) {
+                                    layer.close(index);
+                                    var id = 'mrp_'+material;
+                                    var mrp_month = 'mrp_month'+material;
+                                    $('#'+id).html('<div>加载中</div>');
+                                    $('#'+mrp_month).html('<div>加载中</div>');
+                                    renderMaterialMrp(material);
+                                } else {
+                                    layer.msg("MRP更新失败，"+res.msg);
+                                    layer.close(index);
+                                }
+                            });
+                        } else {
+                            layer.msg("提交失败，"+res.msg)
+                        }
+                    });
+                }
+            });
+        };
+
+        //修改料号的结余量
+        var editBalanceQty = function(material, fabDate) {
+            console.log("1");
+            var material_fabDate = material + "_" + fabDate;
+            $('#'+material_fabDate+"_balanceQty").html('<input style="height:20px;" class="layui-input"/>');
+        }
     });
 </script>
 </body>

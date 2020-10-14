@@ -1,5 +1,7 @@
 package com.ivo.mrp.service;
 
+import com.ivo.mrp.entity.direct.ArrivalPlan;
+
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,17 @@ public interface ArrivalPlanService {
      * @param fabDate 日期
      * @return Double
      */
-    double getArrivalPlan(String fab, String material, java.sql.Date fabDate);
+    double getArrivalPlanQty(String fab, String material, java.sql.Date fabDate);
+
+    /**
+     * 获取到货计划
+     * @param fab 厂别
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<ArrivalPlan>
+     */
+    List<ArrivalPlan> getArrivalPlan(String fab, String material, Date fabDate);
+
 
     /**
      * 获取到货数量
@@ -27,7 +39,7 @@ public interface ArrivalPlanService {
      * @param fabDateList 日期集合
      * @return Map<Date, Double>
      */
-    Map<Date, Double> getArrivalPlan(String fab, String material, List<Date> fabDateList);
+    Map<Date, Double> getArrivalPlanQty(String fab, String material, List<Date> fabDateList);
 
     /**
      * 获取包材的到货数量
@@ -41,4 +53,10 @@ public interface ArrivalPlanService {
      * @return double
      */
     double getArrivalPlanPackage(String fab, String product, String type, Double linkQty, String mode, String material, java.sql.Date fabDate);
+
+    /**
+     * 批量保存供应商到货计划
+     * @param mapList 集合
+     */
+    void batchSaveArrivalPlan(List<Map> mapList);
 }

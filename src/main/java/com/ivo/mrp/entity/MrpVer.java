@@ -83,4 +83,15 @@ public class MrpVer {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createDate = new Date();
 
+    /**
+     * 修改者
+     */
+    private String updater = "";
+
+    /**
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date updateDate = new Date();
+
 }

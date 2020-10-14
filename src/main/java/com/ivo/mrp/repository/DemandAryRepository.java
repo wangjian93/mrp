@@ -54,4 +54,21 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
             "select fab_date,d.demand_qty from mrp3_demand_ary_oc d where d.ver=:ver and d.material=:material and d.demand_qty>0 and d.fab_date=:fabDate " +
             ")t", nativeQuery = true)
     Double getDemandQtyAry(String ver, String material, Date fabDate);
+
+    /**
+     * 筛选MRP版本、料号、日期
+     * @param ver 版本
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<DemandLcm>
+     */
+    List<DemandAry> findByVerAndMaterialAndFabDate(String ver, String material, Date fabDate);
+
+    /**
+     * 获取料号的需求机种
+     * @param ver MRP版本
+     * @return List<String>
+     */
+    @Query(value = "select DISTINCT d.product from DemandAry d where d.ver=:ver and d.material=:material")
+    List<String> getProduct(String ver, String material);
 }
