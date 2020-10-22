@@ -1,6 +1,7 @@
 package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.direct.ArrivalPlan;
+import org.springframework.data.domain.Page;
 
 import java.sql.Date;
 import java.util.List;
@@ -59,4 +60,10 @@ public interface ArrivalPlanService {
      * @param mapList 集合
      */
     void batchSaveArrivalPlan(List<Map> mapList);
+
+
+    Page<Map> getPageLcmArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup,
+                                    String searchMaterial, String searchSupplier);
+
+    List<ArrivalPlan> getLcmArrivalPlan(Date startDate, Date endDate, String material, String supplierCode);
 }

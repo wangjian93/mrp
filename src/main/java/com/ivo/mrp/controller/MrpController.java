@@ -3,6 +3,9 @@ package com.ivo.mrp.controller;
 import com.ivo.common.result.Result;
 import com.ivo.common.utils.DateUtil;
 import com.ivo.common.utils.ResultUtil;
+import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
+import com.ivo.mrp.entity.direct.cell.MrpCell;
+import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.service.MrpService;
 import com.ivo.mrp.service.RunMrpService;
@@ -139,12 +142,107 @@ public class MrpController {
     @ApiOperation("修改料号的结余量")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
-            @ApiImplicitParam(name = "material", value = "料号", required = true)
+            @ApiImplicitParam(name = "material", value = "料号", required = true),
+            @ApiImplicitParam(name = "fabDate", value = "日期", required = true),
+            @ApiImplicitParam(name = "balanceQty", value = "结余量", required = true)
     })
     @GetMapping("/updateMrpBalanceQty")
     public Result updateMrpBalanceQty(String ver, String material, Date fabDate, double balanceQty) {
         runMrpService.updateMrpBalanceQty(ver, material, fabDate, balanceQty);
         runMrpService.updateMrpMaterial(ver, material);
         return ResultUtil.success("MRP更新料号成功");
+    }
+
+    @ApiOperation("更新MRP的供应商分配数量")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "material", value = "料号", required = true),
+            @ApiImplicitParam(name = "fabDate", value = "日期", required = true)
+    })
+    @GetMapping("/updateMrpAllocationQty")
+    public Result updateMrpAllocationQty(String ver, String material, Date fabDate) {
+        double allocationQty = runMrpService.updateMrpAllocationQty(ver, material, fabDate);
+        return ResultUtil.success("MRP更新料号成功", allocationQty);
+    }
+
+
+
+    @ApiOperation("分页获取CELL的MRP料号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "searchProduct", value = "查询机种"),
+            @ApiImplicitParam(name = "searchMaterialGroup", value = "查询物料组"),
+            @ApiImplicitParam(name = "searchMaterial", value = "查询料号"),
+            @ApiImplicitParam(name = "searchSupplier", value = "查询供应商")
+    })
+    @GetMapping("/getPageMrpCellMaterial")
+    public Result getPageMrpCellMaterial(@RequestParam(required = false, defaultValue = "1") int page,
+                                        @RequestParam(required = false, defaultValue = "50") int limit,
+                                        String ver,
+                                        @RequestParam(required = false, defaultValue = "") String searchProduct,
+                                        @RequestParam(required = false, defaultValue = "") String searchMaterialGroup,
+                                        @RequestParam(required = false, defaultValue = "") String searchMaterial,
+                                        @RequestParam(required = false, defaultValue = "") String searchSupplier) {
+        Page<MrpCellMaterial> p = mrpService.getPageMrpCellMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+    }
+
+    @ApiOperation("获取Cell料号的MRP数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "material", value = "料号", required = true)
+    })
+    @GetMapping("/getMrpCell")
+    public Result getMrpCell(String ver, String material) {
+        List list =  mrpService.getMrpCell(ver, material);
+        return ResultUtil.success(list);
+    }
+
+    @ApiOperation("分页获取Ary的MRP料号")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "searchProduct", value = "查询机种"),
+            @ApiImplicitParam(name = "searchMaterialGroup", value = "查询物料组"),
+            @ApiImplicitParam(name = "searchMaterial", value = "查询料号"),
+            @ApiImplicitParam(name = "searchSupplier", value = "查询供应商")
+    })
+    @GetMapping("/getPageMrpAryMaterial")
+    public Result getPageMrpAryMaterial(@RequestParam(required = false, defaultValue = "1") int page,
+                                        @RequestParam(required = false, defaultValue = "50") int limit,
+                                        String ver,
+                                        @RequestParam(required = false, defaultValue = "") String searchProduct,
+                                        @RequestParam(required = false, defaultValue = "") String searchMaterialGroup,
+                                        @RequestParam(required = false, defaultValue = "") String searchMaterial,
+                                        @RequestParam(required = false, defaultValue = "") String searchSupplier) {
+        Page<MrpAryMaterial> p = mrpService.getPageMrpAryMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+    }
+
+    @ApiOperation("获取Ary料号的MRP数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "material", value = "料号", required = true)
+    })
+    @GetMapping("/getMrpAry")
+    public Result getMrpAry(String ver, String material) {
+        List list =  mrpService.getMrpAry(ver, material);
+        return ResultUtil.success(list);
+    }
+
+    @GetMapping("/getCalendar")
+    public Result getCalendar(Date startDate, Date endDate) {
+        List<java.util.Date> list = DateUtil.getCalendar(startDate, endDate);
+        List<String> days = DateUtil.format_(list);
+        String[] weeks = DateUtil.getWeekDay_(list);
+        List<String> months = DateUtil.getMonthBetween(list.get(0), list.get(list.size()-1));
+        Map<String, Object> map = new HashMap<>();
+        map.put("days", days);
+        map.put("weeks", weeks);
+        map.put("months", months);
+        return ResultUtil.success(map);
     }
 }

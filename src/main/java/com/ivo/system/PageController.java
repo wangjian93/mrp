@@ -48,6 +48,11 @@ public class PageController {
     private static final String mrp_package_view = "page/mrp/mrp/mrpLcm";
     private static final String mrp_pol_view = "page/mrp/mrp/mrpLcm";
 
+    private static final String arrivalPlan_lcm_view = "page/mrp/arrivalPlan/arrivalPlanLcm";
+    private static final String arrivalPlan_ary_view = "page/mrp/arrivalPlan/arrivalPlanAry";
+    private static final String arrivalPlan_cell_view = "page/mrp/arrivalPlan/arrivalPlanCell";
+
+
 
     /**
      * 损耗率
@@ -167,6 +172,25 @@ public class PageController {
         }
         if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Pol)) {
             return mrp_ver_pol_view;
+        }
+        return null;
+    }
+
+    /**
+     * 供应商到货计划
+     * @param fab 产别
+     * @return String
+     */
+    @GetMapping("/arrivalPlan/{fab}")
+    public String arrivalPlan(@PathVariable String fab) {
+        if(StringUtils.equalsIgnoreCase(fab, MrpVer.Type_Ary)) {
+            return arrivalPlan_ary_view;
+        }
+        if(StringUtils.equalsIgnoreCase(fab, MrpVer.Type_Cell)) {
+            return arrivalPlan_cell_view;
+        }
+        if(StringUtils.equalsIgnoreCase(fab, "LCM")) {
+            return arrivalPlan_lcm_view;
         }
         return null;
     }

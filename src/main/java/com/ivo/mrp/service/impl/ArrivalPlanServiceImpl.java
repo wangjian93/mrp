@@ -8,11 +8,16 @@ import com.ivo.mrp.service.ArrivalPlanService;
 import com.ivo.mrp.service.SupplierService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,5 +106,28 @@ public class ArrivalPlanServiceImpl implements ArrivalPlanService {
             }
             arrivalPlanRepository.save(arrivalPlan);
         }
+    }
+
+
+    @Override
+    public Page<Map> getPageLcmArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit);
+        return arrivalPlanRepository.getPageArrivalPlanMaterial(startDate, endDate,"LCM%", searchMaterialGroup+"%",
+                searchMaterial+"%",
+                searchSupplier+"%", pageable);
+    }
+
+    @Override
+    public List<ArrivalPlan> getLcmArrivalPlan(Date startDate, Date endDate, String material, String supplierCode) {
+        //LCM1
+        List<ArrivalPlan> list1 = arrivalPlanRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual("LCM1",
+                material, supplierCode, startDate, endDate);
+        //LCM2
+        List<ArrivalPlan>  list2 = arrivalPlanRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                "LCM2", material, supplierCode, startDate, endDate);
+        List<ArrivalPlan> list = new ArrayList<>();
+        list.addAll(list1);
+        list.addAll(list2);
+        return list;
     }
 }

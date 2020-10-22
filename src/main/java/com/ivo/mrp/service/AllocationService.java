@@ -1,5 +1,7 @@
 package com.ivo.mrp.service;
 
+import com.ivo.mrp.entity.direct.Allocation;
+
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +20,7 @@ public interface AllocationService {
      * @param fabDate 日期
      * @return Double
      */
-    double getAllocation(String fab, String material, java.sql.Date fabDate);
+    double getAllocationQty(String fab, String material, java.sql.Date fabDate);
 
     /**
      * 获取分配数量
@@ -27,7 +29,7 @@ public interface AllocationService {
      * @param fabDateList 日期集合
      * @return  Map<Date, Double>
      */
-    Map<Date, Double> getAllocation(String fab, String material, List<Date> fabDateList);
+    Map<Date, Double> getAllocationQty(String fab, String material, List<Date> fabDateList);
 
     /**
      * 获取包材分配数量
@@ -41,4 +43,20 @@ public interface AllocationService {
      */
     double getAllocationPackage(String fab, String product, String type, Double linkQty, String mode, String material, java.sql.Date fabDate);
 
+    /**
+     * 获取去材料的供应商分配
+     * @param fab 厂别
+     * @param material 料号
+     * @param fabDate 日期
+     * @return  List<Allocation>
+     */
+    List<Allocation> getAllocation(String fab, String material, java.sql.Date fabDate);
+
+    /**
+     * 批量保存供应商的数量分配
+     * @param mapList 集合
+     */
+    void batchSaveAllocation(List<Map> mapList);
+
+    List<Allocation> getLcmAllocation(Date startDate, Date endDate, String material, String supplierCode);
 }

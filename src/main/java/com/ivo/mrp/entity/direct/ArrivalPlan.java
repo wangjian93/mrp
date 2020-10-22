@@ -52,7 +52,7 @@ public class ArrivalPlan  {
     private double arrivalQty;
 
     /**
-     * 简称
+     * 供应商简称
      */
     private String supplierSname;
 

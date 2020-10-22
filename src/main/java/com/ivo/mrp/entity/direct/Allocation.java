@@ -52,6 +52,11 @@ public class Allocation {
     private String supplierCode;
 
     /**
+     * 供应商简称
+     */
+    private String supplierSname;
+
+    /**
      * 分配数量 (要望)
      */
     private double allocationQty;

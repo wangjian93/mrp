@@ -44,6 +44,14 @@
     </div>
 </div>
 
+<!-- 表格工具栏 -->
+<script type="text/html" id="toolDemo">
+    <div style="margin: -1px;">
+        <button type="button" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="show"><i class="layui-icon layui-icon-list"></i>查看</button>
+        <button type="button" class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon">&#xe640;</i>删除</button>
+    </div>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
@@ -72,7 +80,8 @@
                 {field: 'endDate', title: '结束日期', align: 'center', width: 100},
                 {field: 'dpsVer', title: 'DPS', align: 'center', width: 160},
                 {field: 'mpsVer', title: 'MPS', align: 'center', width: 160},
-                {field: 'createDate', title: '创建时间', align: 'center', width: 100}
+                {field: 'createDate', title: '创建时间', align: 'center', width: 100},
+                {title: '操作', align: 'center', width: 180, templet: '#toolDemo'}
             ]],
             page: true,
             limit: 50,
@@ -84,6 +93,33 @@
             table.reload('table_mrpVer', {where: data.field, page: {curr: 1}});
             return false;
         });
+
+        //监听行工具事件
+        table.on('tool(table_mrpVer)', function(obj) {
+            var ver = obj.data.ver;
+            if(obj.event === 'show') {
+                showMrpData(ver)
+            } else if(obj.event === 'del') {
+                delMrpVer(ver)
+            }
+        });
+
+        // 打开MRP数据页面
+        var showMrpData = function(ver) {
+            var URL ="/page/mrp/mrp/mrpAry.html?ver="+ver;
+            window.open(URL);
+        };
+
+        // 删除MRP版本
+        var delMrpVer = function(ver) {
+            $.get('/mrp/mrp/delMrpVer', {ver: ver}, function(res) {
+                if(res.code === 200) {
+                    table.reload('table_mrpVer');
+                } else {
+                    layer.msg("删除操作失败，"+res.msg);
+                }
+            });
+        }
     });
 
 </script>

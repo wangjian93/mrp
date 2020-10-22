@@ -168,16 +168,6 @@ public interface RunMrpService {
      */
     void runMrp(String[] dpsVers, String[] mpsVers, String user);
 
-    /**
-     * 5 计算MRP 包材
-     * @param ver MRP版本
-     */
-    void computeMrpPackage(String ver);
-
-    void computeMrpPackage(String ver, String dpsVer);
-
-    void computeMrpPackage(String ver, String dpsVer, String product, String type, Double linkQty, String mode);
-
 
     /**
      * 完善MRP的信息
@@ -200,4 +190,12 @@ public interface RunMrpService {
      * @param balanceQty 结余量
      */
     void updateMrpBalanceQty(String ver, String material, Date fabDate, double balanceQty);
+
+    /**
+     * 更新MRP的供应商分配数量
+     * @param ver MRP版本
+     * @param material 料号
+     * @param fabDate 日期
+     */
+    double updateMrpAllocationQty(String ver, String material, Date fabDate);
 }

@@ -34,4 +34,18 @@ public interface AllocationRepository extends JpaRepository<Allocation, Allocati
      */
     @Query(value = "select a.fabDate as fabDate, sum(a.allocationQty) as allocationQty from Allocation a where a.fab=:fab and a.material=:material and a.fabDate in :fabDateList group by a.fabDate")
     List<Map> getAllocation(String fab, String material, List<Date> fabDateList);
+
+    /**
+     * 筛选厂别、料号、日期
+     * @param fab 厂别
+     * @param material 料号
+     * @param fabDate 日期
+     * @return List<Allocation>
+     */
+    List<Allocation> findByFabAndMaterialAndFabDate(String fab, String material, Date fabDate);
+
+
+    List<Allocation> findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+            String fab, String material, String supplierCode, Date startDate, Date endDate
+    );
 }

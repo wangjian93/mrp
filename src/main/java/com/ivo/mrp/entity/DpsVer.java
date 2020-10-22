@@ -84,6 +84,11 @@ public class DpsVer {
     private String dpsFile;
 
     /**
+     * DPS文件名
+     */
+    private String fileName;
+
+    /**
      * 备注
      */
     private String memo = "";

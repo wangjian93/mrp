@@ -68,7 +68,7 @@
 <!-- 正文开始 -->
 <div class="layui-fluid">
     <div class="layui-card">
-        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM MRP数据</div>
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> CELL MRP数据</div>
         <div class="layui-card-body">
             <!-- MRP表格 -->
             <div class="mrp">
@@ -119,23 +119,23 @@
 
 <!-- MRP日历模板 -->
 <script type="text/html" id="mrpCalendarDemo"><div class="box_parent">
-        <div class="box" style="border-bottom: none">{{d.day}}</div>
-        <div class="box" style="border-bottom: none">{{d.week}}</div>
-    </div></script>
+<div class="box" style="border-bottom: none">{{d.day}}</div>
+<div class="box" style="border-bottom: none">{{d.week}}</div>
+</div></script>
 
 <!-- MRP行数据label模板 -->
 <script type="text/html" id="mrpTitleDemo"><div class="box_parent">
-    <div class="box">需求量</div>
-    <div class="box">损耗量</div>
-    <div class="box" style="color: #01AAED;">到货量</div>
-    <div class="box" style="color: red;">结余量</div>
-    <div class="box" style="color: red;">缺料量</div>
-    <div class="box" style="border-bottom: none">分配量</div>
+<div class="box">需求量</div>
+<div class="box">损耗量</div>
+<div class="box" style="color: #01AAED;">到货量</div>
+<div class="box" style="color: red;">结余量</div>
+<div class="box" style="color: red;">缺料量</div>
+<div class="box" style="border-bottom: none">分配量</div>
 </div></script>
 
 <!-- MRP月份日历模板 -->
 <script type="text/html" id="mrpCalendarMonthDemo"><div class="box_parent">
-    <div class="box" style="border-bottom: none">{{d.month}}</div>
+<div class="box" style="border-bottom: none">{{d.month}}</div>
 </div></script>
 
 <!-- MRP月份汇总数据模板 -->
@@ -150,13 +150,13 @@
 
 <!-- MRP行数据模板 -->
 <script type="text/html" id="mrpDemo"><div class="box_parent hover" id="{{ d.material_fabDate }}">
-        <div class="box hover" id="{{ d.material_fabDate }}_demandQty"  lay-event="{{ d.material_fabDate }}_demandQty"></div>
-        <div class="box hover" id="{{ d.material_fabDate }}_lossQty"  lay-event="{{ d.material_fabDate }}_lossQty"></div>
-        <div class="box hover" id="{{ d.material_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty"></div>
-        <div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty"></div>
-        <div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty"></div>
-        <div class="box hover" style="border-bottom: none" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty"></div>
-    </div></script>
+<div class="box hover" id="{{ d.material_fabDate }}_demandQty"  lay-event="{{ d.material_fabDate }}_demandQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_lossQty"  lay-event="{{ d.material_fabDate }}_lossQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty"></div>
+<div class="box hover" style="border-bottom: none" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty"></div>
+</div></script>
 
 <!-- 需求量明细弹框 -->
 <script type="text/html" id="demandQtyDetailDialog">
@@ -254,7 +254,7 @@
         //MRP数据表格
         table.render({
             elem: '#table_mrp',
-            url: '/mrp/mrp/getPageMrpLcmMaterial',
+            url: '/mrp/mrp/getPageMrpCellMaterial',
             where: {
                 ver: ver
             },
@@ -263,7 +263,7 @@
                 {field: 'material', title: '<div style="height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
                 {title: '', align: 'center', width: 100, templet: '#mrpTitleDemo', fixed: 'left'},
                 {title: '物料名', align: 'center', width: 160, templet: function (d) {
-                    return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
+                        return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
                     }},
                 {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
                 {field: 'materialGroupName', title: '物料组名', align: 'center', width: 140},
@@ -273,10 +273,10 @@
                 {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 80},
                 // {field: 'inventorDate', title: '库存日期', align: 'center', width: 140},
                 {field: 'products', title: '机种', align: 'center', width: 160, templet: function(d) {
-                    return '<div style="max-height: 120px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                        return '<div style="max-height: 120px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
                     }},
                 {field: 'suppliers', title: '供应商', align: 'center', width: 160, templet: function(d) {
-                    return '<div style="max-height: 120px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
+                        return '<div style="max-height: 120px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
                     }},
                 // {field: 'supplierCodes', title: '供应商', align: 'center', width: 140},
                 // {field: 'customers', title: '客户', align: 'center', width: 140},
@@ -316,7 +316,7 @@
 
         //料号的MRP数据渲染
         var renderMaterialMrp = function(material) {
-            $.get('/mrp/mrp/getMrpLcm',{
+            $.get('/mrp/mrp/getMrpCell',{
                 ver: ver,
                 material: material
             }, function(res){
@@ -457,7 +457,7 @@
                 type: 1,
                 title: '需求量明细',
                 content: $('#demandQtyDetailDialog').html(),
-                area: '1030px',
+                area: '1130px',
                 success: function (layero, dIndex) {
                     table.render({
                         elem: '#table_demandQtyDetail',
@@ -476,12 +476,13 @@
                             {field: 'project', title: 'PROJECT', align: 'center', width: 100},
                             {field: 'qty', title: '投入量', align: 'center', width: 80},
                             {field: 'usageQty', title: 'BOM使用量', align: 'center', width: 100},
+                            {field: 'cutQty', title: '切片数', align: 'center', width: 100},
                             {field: 'substituteRate', title: '替代比例(%)', align: 'center', width: 120},
                             {field: 'demandQty', title: '需求量', align: 'center', totalRow: true}
                         ]],
                         page: {layout: ['count']},
                         height: 300,
-                        width: 1000,
+                        width: 1100,
                         size: 'sm',
                         even: true,
                         totalRow: true

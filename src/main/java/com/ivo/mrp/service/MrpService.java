@@ -311,4 +311,32 @@ public interface MrpService {
      * @return MrpAry
      */
     MrpAry getMrpAry(String ver, String material, Date fabDate);
+
+    /**
+     * 分页获取CELL MRP的料号
+     * @param page 页数
+     * @param limit 分页大小
+     * @param ver mrp版本
+     * @param searchProduct 查询机种
+     * @param searchMaterialGroup 查询物料组
+     * @param searchMaterial 查询料号
+     * @param searchSupplier 查询供应商
+     * @return Page<MrpLcmMaterial>
+     */
+    Page<MrpCellMaterial> getPageMrpCellMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup,
+                                               String searchMaterial, String searchSupplier);
+
+    /**
+     * 分页获取ARY MRP的料号
+     * @param page 页数
+     * @param limit 分页大小
+     * @param ver mrp版本
+     * @param searchProduct 查询机种
+     * @param searchMaterialGroup 查询物料组
+     * @param searchMaterial 查询料号
+     * @param searchSupplier 查询供应商
+     * @return Page<MrpLcmMaterial>
+     */
+    Page<MrpAryMaterial> getPageMrpAryMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup,
+                                                 String searchMaterial, String searchSupplier);
 }

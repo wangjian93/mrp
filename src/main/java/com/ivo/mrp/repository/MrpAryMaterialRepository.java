@@ -3,6 +3,7 @@ package com.ivo.mrp.repository;
 import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
 import com.ivo.mrp.key.MrpMaterialKey;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  * @author wj
  * @version 1.0
  */
-public interface MrpAryMaterialRepository extends JpaRepository<MrpAryMaterial, MrpMaterialKey> {
+public interface MrpAryMaterialRepository extends JpaRepository<MrpAryMaterial, MrpMaterialKey>, JpaSpecificationExecutor<MrpAryMaterial> {
 
     /**
      * 筛选MRP版本

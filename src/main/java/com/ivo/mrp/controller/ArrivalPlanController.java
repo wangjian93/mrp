@@ -7,6 +7,7 @@ import com.ivo.common.utils.ResultUtil;
 import com.ivo.mrp.entity.MrpVer;
 import com.ivo.mrp.entity.Supplier;
 import com.ivo.mrp.entity.direct.ArrivalPlan;
+import com.ivo.mrp.service.AllocationService;
 import com.ivo.mrp.service.ArrivalPlanService;
 import com.ivo.mrp.service.MrpService;
 import com.ivo.mrp.service.SupplierService;
@@ -15,17 +16,12 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.sql.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 供应商到货计划接口
@@ -43,11 +39,15 @@ public class ArrivalPlanController {
 
     private SupplierService supplierService;
 
+    private AllocationService allocationService;
+
     @Autowired
-    public ArrivalPlanController(MrpService mrpService, ArrivalPlanService arrivalPlanService, SupplierService supplierService) {
+    public ArrivalPlanController(MrpService mrpService, ArrivalPlanService arrivalPlanService, SupplierService supplierService,
+                                 AllocationService  allocationService) {
         this.mrpService = mrpService;
         this.arrivalPlanService = arrivalPlanService;
         this.supplierService =supplierService;
+        this.allocationService = allocationService;
     }
 
     @ApiOperation("获取MRP料号的供应商到货计划")
@@ -112,4 +112,30 @@ public class ArrivalPlanController {
         }
         return ResultUtil.success("到货计划保存成功");
     }
+
+
+    @GetMapping("/getPageArrivalPlanMaterial")
+    public Result getPageArrivalPlanMaterial(Date startDate, Date endDate,
+                                             String fab,
+                                             int page, int limit,
+                                             @RequestParam(required = false, defaultValue = "") String materialGroup,
+                                             @RequestParam(required = false, defaultValue = "") String material,
+                                             @RequestParam(required = false, defaultValue = "") String supplier) {
+        Page p = arrivalPlanService.getPageLcmArrivalPlanMaterial(startDate, endDate, page-1, limit, materialGroup, material, supplier);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+    }
+
+    @GetMapping("/getArrivalPlan")
+    public Result getArrivalPlan(Date startDate, Date endDate,
+                                 String fab,
+                                 String material, String supplierCode) {
+        List list1 = arrivalPlanService.getLcmArrivalPlan(startDate, endDate, material, supplierCode);
+        List list2 = allocationService.getLcmAllocation(startDate, endDate, material, supplierCode);
+        List list = new ArrayList();
+        list.addAll(list1);
+        list.addAll(list2);
+        return ResultUtil.success(list);
+    }
+
+
 }

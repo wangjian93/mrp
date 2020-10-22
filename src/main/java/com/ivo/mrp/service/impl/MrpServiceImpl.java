@@ -327,4 +327,50 @@ public class MrpServiceImpl implements MrpService {
     public MrpAry getMrpAry(String ver, String material, Date fabDate) {
         return mrpAryRepository.findById(new MrpKey(ver, fabDate, material)).orElse(null);
     }
+
+    @Override
+    public Page<MrpCellMaterial> getPageMrpCellMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "materialGroup", "material");
+        Specification<MrpCellMaterial> spec = (Specification<MrpCellMaterial>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("ver"), ver));
+            if(StringUtils.isNotEmpty(searchProduct)) {
+                predicates.add(criteriaBuilder.like(root.get("products"), "%"+searchProduct+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterialGroup)) {
+                predicates.add(criteriaBuilder.like(root.get("materialGroup"), searchMaterialGroup+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterial)) {
+                predicates.add(criteriaBuilder.like(root.get("material"), searchMaterial+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchSupplier)) {
+                predicates.add(criteriaBuilder.like(root.get("suppliers"), "%"+searchSupplier+"%"));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return mrpCellMaterialRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Page<MrpAryMaterial> getPageMrpAryMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "materialGroup", "material");
+        Specification<MrpAryMaterial> spec = (Specification<MrpAryMaterial>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("ver"), ver));
+            if(StringUtils.isNotEmpty(searchProduct)) {
+                predicates.add(criteriaBuilder.like(root.get("products"), "%"+searchProduct+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterialGroup)) {
+                predicates.add(criteriaBuilder.like(root.get("materialGroup"), searchMaterialGroup+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterial)) {
+                predicates.add(criteriaBuilder.like(root.get("material"), searchMaterial+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchSupplier)) {
+                predicates.add(criteriaBuilder.like(root.get("suppliers"), "%"+searchSupplier+"%"));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return mrpAryMaterialRepository.findAll(spec, pageable);
+    }
 }

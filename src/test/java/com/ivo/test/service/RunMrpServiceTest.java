@@ -43,14 +43,14 @@ public class RunMrpServiceTest extends AbstractTest {
 
     @Test
     public void test_runMrp() {
-        String[] dpsVers = new String[] {"20201009034","20201009035"};
+        String[] dpsVers = new String[] {"20200902031"};
         String[] mpsVers = new String[] {};
         runMrpService.runMrp(dpsVers, mpsVers, "SYS");
     }
 
     @Test
     public void test_completeMrpMaterial() {
-        runMrpService.completeMrpMaterial("20201012007");
+        runMrpService.completeMrpMaterial("20200909002");
     }
 
 }
