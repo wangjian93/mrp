@@ -46,6 +46,16 @@ public class DpsAry {
     private java.sql.Date fabDate;
 
     /**
+     * DPS的outputName，多个时用逗号分割
+     */
+    private String outputName;
+
+    /**
+     * 机种
+     */
+    private String project;
+
+    /**
      * 需求量
      */
     private double demandQty;

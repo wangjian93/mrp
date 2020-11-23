@@ -9,6 +9,7 @@ import com.ivo.mrp.repository.SupplierMaterialRepository;
 import com.ivo.mrp.repository.SupplierPackageRepository;
 import com.ivo.mrp.repository.SupplierRepository;
 import com.ivo.mrp.service.SupplierService;
+import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -39,13 +40,17 @@ public class SupplierServiceImpl implements SupplierService {
 
     private SupplierPackageRepository supplierPackageRepository;
 
+    private RestService restService;
+
     @Autowired
     public SupplierServiceImpl(SupplierRepository supplierRepository,
                                SupplierMaterialRepository supplierMaterialRepository,
-                               SupplierPackageRepository supplierPackageRepository) {
+                               SupplierPackageRepository supplierPackageRepository,
+                               RestService restService) {
         this.supplierRepository = supplierRepository;
         this.supplierMaterialRepository = supplierMaterialRepository;
         this.supplierPackageRepository = supplierPackageRepository;
+        this.restService = restService;
     }
 
     @Override
@@ -127,6 +132,47 @@ public class SupplierServiceImpl implements SupplierService {
         log.info("供应商数据导入 >> END");
     }
 
+    @Override
+    public Workbook exportSupplierMaterial(String material, String supplier) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        String[] titleItems = new String[] {"料号","物料组", "物料名", "供应商ID", "供应商", "简称"};
+
+
+        //首行标题居中、加背景
+        CellStyle cellStyle1 = workbook.createCellStyle();
+        cellStyle1.setAlignment(HorizontalAlignment.CENTER); //水平居中
+        cellStyle1.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex()); //设置背景色
+        cellStyle1.setFillPattern(FillPatternType.SOLID_FOREGROUND); //设置加粗
+        //设置列宽
+        sheet.setColumnWidth(0, 20*256);
+        sheet.setColumnWidth(1, 50*256);
+        sheet.setColumnWidth(2, 20*256);
+
+        int intRow =0;
+        int intCel = 0;
+        Row row1 = sheet.createRow(intRow);
+        for(; intCel<titleItems.length; intCel++) {
+            Cell cell = row1.createCell(intCel);
+            cell.setCellValue(titleItems[intCel]);
+            cell.setCellStyle(cellStyle1);
+        }
+
+        Page<Map> p = querySupplierMaterial(0, 100000, material, supplier);
+        List<Map> mapList = p.getContent();
+        for(Map map : mapList) {
+            intRow++;
+            intCel = 0;
+            Row row = sheet.createRow(intRow);
+            row.createCell(intCel++).setCellValue((String) map.get("material"));
+            row.createCell(intCel++).setCellValue((String) map.get("materialGroup"));
+            row.createCell(intCel++).setCellValue((String) map.get("materialName"));
+            row.createCell(intCel++).setCellValue((String) map.get("supplierCode"));
+            row.createCell(intCel++).setCellValue((String) map.get("supplierName"));
+            row.createCell(intCel).setCellValue((String) map.get("supplierSname"));
+        }
+        return workbook;
+    }
 
     @Override
     public void updateSupplier(String supplierCode, String supplierName, String supplierSname, String user) {
@@ -235,5 +281,35 @@ public class SupplierServiceImpl implements SupplierService {
     public Page<SupplierPackage> querySupplierPackage(int page, int limit, String month, String searchProduct) {
         Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "project");
         return supplierPackageRepository.findByMonthAndProjectLikeAndValidFlag(month, searchProduct+"%", true, pageable);
+    }
+
+    @Override
+    public void syncSupplierMaterial() {
+        log.info("同步材料供应商>> START");
+        List<Map> list = restService.getSupplierMaterial();
+        if(list == null || list.size()==0) {
+            log.warn("同步材料供应商>> END 无数据");
+            return;
+        }
+        for(Map map : list) {
+            String material = ((String) map.get("material")).trim();
+            String supplierCode = ((String) map.get("supplierCode")).trim();
+            String supplierName = ((String) map.get("supplierName")).trim();
+            Supplier supplier = getSupplier(supplierCode);
+            if(supplier == null) {
+                String supplierSname;
+                if(supplierName.length()>6) {
+                    supplierSname = supplierName.substring(0, 6);
+                } else {
+                    supplierSname = supplierName;
+                }
+                addSupplier(supplierCode, supplierName, supplierSname, "SYS");
+            }
+            SupplierMaterial supplierMaterial = getSupplierMaterial(supplierCode, material);
+            if(supplierMaterial == null) {
+                addSupplierMaterial(supplierCode, material, "SYS");
+            }
+        }
+        log.info("同步材料供应商>> END");
     }
 }

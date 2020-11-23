@@ -34,4 +34,9 @@ public class SupplierServiceTest extends AbstractTest {
         }
         supplierService.importSupplierMaterial(inputStream, file.getName());
     }
+
+    @Test
+    public void test_syncSupplierMaterial() {
+        supplierService.syncSupplierMaterial();
+    }
 }

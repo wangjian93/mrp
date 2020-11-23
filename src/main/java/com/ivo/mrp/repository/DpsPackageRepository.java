@@ -3,6 +3,7 @@ package com.ivo.mrp.repository;
 import com.ivo.mrp.entity.packaging.DpsPackage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public interface DpsPackageRepository extends JpaRepository<DpsPackage, Long> {
      * @return List<String>
      */
     @Query(value = "select d.product as product, d.type as type, d.linkQty as linkQty, d.mode as mode from DpsPackage d where d.ver=:ver group by d.product, d.type, d.linkQty, d.mode")
-    List<Map> getProduct(String ver);
+    List<Map> getProduct(@Param("ver") String ver);
 
     /**
      * 筛选dps版本、机种

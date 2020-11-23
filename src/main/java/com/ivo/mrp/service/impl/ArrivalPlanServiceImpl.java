@@ -130,4 +130,48 @@ public class ArrivalPlanServiceImpl implements ArrivalPlanService {
         list.addAll(list2);
         return list;
     }
+
+    @Override
+    public Page<Map> getPageCellArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit);
+        return arrivalPlanRepository.getPageArrivalPlanMaterial(startDate, endDate,"CELL%", searchMaterialGroup+"%",
+                searchMaterial+"%",
+                searchSupplier+"%", pageable);
+    }
+
+    @Override
+    public List<ArrivalPlan> getCellArrivalPlan(Date startDate, Date endDate, String material, String supplierCode) {
+        return arrivalPlanRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                "CELL", material, supplierCode, startDate, endDate);
+    }
+
+    @Override
+    public Page<Map> getPageAryArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit);
+        return arrivalPlanRepository.getPageArrivalPlanMaterial(startDate, endDate,"ARY%", searchMaterialGroup+"%",
+                searchMaterial+"%",
+                searchSupplier+"%", pageable);
+    }
+
+    @Override
+    public List<ArrivalPlan> getAryArrivalPlan(Date startDate, Date endDate, String material, String supplierCode) {
+        return arrivalPlanRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                "ARY", material, supplierCode, startDate, endDate);
+    }
+
+    @Override
+    public void saveArrivalPlan(String fab, String material, String supplierCode, Date fabDate, double arrivalQty) {
+        ArrivalPlan arrivalPlan= arrivalPlanRepository.findById(new ArrivalPlanKey(fab, material, fabDate, supplierCode)).orElse(null);
+        if(arrivalPlan == null) {
+            arrivalPlan = new ArrivalPlan();
+            arrivalPlan.setFab(fab);
+            arrivalPlan.setFabDate(fabDate);
+            arrivalPlan.setMaterial(material);
+            arrivalPlan.setSupplierCode(supplierCode);
+            arrivalPlan.setSupplierSname(supplierService.getSupplier(supplierCode).getSupplierSname());
+        }
+        arrivalPlan.setArrivalQty(arrivalQty);
+        arrivalPlan.setUpdateDate(new java.util.Date());
+        arrivalPlanRepository.save(arrivalPlan);
+    }
 }

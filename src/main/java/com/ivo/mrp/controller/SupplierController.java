@@ -7,6 +7,7 @@ import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.service.SupplierService;
 import io.swagger.annotations.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,20 +136,40 @@ public class SupplierController {
     @ApiOperation("Excel导入主材的供应商")
     @PostMapping(value = "/importExcelMaterial", headers = "content-type=multipart/form-data")
     public Result importExcelMaterial(@ApiParam(value = "Excel文件", required = true) @RequestParam("file") MultipartFile file) {
-        //TODO...
-        return null;
+        //IVO文件解密
+        byte[] bytes = new byte[0];
+        try {
+            bytes = IVODecryptionUtils.decrypt(file.getInputStream());
+        } catch (DecryptException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        String fileName = file.getOriginalFilename();
+        supplierService.importSupplierMaterial(inputStream, fileName);
+        return ResultUtil.success("Excel导入成功");
     }
 
+    @SneakyThrows
     @ApiOperation("Excel导出主材的供应商")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "material", value = "料号查询"),
             @ApiImplicitParam(name = "supplier", value = "供应商查询")
     })
     @GetMapping(value = "/exportExcelMaterial")
-    public Result exportExcelMaterial(@RequestParam(required = false, defaultValue = "") String material,
-                                      @RequestParam(required = false, defaultValue = "") String supplier) {
-        //TODO...
-        return null;
+    public void exportExcelMaterial(@RequestParam(required = false, defaultValue = "") String material,
+                                      @RequestParam(required = false, defaultValue = "") String supplier) throws IOException {
+        Workbook workbook = supplierService.exportSupplierMaterial(material, supplier );
+        HttpServletResponse response = HttpServletUtil.getResponse();
+        response.setContentType("application/vnd.ms-excel;chartset=utf-8");
+        String fileName = "材料供应商信息";
+        fileName = URLEncoder.encode(fileName, "UTF8");
+        response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
+        OutputStream out = response.getOutputStream();
+        workbook.write(out);
+        out.flush();
+        out.close();
     }
 
     @ApiOperation("添加主材的供应商")
@@ -159,7 +180,7 @@ public class SupplierController {
     @PostMapping(value = "/addSupplierMaterial")
     public Result addSupplierMaterial(String material, String supplierCode) {
         //TODO...
-        return null;
+        return ResultUtil.success();
     }
 
     @ApiOperation("删除主材的供应商")
@@ -170,7 +191,7 @@ public class SupplierController {
     @PostMapping(value = "/delSupplierMaterial")
     public Result delSupplierMaterial(String material, String supplierCode) {
         //TODO...
-        return null;
+        return ResultUtil.success();
     }
 
 

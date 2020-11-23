@@ -198,4 +198,7 @@ public interface RunMrpService {
      * @param fabDate 日期
      */
     double updateMrpAllocationQty(String ver, String material, Date fabDate);
+
+
+    void updateMrp(String ver);
 }

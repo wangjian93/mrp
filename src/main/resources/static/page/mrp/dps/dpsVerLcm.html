@@ -50,16 +50,24 @@
     </div>
 </div>
 
+<!-- 表格工具栏 -->
+<script type="text/html" id="toolDemo">
+    <div style="margin: -1px;">
+        <button type="button" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="show"><i class="layui-icon layui-icon-list"></i>查看</button>
+    </div>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['table', 'layer', 'form', 'upload', 'dropdown', 'tableX'], function() {
+    layui.use(['table', 'layer', 'form', 'upload', 'dropdown', 'tableX', 'notice'], function() {
         var table = layui.table;
         var layer = layui.layer;
         var $ = layui.$;
         var form = layui.form;
         var upload = layui.upload;
+        var notice = layui.notice;
 
         // DPS版本表格
         table.render({
@@ -78,7 +86,8 @@
                 {field: 'endDate', title: '结束日期', align: 'center', width: 100},
                 {field: 'source', title: '来源', align: 'center', width: 160},
                 {field: 'dpsFile', title: 'PC的DPS版本', align: 'center', width: 140},
-                {field: 'createDate', title: '创建时间', align: 'center', width: 100}
+                {field: 'createDate', title: '创建时间', align: 'center', width: 100},
+                {title: '操作', align: 'center', templet: '#toolDemo'}
             ]],
             page: true,
             limit: 50,
@@ -89,6 +98,46 @@
         form.on('submit(search)', function(data) {
             table.reload('table_dpsVer', {where: data.field, page: {curr: 1}});
             return false;
+        });
+
+        //监听行工具事件
+        table.on('tool(table_dpsVer)', function(obj) {
+            var ver = obj.data.ver;
+            if(obj.event === 'show') {
+                showDpsData(ver)
+            }
+        });
+
+        // 打开MRP数据页面
+        var showDpsData = function(ver) {
+            var URL ="/page/mrp/dps/dpsLcm.html?ver="+ver;
+            window.open(URL);
+        };
+
+        // 数据导入
+        var loadIndex;
+        upload.render({
+            elem: '#bt_import',
+            accept: 'file',
+            url: '/mrp/dps/importDps', //上传接口
+            before: function() {
+                loadIndex = layer.msg('EXCEL文件上传中...', {icon: 16, shade: 0.01, time: false});
+            },
+            done: function(res){ //上传成功后的回调
+                if(res.code === 200) {
+                    layer.close(loadIndex);
+                    notice.msg("数据上传成功", {icon: 5});
+                    table.reload('table_dpsVer');
+                } else {
+                    layer.close(loadIndex);
+                    notice.msg(res.msg, {icon: 2});
+                }
+            }
+        });
+
+        // 数据导入模板
+        $("#bt_downloadExcel").click(function(){
+            window.open('/mrp/dps/exportDpsDemo');
         });
     });
 

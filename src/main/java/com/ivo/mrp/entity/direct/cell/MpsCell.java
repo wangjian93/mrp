@@ -49,6 +49,8 @@ public class MpsCell {
     @Id
     private java.sql.Date fabDate;
 
+    private String tftMtrl;
+
     /**
      * 需求量
      */

@@ -44,17 +44,6 @@
     from MM_V_BOM_M2
   </select>
 
-  <!-- 获取ARY的BOM -->
-  <select id="getBomAry" resultType="java.util.HashMap">
-    SELECT
-      t.plant, t.product, t.MTRL_ID as material, t.MEASURE_UNIT as measureUnit,
-      m.MaterialName as materialName, g.MaterialGroup_ID as materialGroup, g.MaterialGroupName as materialGroupName,
-      t.usageqty as usageQty
-    FROM MM_O_ARYBOM t
-        LEFT JOIN MM_O_Material m on m.Material_ID=t.MTRL_ID
-        LEFT JOIN MM_O_MaterialGroup g on g.MaterialGroup_ID=m.MaterialGroup_FK
-  </select>
-
   <!-- 获取LCM1的替代料关系 -->
   <select id="getMaterialSubstituteLcm1" resultType="java.util.Map">
     SELECT
@@ -81,5 +70,37 @@
     from MM_O_CELLBOM_REPLACE a, MM_O_Material b, MM_O_MaterialGroup c
     where a.MTRL_ID=b.Material_ID and b.MaterialGroup_FK=c.MaterialGroup_ID and a.ValidFlag =1
     ORDER BY a.plant,a.PRODUCT,ALT_ITEM_GROUP
+  </select>
+
+  <select id="getMaterialByAryMtrl" resultType="java.util.Map">
+    SELECT distinct Product_FK as product, b.Material_FK as material, a.BaseQty as baseQty, b.qty as qty, a.MeasureUnit_FK as measureUnit
+    from MM_M_BomMaster a , MM_D_BomItem b
+    where a.Product_FK = #{aryMtr}
+      and a.ValidFlag = 1
+      and b.ValidFlag = 1
+      and a.BomMaster_ID = b.BomMaster_FK
+      and (b.Material_FK like '57%' or b.Material_FK like '51%')
+    order by Product_FK,b.Material_FK ;
+  </select>
+
+  <select id="getSupplierMaterial" resultType="java.util.Map">
+    select DISTINCT B.Material_FK as material,A.Vendor_FK as supplierCode ,C.VendorName1 as supplierName
+    from MM_M_PurchaseOrderRequisition A
+           INNER JOIN MM_D_PurchaseOrderRequisitionITEM B
+                      ON A.PurchaseOrderRequisition_ID  =B.PurchaseOrderRequisition_FK
+           LEFT JOIN (SELECT * FROM MM_O_Vendor WHERE ValidFlag=1) C
+                     ON C.Vendor_ID= A.Vendor_FK
+    WHERE  A.ValidFlag =1
+      AND B.ValidFlag =1
+      AND A.OrderTask_FK ='980'
+      AND SapCode LIKE '45%'
+      AND convert(char(10), DateOfOrder, 120) >= convert(char(10),  dateadd(dd,-30,getdate()), 120)
+    order by Material_FK
+  </select>
+
+  <select id="getActualArrivalQty" resultType="java.util.Map">
+    select fab_date as fabDate, matnr as material ,qty ,ordernumber as orderNumber,Vendor as supplierCode,
+           werks, lgort from MM_O_MRPYZINVT where ValidFlag=1 and fab_date=#{fabDate}
+    order by ordernumber
   </select>
 </mapper>

@@ -87,10 +87,10 @@
                         <dd>
                             <a>主材 BOM</a>
                             <dl class="layui-nav-child">
-                                <dd><a lay-href="/bomLcm1"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM1</cite></a></dd>
-                                <dd><a lay-href="/bomLcm2"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM2</cite></a></dd>
-                                <dd><a lay-href="/bomCell"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL</cite></a></dd>
-                                <dd><a lay-href="/bomAry"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY</cite></a></dd>
+                                <dd><a lay-href="/bomLcm1"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM1 BOM</cite></a></dd>
+                                <dd><a lay-href="/bomLcm2"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM2 BOM</cite></a></dd>
+                                <dd><a lay-href="/bomCell"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL BOM</cite></a></dd>
+                                <dd><a lay-href="/bomAry"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY BOM</cite></a></dd>
                             </dl>
                         </dd>
                         <dd><a lay-href="/bomPackage">包材 BOM</a></dd>
@@ -98,18 +98,29 @@
                     </dl>
                 </li>
                 <li class="layui-nav-item">
+                    <a lay-href="/supplier"><i class="layui-icon layui-icon-component"></i>&emsp;<cite>供应商</cite></a>
+                </li>
+                <li class="layui-nav-item">
                     <a><i class="layui-icon layui-icon-component"></i>&emsp;<cite>DPS</cite></a>
                     <dl class="layui-nav-child">
                         <dd>
                             <a>主材 DPS</a>
                             <dl class="layui-nav-child">
-                                <dd><a lay-href="/dpsVer/LCM"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM</cite></a></dd>
-                                <dd><a lay-href="/dpsVer/CELL"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL</cite></a></dd>
-                                <dd><a lay-href="/dpsVer/ARY"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY</cite></a></dd>
+                                <dd><a lay-href="/dpsVer/LCM"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM DPS</cite></a></dd>
+                                <dd><a lay-href="/dpsVer/CELL"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL DPS</cite></a></dd>
+                                <dd><a lay-href="/dpsVer/ARY"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY DPS</cite></a></dd>
                             </dl>
                         </dd>
                         <dd><a lay-href="/dpsVer/Package">包材 DPS</a></dd>
                         <dd><a lay-href="/dpsVer/POL">POL DPS</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a><i class="layui-icon layui-icon-component"></i>&emsp;<cite>MPS</cite></a>
+                    <dl class="layui-nav-child">
+                        <dd><a lay-href="/mpsVer/LCM">LCM MPS</a></dd>
+                        <dd><a lay-href="/mpsVer/CELL">CELL MPS</a></dd>
+                        <dd><a lay-href="/mpsVer/ARY">ARY MPS</a></dd>
                     </dl>
                 </li>
                 <li class="layui-nav-item">
@@ -118,9 +129,9 @@
                         <dd>
                             <a>主材 MRP</a>
                             <dl class="layui-nav-child">
-                                <dd><a lay-href="/mrpVer/LCM"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM</cite></a></dd>
-                                <dd><a lay-href="/mrpVer/CELL"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL</cite></a></dd>
-                                <dd><a lay-href="/mrpVer/ARY"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY</cite></a></dd>
+                                <dd><a lay-href="/mrpVer/LCM"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>LCM MRP</cite></a></dd>
+                                <dd><a lay-href="/mrpVer/CELL"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>CELL MRP</cite></a></dd>
+                                <dd><a lay-href="/mrpVer/ARY"><i class="layui-icon layui-icon-set"></i>&emsp;<cite>ARY MRP</cite></a></dd>
                             </dl>
                         </dd>
                         <dd><a lay-href="/mrpVer/Package">包材 MRP</a></dd>
@@ -133,6 +144,31 @@
                         <dd><a lay-href="/arrivalPlan/LCM">LCM到货计划</a></dd>
                         <dd><a lay-href="/arrivalPlan/ARY">ARY到货计划</a></dd>
                         <dd><a lay-href="/arrivalPlan/CELL">CELL到货计划</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a lay-href="/actualArrival"><i class="layui-icon layui-icon-component"></i>&emsp;<cite>实际到货</cite></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a lay-href="/position"><i class="layui-icon layui-icon-component"></i>&emsp;<cite>期初库存仓位</cite></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a><i class="layui-icon layui-icon-component"></i>&emsp;<cite>缺料表</cite></a>
+                    <dl class="layui-nav-child">
+                        <dd><a lay-href="/page/mrp/short/shortLcm.html">LCM</a></dd>
+                        <dd><a lay-href="/page/mrp/short/shortAry.html">ARY</a></dd>
+                        <dd><a lay-href="/page/mrp/short/shortCell.html">CELL</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a lay-href="/page/mrp/compare.html"><i class="layui-icon layui-icon-component"></i>&emsp;<cite>DPS & MPS比对</cite></a>
+                </li>
+                <li class="layui-nav-item">
+                    <a><i class="layui-icon layui-icon-component"></i>&emsp;<cite>供应商达交率</cite></a>
+                    <dl class="layui-nav-child">
+                        <dd><a lay-href="/page/mrp/fillRate/FillRateLcm.html">LCM</a></dd>
+                        <dd><a lay-href="/page/mrp/fillRate/FillRateAry.html">ARY</a></dd>
+                        <dd><a lay-href="/page/mrp/fillRate/FillRateCell.html">CELL</a></dd>
                     </dl>
                 </li>
             </ul>

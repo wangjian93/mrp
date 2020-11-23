@@ -48,4 +48,12 @@ public interface DpsAryCellMapper {
      * @return List<Map>
      */
     List<Map> getDpsPackage(@Param("ver") String ver, @Param("productList") List<String> productList);
+
+    List<Map> getAryMps(@Param("ver") String ver);
+
+    List<String> getAryMpsVer();
+
+    List<Map> getCellMps(@Param("ver") String ver);
+
+    List<String> getCellMpsVer();
 }

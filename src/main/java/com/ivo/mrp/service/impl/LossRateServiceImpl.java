@@ -61,7 +61,7 @@ public class LossRateServiceImpl implements LossRateService {
     }
 
     @Override
-    public void saveMaterialLossRate(String material, double lossRate, String user) {
+    public void saveMaterialLossRate(String material, double lossRate, String user, String materialGroup) {
         log.info("保存料号"+material+"的损耗率 >> START");
         //保存前先删除旧记录
         delMaterialLossRate(material, user);
@@ -69,7 +69,9 @@ public class LossRateServiceImpl implements LossRateService {
         lr.setType(LossRate.type_material);
         lr.setMaterial(material);
         lr.setMaterialName(materialService.getMaterialName(material));
-        String materialGroup = materialService.getMaterialGroup(material);
+        if(StringUtils.isEmpty(materialGroup)) {
+            materialGroup = materialService.getMaterialGroup(material);
+        }
         lr.setMaterialGroup(materialGroup);
         lr.setMaterialGroupName(materialGroupService.getMaterialGroupName(materialGroup));
         lr.setLossRate(lossRate);
@@ -169,11 +171,21 @@ public class LossRateServiceImpl implements LossRateService {
                     if(i==dataList.size()) break;
                     map.put(titleItems[i], dataList.get(i));
                 }
-                String materialGroup = (String) map.get("物料组");
-                String material = (String) map.get("料号");
+                String materialGroup;
+                if(map.get("物料组") instanceof BigDecimal) {
+                    materialGroup =  (map.get("物料组")).toString();
+                } else {
+                    materialGroup =  (String) map.get("物料组");
+                }
+                String material ;
+                if(map.get("料号") instanceof BigDecimal) {
+                    material =  (map.get("料号")).toString();
+                } else {
+                    material =  (String) map.get("料号");
+                }
                 double lossRate = ((BigDecimal) map.get("损耗率")).doubleValue();
                 if(StringUtils.isNotEmpty(material)) {
-                    saveMaterialLossRate(material, lossRate, "SYS");
+                    saveMaterialLossRate(material, lossRate, "SYS", materialGroup);
                 } else if(StringUtils.isNotEmpty(materialGroup)) {
                     saveMaterialGroupLossRate(materialGroup, lossRate, "SYS");
                 }

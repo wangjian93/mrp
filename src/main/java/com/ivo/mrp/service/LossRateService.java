@@ -20,7 +20,7 @@ public interface LossRateService {
      * @param lossRate 损耗率
      * @param user 维护的用户
      */
-    void saveMaterialLossRate(String material, double lossRate, String user);
+    void saveMaterialLossRate(String material, double lossRate, String user, String materialGroup);
 
     /**
      * 保存物料组的损耗率

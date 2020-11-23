@@ -35,7 +35,6 @@
                                 <option value="LCM1">LCM1</option>
                                 <option value="LCM2">LCM2</option>
                                 <option value="CELL">CELL</option>
-                                <option value="ARY">ARY</option>
                             </select>
                         </div>
                     </div>
@@ -107,12 +106,15 @@
 <script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['form', 'dropdown', 'table', 'upload', 'tableX'], function() {
+    layui.use(['form', 'dropdown', 'table', 'upload', 'tableX', 'notice', 'admin', 'yutons_sug'], function() {
         var $ = layui.$;
         var table = layui.table;
         var form = layui.form;
         var upload = layui.upload;
         var tableX = layui.tableX;
+        var notice = layui.notice;
+        var admin = layui.admin;
+        var yutons_sug = layui.yutons_sug;
 
         //设置厂别默认为LCM1
         $('select[name=fab]').val('LCM1');
@@ -220,6 +222,57 @@
             accept: 'file',
             exts: 'xls|xlsx'
         });
+
+
+        //监听行工具事件
+        table.on('tool(table_substitute)', function(obj) {
+            if(obj.event === 'edit') {
+                showDialog(obj.data.fab, obj.data.product, obj.data.materialGroup);
+            } else if(obj.event === 'del') {
+                delSubstitute(obj.data.fab, obj.data.product, obj.data.materialGroup);
+            }
+        });
+
+        $("#bt_add").click(function() {
+            showDialog();
+        });
+
+
+        //替代料维护弹框
+        var showDialog = function(fab, product, materialGroup) {
+            var html_URL = '/page/mrp/MaterialSubstituteEdit.html';
+            admin.open({
+                title: '替代料维护',
+                url: html_URL,
+                area: ['700px', '500px'],
+                btn: ['提交', '取消'],
+                data: {
+                    plant: fab,
+                    product: product,
+                    materialGroup: materialGroup
+                },
+                yes: function(index, layero) {
+                    $('#submitEditButton').click();
+                }
+            });
+        };
+
+
+        //删除
+        var delSubstitute = function(fab, product, materialGroup) {
+            $.post('/mrp/substitute/delSubstitute', {
+                fab: fab,
+                product: product,
+                materialGroup: materialGroup,
+            }, function (res) {
+                if(res.code === 200) {
+                    notice.msg("提交成功", {icon: 5});
+                    table.reload('table_substitute');
+                } else {
+                    layer.msg(res.msg);
+                }
+            });
+        };
     });
 </script>
 </body>

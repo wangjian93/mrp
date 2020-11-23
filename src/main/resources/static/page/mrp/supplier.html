@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>供应商</title>
+    <link rel="stylesheet" href="../../assets/libs/layui/css/layui.css">
+    <link rel="stylesheet" href="../../assets/module/admin.css?v=318" />
+    <!--[if lt IE 9]>
+    <script src="../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
+            background-color: transparent;
+        }
+    </style>
+</head>
+<body>
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div class="layui-tab layui-tab-brief">
+                <ul class="layui-tab-title">
+                    <li class="layui-this"><i class="layui-icon layui-icon-tabs"></i> 材料的供应商</li>
+                    <li><i class="layui-icon layui-icon-tabs"></i> 供应商简称</li>
+                </ul>
+                <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show">
+                        <!-- 表格工具栏 -->
+                        <div class="layui-form toolbar">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label w-auto">料号:</label>
+                                    <div class="layui-input-inline">
+                                        <input name="material" class="layui-input" type="text" placeholder="搜索供应商"/>
+                                    </div>
+                                </div>
+
+                                <div class="layui-inline">
+                                    <label class="layui-form-label w-auto">供应商:</label>
+                                    <div class="layui-input-inline">
+                                        <input name="supplier" class="layui-input" type="text" placeholder="搜索料号"/>
+                                    </div>
+                                </div>
+
+                                <div class="layui-inline">
+                                    <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                                        <i class="layui-icon">&#xe615;</i>搜索
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="delete">
+                                        <i class="layui-icon layui-icon-edit"></i>&nbsp;删除
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="add">
+                                        <i class="layui-icon layui-icon-add-1"></i>&nbsp;添加
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="importDemo">
+                                        <i class="layui-icon layui-icon-template-1"></i>&nbsp;模板
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="import">
+                                        <i class="layui-icon layui-icon-upload-circle"></i>&nbsp;导入
+                                    </button>
+                                    <!-- 导出下拉按钮 -->
+                                    <div class="dropdown-menu" style="margin-left: 10px;">
+                                        <button class="layui-btn icon-btn layui-btn-sm" type="button">
+                                            <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                                        </button>
+                                        <ul class="dropdown-menu-nav dropdown-right-center">
+                                            <li><a id="export">搜索结果</a></li>
+                                            <li><a id="exportAll">全部数据</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 供应商料号表格 -->
+                        <table id="table_supplierMaterial" lay-filter="table_supplierMaterial"></table>
+                    </div>
+                    <div class="layui-tab-item">
+                        <!-- 表格工具栏 -->
+                        <div class="layui-form toolbar">
+                            <div class="layui-form-item">
+                                <div class="layui-inline">
+                                    <label class="layui-form-label w-auto">供应商:</label>
+                                    <div class="layui-input-inline">
+                                        <input name="supplier2" class="layui-input" type="text" placeholder="搜索料号"/>
+                                    </div>
+                                </div>
+
+                                <div class="layui-inline">
+                                    <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search_supplier" lay-submit>
+                                        <i class="layui-icon">&#xe615;</i>搜索
+                                    </button>
+
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="add2">
+                                        <i class="layui-icon layui-icon-add-1"></i>&nbsp;添加
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn" id="import2">
+                                        <i class="layui-icon layui-icon-upload-circle"></i>&nbsp;导入
+                                    </button>
+                                    <button class="layui-btn layui-btn-sm icon-btn"id="export2">
+                                        <i class="layui-icon layui-icon-download-circle"></i>&nbsp;导出
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 供应商料号表格 -->
+                        <table id="table_supplier" lay-filter="table_supplier"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 添加弹框 -->
+<script type="text/html" id="addDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom" lay-filter="addFrom">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">料号选择</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" id="material_" name="material" autocomplete="off" value="">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">供应商选择</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input" id="supplier_" name="supplier_" autocomplete="off" value="">
+                        <input class="layui-input" id="supplierCode_" name="supplierCode" autocomplete="off" value="" style="display: none">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="addDialog2">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form class="layui-form" id="addFrom2" lay-filter="addFrom2">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">供应商ID</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input"  name="supplierCode" autocomplete="off" value="">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">供应商名</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input"  name="supplierName" autocomplete="off" value="">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">供应商简称</label>
+                    <div class="layui-input-block">
+                        <input class="layui-input"  name="supplierSname" autocomplete="off" value="">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</script>
+
+
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../assets/js/common.js?v=318"></script>
+<script>
+    layui.use(['form', 'dropdown', 'table', 'upload', 'tableX', 'admin', 'element', 'notice', 'yutons_sug', 'dropdown'], function() {
+        var $ = layui.$;
+        var table = layui.table;
+        var form = layui.form;
+        var upload = layui.upload;
+        var tableX = layui.tableX;
+        var admin = layui.admin;
+        var element = layui.element;
+        var notice = layui.notice;
+        var yutons_sug = layui.yutons_sug;
+
+        //材料供应商表格
+        table.render({
+            elem: '#table_supplierMaterial',
+            url: '/mrp/supplier/querySupplierMaterial',
+            where: {
+                material: '',
+                supplier: ''
+            },
+            cols: [[
+                {type: 'checkbox', align: 'center'},
+                {type: 'numbers', align: 'center'},
+                {field: 'material', title: '料号', align: 'center', width: 160},
+                {field: 'materialGroup', title: '物料组', align: 'center', width: 100},
+                {field: 'materialName', title: '物料名', align: 'center', width: 260},
+                {field: 'supplierCode', title: '供应商ID', align: 'center', width: 160},
+                {field: 'supplierName', title: '供应商', align: 'center', width: 240},
+                {field: 'supplierSname', title: '简称', align: 'center', width: 160}
+            ]],
+            done: function(res, curr, count) {
+                // 同厂别、机种、物料组的设置合并单元格，设置行变色
+                var mergeFields = ['material'];
+                tableX.merges('table_supplierMaterial', [1,2,3], [mergeFields,mergeFields,mergeFields]);
+                var s = "";
+                var flag = true;
+                for(var i=0; i<res.data.length; i++) {
+                    var s_ = res.data[i].fab+res.data[i].material;
+                    var LAY_TABLE_INDEX = res.data[i].LAY_TABLE_INDEX;
+                    if(s !== s_) {
+                        flag = !flag;
+                        s = s_;
+                    }
+                    if(flag) {
+                        layui.$('[lay-id="table_substitute"] .layui-table-body tbody tr[data-index="'+LAY_TABLE_INDEX+'"]').css('background-color', '#FDF5E6');
+                    }
+                }
+            },
+            page: true,
+            limit: 50,
+            size: 'sm'
+        });
+
+        // 表格搜索
+        form.on('submit(search)', function(data) {
+            table.reload('table_supplierMaterial', {where: data.field, page: {curr: 1}});
+            return false;
+        });
+
+        //单击事件
+        $("#add").click(function() {
+            add();
+        });
+
+        $("#delete").click(function() {
+            var checkStatus = table.checkStatus('table_supplierMaterial');
+            del(checkStatus.data);
+        });
+
+        //添加
+        var add =  function() {
+            admin.open({
+                type: 1,
+                title: '添加',
+                content: $('#addDialog').html(),
+                btn: ['提交', '取消'],
+                area: ['400px', '400px'],
+                success: function (layero, dIndex) {
+                    //输入框输入提示
+                    yutons_sug.render({
+                        id: 'material_',
+                        url: '/mrp/material/queryMaterialByGroup' + "?search=",
+                        cols: [[
+                            {field: 'material', title: '料号'},
+                            {field: 'materialName', title: '物料名'}
+                        ]],
+                        type: 'sugTable',
+                        page: {layout: ['prev', 'count', 'next']},
+                        limit: 50,
+                        size: 'sm',
+                        callBack: function(data) {
+                            $('#material_').val(data.material);
+                        }
+                    });
+                    yutons_sug.render({
+                        id: "supplier_",
+                        type: 'sugTable',
+                        url: '/mrp/supplier/querySupplier'+'?search=',
+                        cols: [[
+                            {type: 'numbers', align: 'center'},
+                            {field: 'supplierCode', title: 'ID', align: 'center'},
+                            {field: 'supplierName', title: '名称', align: 'left'}
+                        ]],
+                        type: 'sugTable',
+                        page: {layout: ['prev', 'count', 'next']},
+                        limit: 50,
+                        size: 'sm',
+                        callBack: function(data) {
+                            $('#supplier_').val(data.supplierName);
+                            $('#supplierCode_').val(data.supplierCode);
+                        }
+                    });
+                },
+                yes: function(index, layero) {
+                    var data = form.val("addFrom");
+                    $.post('/mrp/supplier/addSupplierMaterial', {
+                        material: data.material,
+                        supplierCode: data.supplierCode
+                    }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("提交成功", {icon: 5});
+                            layer.close(index);
+                            form.val('searchFrom', {
+                                plant: data.material,
+                                month: data.supplier
+                            });
+                            table.reload('table_supplierMaterial', {
+                                where: {
+                                    plant: data.material,
+                                    month: data.supplier
+                                },
+                                page: {curr: 1}
+                            });
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    });
+                }
+            });
+        };
+
+        //删除
+        var del = function(data) {
+            var materialSupplier = [];
+            for(var i=0; i<data.length; i++) {
+                materialSupplier.push({
+                    material: data[i].material,
+                    supplierCode: data[i].supplierCode
+                })
+            }
+            $.post('/mrp/supplier/delSupplierMaterial', {materialSupplierJsons: JSON.stringify(materialSupplier)}, function(res) {
+                if(res.code === 200) {
+                    table.reload('tableMaterialSupplier');
+                    notice.msg("删除成功", {icon: 5});
+                } else {
+                    notice.msg(res.msg, {icon: 2});
+                }
+            });
+        };
+
+        // 下载excel模板
+        $("#importDemo").click(function() {
+            window.location.href = '/mrp/supplier/exportExcelMaterial?material=null&supplier=null';
+        });
+        // 数据导出
+        $("#export").click(function() {
+            var material = $('input[name=material]').val();
+            var supplier = $('input[name=supplier]').val();
+            exportData(material, supplier);
+        });
+        $("#exportAll").click(function() {
+            exportData();
+        });
+        var exportData = function(material, supplier) {
+            if(!material) material = '';
+            if(!supplier) supplier='';
+            window.location.href = '/mrp/supplier/exportExcelMaterial?material='+material+'&supplier='+supplier;
+        };
+        // 数据导入
+        upload.render({
+            elem: '#import',
+            url: '/mrp/supplier/importExcelMaterial',
+            done: function(res){
+                if(res.code === 200) {
+                    //上传完毕回调
+                    table.reload('table_supplierMaterial', {page: {curr: 1}});
+                } else {
+                    layer.msg("excel导入失败,"+res.msg);
+                }
+            },
+            error: function(){
+                layer.msg("excel导入失败");
+            },
+            accept: 'file',
+            exts: 'xls|xlsx'
+        });
+
+
+
+        table.render({
+            elem: '#table_supplier',
+            url: '/mrp/supplier/querySupplier',
+            where: {
+                search: ''
+            },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'supplierCode', title: '供应商ID', align: 'center', width: 160},
+                {field: 'supplierName', title: '供应商', align: 'center', width: 240},
+                {field: 'supplierSname', title: '简称', align: 'center', width: 160},
+                {title: '', align: 'center', width: 60, templet: function() {
+                        return '<i class="layui-icon layui-icon-edit" style="font-size: 18px; color: #1E9FFF;" lay-event="edit"></i>';
+                    }}
+            ]],
+            page: true,
+            limit: 50,
+            size: 'sm'
+        });
+
+        form.on('submit(search_supplier)', function(data) {
+            table.reload('table_supplier', {
+                where: {
+                    search: data.field.supplier2
+                },
+                page: {curr: 1}
+            });
+            return false;
+        });
+
+        //监听行工具事件
+        table.on('tool(table_supplier)', function(obj) {
+            if(obj.event === 'edit') {
+                var data = obj.data;
+                var title = '修改'+data.name+"简称";
+                layer.prompt({title: title, formType: 0}, function(text, index){
+                    $.post('/mrp/supplier/updateSupplier', {
+                        code: data.supplierCode,
+                        name: data.supplierName,
+                        sname: text
+                    }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("修改成功", {icon: 5});
+                            data.supplierSname = text;
+                            obj.update(data);
+                            layer.close(index);
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+
+                    });
+                });
+            }
+        });
+        //单击事件
+        $("#add2").click(function() {
+            admin.open({
+                type: 1,
+                title: '添加供应商',
+                content: $('#addDialog2').html(),
+                btn: ['提交', '取消'],
+                area: ['400px', '400px'],
+                success: function (layero, dIndex) {},
+                yes: function(index, layero) {
+                    var data = form.val("addFrom2");
+                    $.post('/mrp/supplier/addSupplier', {
+                        code: data.supplierCode,
+                        name: data.supplierName,
+                        sname: data.supplierSname
+                    }, function(res) {
+                        if(res.code === 200) {
+                            notice.msg("提交成功", {icon: 5});
+                            layer.close(index);
+                            table.reload('table_supplier', {
+                                where: {
+                                    supplier: data.supplierCode
+                                },
+                                page: {curr: 1}
+                            });
+                        } else {
+                            notice.msg(res.msg, {icon: 2});
+                        }
+                    });
+                }
+            });
+        });
+        // 数据导出
+        $("#export2").click(function() {
+            window.location.href = '/mrp/supplier/exportExcel';
+        });
+        // 数据导入
+        upload.render({
+            elem: '#import2',
+            url: '/mrp/supplier/importExcel',
+            done: function(res){
+                if(res.code === 200) {
+                    //上传完毕回调
+                    table.reload('table_supplier', {page: {curr: 1}});
+                } else {
+                    layer.msg("excel导入失败,"+res.msg);
+                }
+            },
+            error: function(){
+                layer.msg("excel导入失败");
+            },
+            accept: 'file',
+            exts: 'xls|xlsx'
+        });
+    });
+</script>
+</body>
+</html>

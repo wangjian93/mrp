@@ -1,16 +1,17 @@
 debug:
   false
 server:
-  port: 8082
+  port: 8083
 spring:
   datasource:
     # 主数据源  Mysql
     primary:
-      url: jdbc:mysql://10.20.46.54:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-      username: root
-      password: root
-#      url: jdbc:mysql://10.20.2.9/clienterp?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-#      username: test
+#      url: jdbc:mysql://10.20.46.54:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+#      username: root
+#      password: root
+      url: jdbc:mysql://10.20.2.9/coq?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: test
+      password: test
 #      password: test
 #      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
 #      username: scm

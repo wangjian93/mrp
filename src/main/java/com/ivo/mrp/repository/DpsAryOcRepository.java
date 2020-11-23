@@ -4,7 +4,9 @@ import com.ivo.mrp.entity.direct.ary.DpsAryOc;
 import com.ivo.mrp.key.DpsKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -29,10 +31,18 @@ public interface DpsAryOcRepository extends JpaRepository<DpsAryOc, DpsKey> {
     List<DpsAryOc> findByVerAndProduct(String ver, String product);
 
     /**
-     * 获取DPS中的所有机种
+     * PS中的机种
      * @param ver 版本
      * @return List<String>
      */
     @Query(value = "select distinct d.product from DpsAryOc d where d.ver=:ver")
-    List<String> getProduct(String ver);
+    List<String> getProduct(@Param("ver") String ver);
+
+    /**
+     * 筛选dps版本、机种、开始日期
+     * @param ver dps版本
+     * @param product 机种
+     * @return List<DpsAryOc>
+     */
+    List<DpsAryOc> findByVerAndProductAndFabDateGreaterThanEqual(String ver, String product, Date startDate);
 }

@@ -1,6 +1,6 @@
 package com.ivo.mrp.entity.direct.ary;
 
-import com.ivo.mrp.key.MaterialKey;
+import com.ivo.mrp.key.BomAryKey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +20,7 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "MRP3_Bom_Ary")
-@IdClass(MaterialKey.class)
+@IdClass(BomAryKey.class)
 public class BomAry {
 
     /**
@@ -32,50 +32,35 @@ public class BomAry {
     /**
      * 机种
      */
+    private String project;
+
+    /**
+     * 机种 （MPS的命名CellInPut）
+     */
     @Id
     private String product;
 
     /**
-     * 料号
+     * ary的15料号
      */
     @Id
-    private String material;
+    private String aryMtrl;
 
-    /**
-     * 物料名
-     */
     private String materialName;
 
-    /**
-     * 物料组
-     */
     private String materialGroup;
 
-    /**
-     * 物料组名
-     */
     private String materialGroupName;
 
     /**
-     * 计量单位
+     * 是否使用
      */
-    private String measureUnit;
-
-    /**
-     * 使用数量
-     */
-    private double usageQty;
-
-//    /**
-//     * 切片数
-//     */
-//    @Formula("(select DISTINCT p.cut from mrp3_project p where p.project=project)")
-//    private Double cut;
+    private boolean useFlag = true;
 
     /**
      * 备注
      */
-    private String memo = "同步自81数据库";
+    private String memo = "同步自MPS";
 
     /**
      * 创建者
@@ -86,4 +71,14 @@ public class BomAry {
      * 创建时间
      */
     private Date createDate = new Date();
+
+    /**
+     * 修改者
+     */
+    private String updater = "SYS";
+
+    /**
+     * 修改时间
+     */
+    private Date updateDate = new Date();
 }

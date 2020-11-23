@@ -1,5 +1,7 @@
 package com.ivo.mrp.service.impl;
 
+import com.ivo.common.utils.DateUtil;
+import com.ivo.common.utils.DoubleUtil;
 import com.ivo.common.utils.ExcelUtil;
 import com.ivo.mrp.entity.direct.ary.MpsAry;
 import com.ivo.mrp.entity.direct.cell.MpsCell;
@@ -10,6 +12,7 @@ import com.ivo.mrp.repository.MpsCellRepository;
 import com.ivo.mrp.repository.MpsLcmRepository;
 import com.ivo.mrp.repository.MpsVerRepository;
 import com.ivo.mrp.service.MpsService;
+import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -41,13 +45,17 @@ public class MpsServiceImpl implements MpsService {
 
     private MpsCellRepository mpsCellRepository;
 
+    private RestService restService;
+
     @Autowired
     public MpsServiceImpl(MpsVerRepository mpsVerRepository, MpsLcmRepository mpsLcmRepository,
-                          MpsAryRepository mpsAryRepository, MpsCellRepository mpsCellRepository) {
+                          MpsAryRepository mpsAryRepository, MpsCellRepository mpsCellRepository,
+                          RestService restService) {
         this.mpsVerRepository = mpsVerRepository;
         this.mpsLcmRepository = mpsLcmRepository;
         this.mpsAryRepository = mpsAryRepository;
         this.mpsCellRepository = mpsCellRepository;
+        this.restService = restService;
     }
 
     @Override
@@ -60,14 +68,250 @@ public class MpsServiceImpl implements MpsService {
         //TODO...
     }
 
+    List<MpsVer> getMpsVerByMpsFile(String mpsFile, String fab, String type) {
+        return mpsVerRepository.findByMpsFileAndFabAndType(mpsFile, fab, type);
+    }
+
+
+    @Override
+    public void syncMpsCell2() {
+        List<String> dateOfInsertList = restService.getMpsDateOfInsertForVersion();
+        for(String dateOfInsert : dateOfInsertList) {
+            dateOfInsert = "2020-11-11";
+            List list = getMpsVerByMpsFile(dateOfInsert, "CELL", MpsVer.Type_Cell);
+            if(list == null || list.size()==0) {
+                syncMpsCell2(dateOfInsert);
+            }
+        }
+    }
+
+    private void syncMpsCell2(String dateOfInsert) {
+        List<Map> mapList = restService.getCellMpsData(dateOfInsert);
+        String mpsVer = generateMpsVer();
+        MpsVer m = new MpsVer();
+        m.setVer(mpsVer);
+        m.setType(MpsVer.Type_Cell);
+        m.setSource("同步MPS");
+        m.setFab("CELL");
+        m.setMpsFile(dateOfInsert);
+        java.sql.Date startDate = null;
+        java.sql.Date endDate = null;
+
+        List<MpsCell> mpsCellList = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        for(Map map : mapList) {
+            String outOfDate = (String) map.get("OutOfDate");
+            String mpsKey = (String) map.get("CellInPut");
+            double qty = ((BigDecimal) map.get("qty")).doubleValue();
+            java.sql.Date fabDate = null;
+            try {
+                fabDate = new java.sql.Date(sdf.parse(outOfDate.substring(0, 6)).getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            String product = mpsKey;
+            String project = product.split(" ")[0];
+
+            MpsCell mpsCell = new MpsCell();
+            mpsCell.setFab("CELL");
+            mpsCell.setVer(mpsVer);
+            mpsCell.setProduct(product);
+            mpsCell.setFabDate(fabDate);
+            mpsCell.setDemandQty(qty);
+            mpsCell.setProject(project);
+            mpsCellList.add(mpsCell);
+
+            //日期区间
+            if(startDate == null || startDate.after(fabDate)) {
+                startDate =fabDate;
+            }
+            if(endDate == null || endDate.before(fabDate)) {
+                endDate = fabDate;
+            }
+        }
+        m.setStartDate(startDate);
+        m.setEndDate(endDate);
+
+        mpsVerRepository.save(m);
+        mpsCellRepository.saveAll(mpsCellList);
+    }
+
+    @Override
+    public void syncMpsAry2() {
+        List<String> dateOfInsertList = restService.getMpsDateOfInsertForVersion();
+        for(String dateOfInsert : dateOfInsertList) {
+            dateOfInsert = "2020-11-11";
+            List list = getMpsVerByMpsFile(dateOfInsert, "ARY", MpsVer.Type_Ary);
+            if(list == null || list.size()==0) {
+                syncMpsAry2(dateOfInsert);
+            }
+        }
+    }
+
+    private void syncMpsAry2(String dateOfInsert) {
+        List<Map> mapList = restService.getAryMpsData(dateOfInsert);
+        String mpsVer = generateMpsVer();
+        MpsVer m = new MpsVer();
+        m.setVer(mpsVer);
+        m.setType(MpsVer.Type_Ary);
+        m.setSource("同步MPS");
+        m.setFab("ARY");
+        m.setMpsFile(dateOfInsert);
+        java.sql.Date startDate = null;
+        java.sql.Date endDate = null;
+
+        List<MpsAry> mpsAryList = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        for(Map map : mapList) {
+            String outOfDate = (String) map.get("OutOfDate");
+            String mpsKey = (String) map.get("MPSKey");
+            double qty = Double.parseDouble((String) map.get("Value"));
+            java.sql.Date fabDate = null;
+            try {
+                fabDate = new java.sql.Date(sdf.parse(outOfDate.substring(0, 6)).getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+            String product = mpsKey;
+            String project = product.split(" ")[0];
+
+            MpsAry mpsAry = new MpsAry();
+            mpsAry.setFab("ARY");
+            mpsAry.setVer(mpsVer);
+            mpsAry.setProduct(product);
+            mpsAry.setFabDate(fabDate);
+            mpsAry.setDemandQty(qty);
+            mpsAry.setProject(project);
+            mpsAryList.add(mpsAry);
+
+            //日期区间
+            if(startDate == null || startDate.after(fabDate)) {
+                startDate =fabDate;
+            }
+            if(endDate == null || endDate.before(fabDate)) {
+                endDate = fabDate;
+            }
+        }
+        m.setStartDate(startDate);
+        m.setEndDate(endDate);
+
+        mpsVerRepository.save(m);
+        mpsAryRepository.saveAll(mpsAryList);
+    }
+
     @Override
     public void syncMpsCell() {
-        //TODO...
+        List<String> verList = restService.getCellMpsVer();
+        for(String ver : verList) {
+            List list = getMpsVerByMpsFile(ver, "CELL", MpsVer.Type_Cell);
+            if(list == null || list.size()==0) {
+                syncMpsCell(ver);
+            }
+        }
+    }
+
+    private void syncMpsCell(String ver) {
+        List<Map> mapList = restService.getCellMps(ver);
+        String mpsVer = generateMpsVer();
+        MpsVer m = new MpsVer();
+        m.setVer(mpsVer);
+        m.setType(MpsVer.Type_Cell);
+        m.setSource("来自DPS");
+        m.setFab("CELL");
+        m.setMpsFile(ver);
+        java.sql.Date startDate = null;
+        java.sql.Date endDate = null;
+
+        List<MpsCell> mpsCellList = new ArrayList<>();
+        for(Map map : mapList) {
+            java.sql.Date fabDate = (java.sql.Date) map.get("fabDate");
+            String product = (String) map.get("product");
+            double qty = DoubleUtil.upPrecision(((Float) map.get("qty")).doubleValue(), 3);
+            String project = (String) map.get("project");
+            String tftMtrl = (String) map.get("tftMtrl");
+
+            MpsCell mpsCell = new MpsCell();
+            mpsCell.setFab("CELL");
+            mpsCell.setVer(mpsVer);
+            mpsCell.setProduct(product);
+            mpsCell.setFabDate(fabDate);
+            mpsCell.setDemandQty(qty);
+            mpsCell.setProject(project);
+            mpsCell.setTftMtrl(tftMtrl);
+            mpsCellList.add(mpsCell);
+
+            //日期区间
+            if(startDate == null || startDate.after(fabDate)) {
+                startDate =fabDate;
+            }
+            if(endDate == null || endDate.before(fabDate)) {
+                endDate = fabDate;
+            }
+        }
+        m.setStartDate(startDate);
+        m.setEndDate(endDate);
+
+        mpsVerRepository.save(m);
+        mpsCellRepository.saveAll(mpsCellList);
     }
 
     @Override
     public void syncMpsAry() {
-        //TODO...
+        List<String> verList = restService.getAryMpsVer();
+        for(String ver : verList) {
+            List list = getMpsVerByMpsFile(ver, "ARY", MpsVer.Type_Ary);
+            if(list == null || list.size()==0) {
+                syncMpsAry(ver);
+            }
+        }
+    }
+
+    private void syncMpsAry(String ver) {
+        List<Map> mapList = restService.getAryMps(ver);
+        String mpsVer = generateMpsVer();
+        MpsVer m = new MpsVer();
+        m.setVer(mpsVer);
+        m.setType(MpsVer.Type_Ary);
+        m.setSource("来自DPS");
+        m.setFab("ARY");
+        m.setMpsFile(ver);
+        java.sql.Date startDate = null;
+        java.sql.Date endDate = null;
+
+        List<MpsAry> mpsAryList = new ArrayList<>();
+        for (Map map : mapList) {
+
+            java.sql.Date fabDate = (java.sql.Date) map.get("fabDate");
+            String product = (String) map.get("product");
+            double qty = DoubleUtil.upPrecision(((Float) map.get("qty")).doubleValue(), 3);
+            String project = (String) map.get("project");
+            String tftMtrl = (String) map.get("tftMtrl");
+
+            MpsAry mpsAry = new MpsAry();
+            mpsAry.setFab("ARY");
+            mpsAry.setVer(mpsVer);
+            mpsAry.setProduct(product);
+            mpsAry.setFabDate(fabDate);
+            mpsAry.setDemandQty(qty);
+            mpsAry.setProject(project);
+            mpsAry.setTftMtrl(tftMtrl);
+            mpsAryList.add(mpsAry);
+
+            //日期区间
+            if (startDate == null || startDate.after(fabDate)) {
+                startDate = fabDate;
+            }
+            if (endDate == null || endDate.before(fabDate)) {
+                endDate = fabDate;
+            }
+        }
+        m.setStartDate(startDate);
+        m.setEndDate(endDate);
+
+        mpsVerRepository.save(m);
+        mpsAryRepository.saveAll(mpsAryList);
     }
 
     @Override
@@ -269,12 +513,12 @@ public class MpsServiceImpl implements MpsService {
 
     @Override
     public Page<MpsVer> queryMpsVer(int page, int limit, String searchFab, String searchVer) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "ver");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "ver");
         return mpsVerRepository.findByFabLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchVer+"%", pageable);
     }
 
     @Override
-    public List getDpsDate(String ver) {
+    public List getMpsDate(String ver) {
         MpsVer mpsVer = getMpsVer(ver);
         if(mpsVer == null) return new ArrayList();
         String type = mpsVer.getType();
@@ -293,5 +537,36 @@ public class MpsServiceImpl implements MpsService {
                 list = new ArrayList();
         }
         return list;
+    }
+
+    @Override
+    public List<Date> getMpsCalendar(String ver) {
+        MpsVer mpsVer = mpsVerRepository.findById(ver).orElse(null);
+        List<String> months = DateUtil.getMonthBetween(mpsVer.getStartDate(), mpsVer.getEndDate());
+        List<Date> days = new ArrayList<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        for(String month : months) {
+            try {
+                days.add(new java.sql.Date(sdf.parse(month).getTime()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return days;
+    }
+
+    @Override
+    public List<MpsLcm> getMpsLcm(String mpsVer, String product, java.sql.Date startDate) {
+        return mpsLcmRepository.findByVerAndProductAndFabDateGreaterThanEqual(mpsVer, product, startDate);
+    }
+
+    @Override
+    public List<MpsAry> getMpsAry(String mpsVer, String product, java.sql.Date startDate) {
+        return mpsAryRepository.findByVerAndProductAndFabDateGreaterThanEqual(mpsVer, product, startDate);
+    }
+
+    @Override
+    public List<MpsCell> getMpsCell(String mpsVer, String product, java.sql.Date startDate) {
+        return mpsCellRepository.findByVerAndProductAndFabDateGreaterThanEqual(mpsVer, product, startDate);
     }
 }

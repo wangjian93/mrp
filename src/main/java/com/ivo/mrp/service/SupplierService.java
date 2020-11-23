@@ -64,8 +64,11 @@ public interface SupplierService {
     void importSupplierMaterial(InputStream inputStream, String fileName);
 
 
-
-
+    /**
+     * Excel导出材料与供应商数据
+     * @return Workbook
+     */
+    Workbook exportSupplierMaterial(String material, String supplier);
 
 
     /**
@@ -127,4 +130,9 @@ public interface SupplierService {
      * @return Page<SupplierPackage>
      */
     Page<SupplierPackage> querySupplierPackage(int page, int limit, String month, String searchProduct);
+
+    /**
+     * 同步材料供应商数据
+     */
+    void syncSupplierMaterial();
 }

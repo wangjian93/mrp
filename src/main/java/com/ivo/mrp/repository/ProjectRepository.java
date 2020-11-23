@@ -4,6 +4,7 @@ import com.ivo.mrp.entity.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author wj
@@ -17,5 +18,5 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
      * @param pageable 分页
      * @return Page<Project>
      */
-    Page<Project> findByProjectLike(String searchProject, Pageable pageable);
+    Page<Project> findByProjectLike(@Param("searchProject") String searchProject, Pageable pageable);
 }

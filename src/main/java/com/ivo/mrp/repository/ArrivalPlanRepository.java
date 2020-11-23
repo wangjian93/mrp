@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.util.List;
@@ -25,7 +26,7 @@ public interface ArrivalPlanRepository extends JpaRepository<ArrivalPlan, Arriva
      * @return Double
      */
     @Query(value = "select sum(a.arrivalQty) from ArrivalPlan a where a.fab=:fab and a.material=:material and a.fabDate=:fabDate ")
-    Double getArrivalPlanQty(String fab, String material, Date fabDate);
+    Double getArrivalPlanQty(@Param("fab") String fab, @Param("material") String material, @Param("fabDate") Date fabDate);
 
     /**
      * 获取供应商到货计划，筛选厂别，料号，日期
@@ -44,7 +45,7 @@ public interface ArrivalPlanRepository extends JpaRepository<ArrivalPlan, Arriva
      * @return List<Map
      */
     @Query(value = "select a.fabDate as fabDate, sum(a.arrivalQty) as arrivalQty from ArrivalPlan a where a.fab=:fab and a.material=:material and a.fabDate in :fabDateList group by a.fabDate")
-    List<Map> getArrivalPlan(String fab, String material, List<Date> fabDateList);
+    List<Map> getArrivalPlan(@Param("fab") String fab, @Param("material") String material,  @Param("fabDateList") List<Date> fabDateList);
 
 
     @Query(value = "SELECT * from ( " +
@@ -79,8 +80,10 @@ public interface ArrivalPlanRepository extends JpaRepository<ArrivalPlan, Arriva
                     ") t ",
             nativeQuery = true
     )
-    Page<Map> getPageArrivalPlanMaterial(Date startDate, Date endDate,
-            String fab, String searchMaterialGroup, String searchMaterial, String searchSupplierCode, Pageable pageable);
+    Page<Map> getPageArrivalPlanMaterial(@Param("startDate") Date startDate, @Param("endDate") Date endDate,
+                                         @Param("fab") String fab, @Param("searchMaterialGroup") String searchMaterialGroup,
+                                         @Param("searchMaterial") String searchMaterial, @Param("searchSupplierCode") String searchSupplierCode,
+                                         Pageable pageable);
 
     List<ArrivalPlan> findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
             String fab, String material, String supplierCode, Date startDate, Date endDate

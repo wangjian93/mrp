@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +47,7 @@ public interface SupplierMaterialRepository extends JpaRepository<SupplierMateri
             "LEFT JOIN mrp3_material m on m.material=r.material " +
             "where " +
             "r.valid_flag=1 " +
-            "and m.material like :searchMaterial and (s.supplier_name like :searchSupplier or s.supplier_sname like :searchSupplier) " +
+            "and m.material like :searchMaterial and (s.supplier_code like :searchSupplier or s.supplier_name like :searchSupplier or s.supplier_sname like :searchSupplier) " +
             "ORDER BY m.material,s.supplier_code",
             countQuery = "select COUNT(*) " +
                     "from mrp3_supplier_material r " +
@@ -54,7 +55,7 @@ public interface SupplierMaterialRepository extends JpaRepository<SupplierMateri
                     "LEFT JOIN mrp3_material m on m.material=r.material " +
                     "where " +
                     "r.valid_flag=1 " +
-                    "and m.material like :searchMaterial and (s.supplier_name like :searchSupplier or s.supplier_sname like :searchSupplier)",
+                    "and m.material like :searchMaterial and (s.supplier_code like :searchSupplier or s.supplier_name like :searchSupplier or s.supplier_sname like :searchSupplier)",
             nativeQuery = true)
-    Page<Map> querySupplierMaterial(String searchMaterial, String searchSupplier, Pageable pageable);
+    Page<Map> querySupplierMaterial(@Param("searchMaterial") String searchMaterial, @Param("searchSupplier") String searchSupplier, Pageable pageable);
 }

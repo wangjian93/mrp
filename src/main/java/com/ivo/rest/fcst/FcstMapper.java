@@ -17,4 +17,30 @@ public interface FcstMapper {
      * @return List<Map>
      */
     List<Map> getBomCell();
+
+    /**
+     * 获取MPS中的Ary BOM的15料号
+     * @return List<Map>
+     */
+    List<Map> getBomAry();
+
+    /**
+     * 获取MPS的DateOfInsert作版本
+     * @return List<String>
+     */
+    List<String> getMpsDateOfInsertForVersion();
+
+    /**
+     * 获取ARY MPS的DateOfInsert版本数据
+     * @param dateOfInsert
+     * @return  List<Map>
+     */
+    List<Map> getAryMpsDate(String dateOfInsert);
+
+    /**
+     * 获取CELL MPS的DateOfInsert版本数据
+     * @param dateOfInsert
+     * @return  List<Map>
+     */
+    List<Map> getCellMpsDate(String dateOfInsert);
 }

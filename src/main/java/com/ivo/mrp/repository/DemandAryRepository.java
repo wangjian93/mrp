@@ -4,6 +4,7 @@ import com.ivo.mrp.entity.direct.ary.DemandAry;
 import com.ivo.mrp.key.DemandKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
     @Query(value = "select DISTINCT material from mrp3_demand_ARY where ver=:ver " +
             "UNION " +
             "select DISTINCT material from mrp3_demand_ary_oc where ver=:ver", nativeQuery = true)
-    List<String> getMaterial(String ver);
+    List<String> getMaterial(@Param("ver") String ver);
 
 
     /**
@@ -35,11 +36,11 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
     @Query(value = "SELECT t.fab_date as fabDate, sum(t.demand_qty) as demandQty " +
             "    from ( " +
             "            select fab_date,d.demand_qty from mrp3_demand_ary d where d.ver=:ver and d.material=:material and d.demand_qty>0 " +
-            "            UNION " +
+            "            union all " +
             "            select fab_date,d.demand_qty from mrp3_demand_ary_oc d where d.ver=:ver and d.material=:material and d.demand_qty>0 " +
             "    ) t " +
             "    GROUP BY fab_date", nativeQuery = true)
-    List<Map> getDemandQtyAry(String ver, String material);
+    List<Map> getDemandQtyAry(@Param("ver") String ver, @Param("material") String material);
 
     /**
      * 汇总料号、日期需求
@@ -53,7 +54,7 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
             "UNION " +
             "select fab_date,d.demand_qty from mrp3_demand_ary_oc d where d.ver=:ver and d.material=:material and d.demand_qty>0 and d.fab_date=:fabDate " +
             ")t", nativeQuery = true)
-    Double getDemandQtyAry(String ver, String material, Date fabDate);
+    Double getDemandQtyAry(@Param("ver") String ver, @Param("material") String material, @Param("fabDate") Date fabDate);
 
     /**
      * 筛选MRP版本、料号、日期
@@ -70,5 +71,5 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
      * @return List<String>
      */
     @Query(value = "select DISTINCT d.product from DemandAry d where d.ver=:ver and d.material=:material")
-    List<String> getProduct(String ver, String material);
+    List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
 }

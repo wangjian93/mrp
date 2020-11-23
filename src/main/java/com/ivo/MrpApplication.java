@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @EnableCaching  //开启缓存
 @SpringBootApplication
-@EnableTransactionManagement
-@EnableScheduling
+//@EnableTransactionManagement
+//@EnableScheduling
 public class MrpApplication {
 
     public static void main(String[] args) {

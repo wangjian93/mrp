@@ -70,6 +70,17 @@
     <div class="layui-card">
         <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> CELL MRP数据</div>
         <div class="layui-card-body">
+            <div class="layui-collapse">
+                <div class="layui-colla-item">
+                    <h2 class="layui-colla-title">注意：以下几种没有BOM List</h2>
+                    <div class="layui-colla-content">
+                        <table id="node" lay-filter="node"></table>
+                    </div>
+                </div>
+            </div>
+
+            <br/>
+
             <!-- MRP表格 -->
             <div class="mrp">
                 <!-- 表格工具栏 -->
@@ -107,6 +118,17 @@
                             <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
                                 <i class="layui-icon">&#xe615;</i>搜索
                             </button>
+
+                            <!-- 导出下拉按钮 -->
+                            <div class="dropdown-menu" style="margin-left: 10px;">
+                                <button class="layui-btn icon-btn layui-btn-sm" type="button">
+                                    <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                                </button>
+                                <ul class="dropdown-menu-nav dropdown-right-center">
+                                    <li><a id="bt_export">搜索结果</a></li>
+                                    <li><a id="bt_exportAll">全部数据</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,11 +148,11 @@
 <!-- MRP行数据label模板 -->
 <script type="text/html" id="mrpTitleDemo"><div class="box_parent">
 <div class="box">需求量</div>
-<div class="box">损耗量</div>
 <div class="box" style="color: #01AAED;">到货量</div>
-<div class="box" style="color: red;">结余量</div>
-<div class="box" style="color: red;">缺料量</div>
-<div class="box" style="border-bottom: none">分配量</div>
+<div class="box">损耗量</div>
+<div class="box" style="color: red;border-bottom: none">结余量</div>
+<div class="box" style="color: red;" hidden>缺料量</div>
+<div class="box" style="border-bottom: none" hidden>分配量</div>
 </div></script>
 
 <!-- MRP月份日历模板 -->
@@ -141,21 +163,21 @@
 <!-- MRP月份汇总数据模板 -->
 <script type="text/html" id="mrpMonthDemo"><div class="box_parent" id="{{ d.material_month }}">
 <div class="box" id="{{ d.material_month }}_demandQty"></div>
-<div class="box" id="{{ d.material_month }}_lossQty"></div>
 <div class="box" id="{{ d.material_month }}_arrivalQty"></div>
-<div class="box" id="{{ d.material_month }}_balanceQty"></div>
-<div class="box" id="{{ d.material_month }}_shortQty"></div>
-<div class="box" style="border-bottom: none" id="{{ d.material_month }}_allocationQty"></div>
+<div class="box" id="{{ d.material_month }}_lossQty"></div>
+<div class="box" id="{{ d.material_month }}_balanceQty" style="border-bottom: none"></div>
+<div class="box" id="{{ d.material_month }}_shortQty" hidden></div>
+<div class="box" style="border-bottom: none" id="{{ d.material_month }}_allocationQty" hidden></div>
 </div></script>
 
 <!-- MRP行数据模板 -->
 <script type="text/html" id="mrpDemo"><div class="box_parent hover" id="{{ d.material_fabDate }}">
 <div class="box hover" id="{{ d.material_fabDate }}_demandQty"  lay-event="{{ d.material_fabDate }}_demandQty"></div>
-<div class="box hover" id="{{ d.material_fabDate }}_lossQty"  lay-event="{{ d.material_fabDate }}_lossQty"></div>
 <div class="box hover" id="{{ d.material_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty"></div>
-<div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty"></div>
-<div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty"></div>
-<div class="box hover" style="border-bottom: none" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_lossQty"  lay-event="{{ d.material_fabDate }}_lossQty"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty" style="border-bottom: none"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty" hidden></div>
+<div class="box hover" style="border-bottom: none" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty" hidden></div>
 </div></script>
 
 <!-- 需求量明细弹框 -->
@@ -171,7 +193,10 @@
 <script type="text/html" id="arrivalQtyDetailDialog">
     <div class="layui-card">
         <div class="layui-card-body">
+            <label>计划到货</label>
             <table id="table_arrivalQtyDetail" lay-filter="table_arrivalQtyDetail"></table>
+            <label>实际收货</label>
+            <table id="table_actualArrivalQtyDetail" lay-filter="table_actualArrivalQtyDetail"></table>
         </div>
     </div>
 </script>
@@ -189,7 +214,7 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'element', 'dropdown'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
@@ -261,6 +286,20 @@
             cols: [[
                 {type: 'numbers', align: 'center', fixed: 'left'},
                 {field: 'material', title: '<div style="height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
+                {field: 'products', title: '机种', align: 'center', width: 160, fixed: 'left', templet: function(d) {
+                        if(d.products != null) {
+                            return '<div style="max-height: 80px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                        } else {
+                            return '';
+                        }
+                    }},
+                {field: 'suppliers', title: '供应商', align: 'center', width: 160, fixed: 'left', templet: function(d) {
+                        if(d.suppliers != null) {
+                            return '<div style="max-height: 80px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
+                        } else {
+                            return '';
+                        }
+                    }},
                 {title: '', align: 'center', width: 100, templet: '#mrpTitleDemo', fixed: 'left'},
                 {title: '物料名', align: 'center', width: 160, templet: function (d) {
                         return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
@@ -272,12 +311,6 @@
                 {field: 'goodInventory', title: '良品库存', align: 'center', width: 80},
                 {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 80},
                 // {field: 'inventorDate', title: '库存日期', align: 'center', width: 140},
-                {field: 'products', title: '机种', align: 'center', width: 160, templet: function(d) {
-                        return '<div style="max-height: 120px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
-                    }},
-                {field: 'suppliers', title: '供应商', align: 'center', width: 160, templet: function(d) {
-                        return '<div style="max-height: 120px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
-                    }},
                 // {field: 'supplierCodes', title: '供应商', align: 'center', width: 140},
                 // {field: 'customers', title: '客户', align: 'center', width: 140},
                 // {field: 'createDate', title: '创建时间', align: 'center', width: 140},
@@ -287,7 +320,7 @@
                         //料号中会有'.'jquery的ID选择器选不到
                         material = material.replace(".","point");
                         var id = 'mrp_month_'+material;
-                        return '<div id="'+id+'" style="white-space: nowrap;height: 120px;"></div>';
+                        return '<div id="'+id+'" style="white-space: nowrap;height: 80px;"></div>';
                     }
                 },
                 {title: calendarTitle, align: 'center', width: days.length*100,
@@ -296,7 +329,7 @@
                         //料号中会有'.'jquery的ID选择器选不到
                         material = material.replace(".","point");
                         var id = 'mrp_'+material;
-                        return '<div id="'+id+'" style="white-space: nowrap;height: 120px;"></div>';
+                        return '<div id="'+id+'" style="white-space: nowrap;height: 80px;"></div>';
                     }
                 }
             ]],
@@ -307,7 +340,7 @@
                 });
             },
             page: true,
-            limit: 50,
+            limit: 20,
             size: 'sm',
             height: 'full-20',
             even: true
@@ -518,7 +551,6 @@
                             {field: 'arrivalQty', title: '计划到货量', align: 'center', totalRow: true, edit: 'number', "event": "dataCol"}
                         ]],
                         page: {layout: ['count']},
-                        height: 300,
                         width: 720,
                         size: 'sm',
                         even: true,
@@ -530,6 +562,30 @@
                             $("table input").attr("type","number");
                             $("table input").attr("step","1");
                         }
+                    });
+
+                    table.render({
+                        elem: '#table_actualArrivalQtyDetail',
+                        url: '/mrp/actualArrival/getActualArrival',
+                        where: {
+                            ver: ver,
+                            material: material,
+                            fabDate: fabDate
+                        },
+                        cols: [[
+                            {type: 'numbers', align: 'center', totalRowText: '合计'},
+                            {field: 'werks', title: '厂别', align: 'center', width: 80},
+                            {field: 'material', title: '料号', align: 'center', width: 120},
+                            {field: 'fabDate', title: '日期', align: 'center', width: 120},
+                            {field: 'supplierCode', title: '供应商ID', align: 'center', width: 120},
+                            {field: 'supplierName', title: '供应商', align: 'center', width: 120},
+                            {field: 'qty', title: '实际收货', align: 'center', totalRow: true}
+                        ]],
+                        page: {layout: ['count']},
+                        width: 720,
+                        size: 'sm',
+                        even: true,
+                        totalRow: true
                     });
                 },
                 yes: function(index, layero) {
@@ -683,6 +739,47 @@
                 }
             });
         }
+
+
+        table.render({
+            elem: '#node',
+            url: '/mrp/mrp/getMrpWarn',
+            where: {
+                ver: ver
+            },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'product', title: '机种', align: 'center', width: 140},
+                {field: 'type', title: 'TYPE', align: 'center', width: 140},
+                {field: 'memo', title: '说明', align: 'center', width: 140},
+                { title: '', align: 'center', width: 140, templet: function() {
+                        return '<i class="layui-icon">&#xe642;</i>';
+                    }}
+            ]],
+            size: 'sm',
+            limit: 50,
+            page: {layout: ['count']}
+        });
+
+        // 数据导出
+        $("#bt_export").click(function() {
+            var product = $('input[name=product]').val();
+            var materialGroup = $('input[name=materialGroup]').val();
+            var material = $('input[name=material]').val();
+            var supplier = $('input[name=supplier]').val();
+            exportMrpData(ver, product, materialGroup, material, supplier);
+        });
+        $("#bt_exportAll").click(function() {
+            exportMrpData(ver);
+        });
+        var exportMrpData = function(v, product, materialGroup, material, supplier) {
+            if(!product) product = '';
+            if(!materialGroup) materialGroup='';
+            if(!material) material = '';
+            if(!supplier) supplier='';
+            window.location.href = '/mrp/mrp/exportExcel?ver='+v+'&product='+product+'&materialGroup='+materialGroup
+                + '&material='+material+'&supplier='+supplier;
+        };
 
     });
 </script>

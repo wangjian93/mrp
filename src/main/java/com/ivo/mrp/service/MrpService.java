@@ -8,6 +8,7 @@ import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcm;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.entity.packaging.MrpPackage;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 
 import java.sql.Date;
@@ -339,4 +340,33 @@ public interface MrpService {
      */
     Page<MrpAryMaterial> getPageMrpAryMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup,
                                                  String searchMaterial, String searchSupplier);
+
+
+    /**
+     * 导出MRP数据
+     * @param ver 版本
+     * @param product 机种查询
+     * @param materialGroup 物料组查询
+     * @param material 料号查询
+     * @param supplier 供应商查询
+     * @return Workbook
+     */
+    Workbook exportMrp(String ver, String product, String materialGroup, String material, String supplier);
+
+
+
+
+    /**
+     * 分页获取LCM MRP的料号（LCM1/LCM2合并）
+     * @param page 页数
+     * @param limit 分页大小
+     * @param vers mrp版本
+     * @param searchProduct 查询机种
+     * @param searchMaterialGroup 查询物料组
+     * @param searchMaterial 查询料号
+     * @param searchSupplier 查询供应商
+     * @return Page<MrpLcmMaterial>
+     */
+    Page<MrpLcmMaterial> getPageMrpLcmMaterial(int page, int limit, String[] vers, String searchProduct, String searchMaterialGroup,
+                                               String searchMaterial, String searchSupplier);
 }

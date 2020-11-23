@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>供应商到货计划</title>
+    <link rel="stylesheet" href="../../../assets/libs/layui/css/layui.css"/>
+    <link rel="stylesheet" href="../../../assets/module/admin.css?v=318"/>
+    <!--[if lt IE 9]>
+    <script src="../../../assets/libs/html5shiv/html5shiv.min.js"></script>
+    <script src="../../../assets/libs/respond/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- 表格单元格高宽 -->
+    <style>
+        .mrp .layui-table-view .layui-table td .layui-table-cell,
+        .mrp .layui-table-view .layui-table[lay-size="sm"] td .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+        .mrp .layui-table-view .layui-table th .layui-table-cell,
+        .mrp .layui-table-view .layui-table[lay-size="sm"] th .layui-table-cell {
+            height: auto;
+            padding: 0px 0px;
+        }
+
+        .mrp .layui-table-view .layui-table td,
+        .mrp .layui-table-view .layui-table th {
+            padding: 0px 0px;
+        }
+    </style>
+    <!-- 移取layui表格鼠标悬停事件 -->
+    <style>
+        .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
+            background-color: transparent;
+        }
+    </style>
+
+    <!-- 表格单元格样式 -->
+    <style>
+        div .box_parent {
+            display: inline-block;
+            vertical-align: top;
+        }
+        div .box {
+            box-sizing:border-box;
+            -moz-box-sizing:border-box; /* Firefox */
+            -webkit-box-sizing:border-box; /* Safari */
+            border-top: none;
+            border-left: none;
+            border-bottom: 1px #e6e6e6 solid;
+            border-right: 1px #e6e6e6 solid;
+            height: 25px;
+            width: 100px;
+        }
+        div .box_parent.hover:hover {
+            background-color: lightyellow;
+            cursor:pointer
+        }
+        div .box.hover:hover {
+            background-color: #f2ffb4;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 正文开始 -->
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> ARY 供应商到货计划</div>
+        <div class="layui-card-body">
+            <!-- MRP表格 -->
+            <div class="mrp">
+                <!-- 表格工具栏 -->
+                <div class="layui-form toolbar">
+                    <div class="layui-form-item">
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">起止日期:</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="rangeDate" id="rangeDate" placeholder="请选择开始和结束日期"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">物料组:</label>
+                            <div class="layui-input-inline">
+                                <input name="materialGroup" class="layui-input" type="text" placeholder="查询物料组"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">料号:</label>
+                            <div class="layui-input-inline">
+                                <input name="material" class="layui-input" type="text" placeholder="查询料号"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <label class="layui-form-label w-auto">供应商:</label>
+                            <div class="layui-input-inline">
+                                <input name="supplier" class="layui-input" type="text" placeholder="查询供应商"/>
+                            </div>
+                        </div>
+
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                                <i class="layui-icon">&#xe615;</i>搜索
+                            </button>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm"  id="importArrivalPlan" type="button">
+                                <i class="layui-icon layui-icon-upload"></i>数据导入
+                            </button>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm"  id="exportArrivalPlan" type="button">
+                                <i class="layui-icon layui-icon-upload"></i>数据导出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <table id="table_arrivalPlan" lay-filter="table_arrivalPlan"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 日历模板 -->
+<script type="text/html" id="calendarDemo"><div class="box_parent">
+<div class="box" style="border-bottom: none">{{d.day}}</div>
+<div class="box" style="border-bottom: none">{{d.week}}</div>
+</div></script>
+
+<!-- MRP行数据label模板 -->
+<script type="text/html" id="titleDemo"><div class="box_parent">
+<div class="box">ARY(要望)</div>
+<div class="box" style="border-bottom: none">回复ARY</div>
+</div></script>
+
+<!-- MRP月份日历模板 -->
+<script type="text/html" id="calendarMonthDemo"><div class="box_parent">
+<div class="box" style="border-bottom: none">{{d.month}}</div>
+</div></script>
+
+<!-- MRP月份汇总数据模板 -->
+<script type="text/html" id="arrivalPlanMonthDemo"><div class="box_parent" id="{{ d.material_supplierCode_month }}">
+<div class="box" id="{{ d.material_supplierCode_month }}_ARY_AllocationQty"></div>
+<div class="box" style="border-bottom: none" id="{{ d.material_supplierCode_month }}_ARY_ArrivalQty"></div>
+</div></script>
+
+<!-- MRP行数据模板 -->
+<script type="text/html" id="arrivalPlanDemo"><div class="box_parent hover" id="{{ d.material_supplierCode_fabDate }}">
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_ARY_AllocationQty" lay-event="{{ d.material_supplierCode_fabDate }}_ARY_AllocationQty"></div>
+<div class="box hover" style="border-bottom: none" id="{{ d.material_supplierCode_fabDate }}_ARY_ArrivalQty" lay-event="{{ d.material_supplierCode_fabDate }}_ARY_ArrivalQty"></div>
+</div></script>
+
+<!-- js部分 -->
+<script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
+<script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
+<script>
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'laydate', 'notice', 'upload'], function() {
+        var $ = layui.$;
+        var flow = layui.flow;
+        var table = layui.table;
+        var laytpl = layui.laytpl;
+        var admin = layui.admin;
+        var form = layui.form;
+        var laydate = layui.laydate;
+        var notice = layui.notice;
+        var upload = layui.upload;
+
+
+        //格式化日期：yyyy-MM-dd
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var weekday = date.getDate();
+            if (month < 10) {
+                month = "0" + month;
+            }
+            if (weekday < 10) {
+                weekday = "0" + weekday;
+            }
+            return (year + "-" + month + "-" + weekday);
+        }
+        //获得某月的天数
+        function getMonthDays(myMonth) {
+            var monthStartDate = new Date(nowYear, myMonth, 1);
+            var monthEndDate = new Date(nowYear, myMonth + 1, 1);
+            return (monthEndDate - monthStartDate) / (1000 * 60 * 60 * 24);
+        }
+        //获得本月的开始日期
+        function getMonthStartDate() {
+            var monthStartDate = new Date(nowYear, nowMonth, 1);
+            return formatDate(monthStartDate);
+        }
+        //获得本月的结束日期
+        function getMonthEndDate() {
+            var monthEndDate = new Date(nowYear, nowMonth, getMonthDays(nowMonth));
+            return formatDate(monthEndDate);
+        }
+        var now = new Date(); //当前日期
+        var nowMonth = now.getMonth(); //当前月
+        var nowYear = now.getFullYear(); //当前年
+        //开始和结束日期控件
+        $("#rangeDate").val(getMonthStartDate() + " ~ " + getMonthEndDate());
+        laydate.render({
+            elem: '#rangeDate',
+            trigger: 'click',
+            range: '~',
+            btns: ['confirm']
+        });
+
+        var weeks = [];
+        var days = [];
+        var months = [];
+
+        var tableRender = function() {
+            var rangeDate = $("#rangeDate").val().split('~');
+            var startDate = rangeDate[0].trim();
+            var endDate = rangeDate[1].trim();
+            //厂别
+            var fab = 'ARY';
+            var materialGroup =$('input[name=materialGroup]').val();
+            var material = $('input[name=material]').val();
+            var supplier = $('input[name=supplier]').val();
+
+            var calendar = getCalendar(startDate, endDate);
+            weeks = calendar.weeks;
+            months = calendar.months;
+            days = calendar.days;
+
+            //计算表格的日历
+            var calendarTitleLi = [];
+            for(var i=0; i<days.length; i++) {
+                var d = {
+                    day: days[i],
+                    week: weeks[i]
+                };
+                calendarTitleLi.push(laytpl(calendarDemo.innerHTML).render(d));
+            }
+            var calendarTitle = '<div style="white-space: nowrap;">'+calendarTitleLi.join("")+'</div>';
+
+            //计算表格的月份日历
+            var calendarMonthTitleLi = [];
+            for(var i=0; i<months.length; i++) {
+                var d = {
+                    month: months[i]
+                };
+                calendarMonthTitleLi.push(laytpl(calendarMonthDemo.innerHTML).render(d));
+            }
+            var calendarMonthTitle = '<div style="white-space: nowrap;">'+calendarMonthTitleLi.join("")+'</div>';
+
+
+
+
+            //MRP数据表格
+            table.render({
+                elem: '#table_arrivalPlan',
+                url: '/mrp/arrivalPlan/getPageArrivalPlanMaterial',
+                where: {
+                    fab: fab,
+                    startDate: startDate,
+                    endDate: endDate,
+                    materialGroup: materialGroup,
+                    material: material,
+                    supplier: supplier
+                },
+                cols: [[
+                    {type: 'numbers', align: 'center', fixed: 'left'},
+                    {field: 'material', title: '<span style="line-height: 50px;">料号</span>', align: 'center', width: 140, fixed: 'left'},
+                    {field: 'supplierSname', title: '供应商', align: 'center', width: 140, fixed: 'left'},
+                    {title: '', align: 'center', width: 100, templet: '#titleDemo', fixed: 'left'},
+                    {field: 'supplierCode', title: '供应商ID', align: 'center', width: 140},
+                    {field: 'materialName', title: '物料名', align: 'center', width: 140},
+                    {field: 'materialGroup', title: '物料组', align: 'center', width: 140},
+                    {field: '', title: '机种', align: 'center', width: 140},
+                    {title: calendarMonthTitle, align: 'center', width: months.length*100,
+                        templet: function(data) {
+                            var material = data.material;
+                            var supplierCode = data.supplierCode;
+                            //料号中会有'.'jquery的ID选择器选不到
+                            material = material.replace(".","point");
+                            var id = 'arrivalPlan_month_'+material+'_'+supplierCode;
+                            return '<div id="'+id+'" style="white-space: nowrap;height: 50px;"></div>';
+                        }
+                    },
+                    {title: calendarTitle, align: 'center', width: days.length*100,
+                        templet: function(data) {
+                            var material = data.material;
+                            var supplierCode = data.supplierCode;
+                            //料号中会有'.'jquery的ID选择器选不到
+                            material = material.replace(".","point");
+                            var id = 'arrivalPlan_'+material+'_'+supplierCode;
+                            return '<div id="'+id+'" style="white-space: nowrap;height: 50px;"></div>';
+                        }
+                    }
+                ]],
+                done: function(res, curr, count) {
+                    layui.each(res.data, function(index, item){
+                        var material = item.material;
+                        var supplierCode = item.supplierCode;
+                        renderMaterialArrivalPlan(fab, startDate, endDate, material, supplierCode);
+                    });
+                },
+                page: true,
+                limit: 50,
+                size: 'sm',
+                height: 'full-20',
+                even: true
+            });
+        };
+
+        //获取日历
+        var getCalendar = function(startDate, endDate) {
+            var calendar = {};
+            $.ajaxSettings.async = false;
+            $.get('/mrp/mrp/getCalendar', {
+                startDate: startDate,
+                endDate: endDate
+            }, function(res) {
+                if(res.code === 200) {
+                    calendar = res.data;
+                } else {
+                    layer.msg("获取日历失败，"+res.msg)
+                }
+            });
+            $.ajaxSettings.async = true;
+            return calendar;
+        };
+
+        //料号的MRP数据渲染
+        var renderMaterialArrivalPlan = function(fab, startDate, endDate, material, supplierCode) {
+            $.get('/mrp/arrivalPlan/getArrivalPlan',{
+                fab: fab,
+                startDate: startDate,
+                endDate: endDate,
+                material: material,
+                supplierCode: supplierCode
+            }, function(res){
+                //料号中会有'.'jquery的ID选择器选不到
+                var material_ = material.replace(".","point");
+                var lis = [];
+                layui.each(days, function(i, day) {
+                    var d = {
+                        material_supplierCode_fabDate: material_+"_"+supplierCode+"_"+day
+                    };
+                    lis.push(laytpl(arrivalPlanDemo.innerHTML).render(d));
+                });
+                var id = 'arrivalPlan_'+material+'_'+supplierCode;
+                $('#'+id).html(lis.join(""));
+
+                //月份汇总
+                var lisMonth = [];
+                layui.each(months, function(i, month) {
+                    var d = {
+                        material_supplierCode_month: material_+"_"+supplierCode+"_"+month
+                    };
+                    lisMonth.push(laytpl(arrivalPlanMonthDemo.innerHTML).render(d));
+                });
+                var id_month = 'arrivalPlan_month_'+material+'_'+supplierCode;
+                $('#'+id_month).html(lisMonth.join(""));
+
+                var monthSum = {};
+                layui.each(res.data, function(index, item) {
+                    var fab = item.fab;
+                    var material_supplierCode_fabDate = material_+"_"+supplierCode+"_"+item.fabDate;
+                    var fabDate = item.fabDate;
+                    var month = fabDate.substring(0, 7);
+                    if(!monthSum[month]) {
+                        monthSum[month] = {
+                            ARY_AllocationQty: 0,
+                            ARY_ArrivalQty: 0
+                        };
+                    }
+                    if(item.allocationQty) {
+                        $('#'+material_supplierCode_fabDate+"_"+fab+"_AllocationQty").html('<span>'+item.allocationQty+'</span>');
+                        monthSum[month][fab+"_AllocationQty"] += item.allocationQty;
+                    }
+                    if(item.arrivalQty) {
+                        $('#'+material_supplierCode_fabDate+"_"+fab+"_ArrivalQty").html('<span>'+item.arrivalQty+'</span>');
+                        monthSum[month][fab+"_ArrivalQty"] += item.arrivalQty;
+                    }
+                });
+
+                layui.each(Object.keys(monthSum), function(index, month) {
+                    var monthData = monthSum[month];
+                    var material_supplierCode_month =  material_+"_"+supplierCode+"_"+month;
+                    $('#'+material_supplierCode_month+"_ARY_AllocationQty").html('<span>'+monthData.ARY_AllocationQty+'</span>');
+                    $('#'+material_supplierCode_month+"_ARY_ArrivalQty").html('<span>'+monthData.ARY_ArrivalQty+'</span>');
+                });
+            });
+        };
+
+        tableRender();
+
+        // 表格搜索
+        form.on('submit(search)', function(data) {
+            tableRender();
+            return false;
+        });
+
+        //监听表格点击
+        table.on('tool(table_arrivalPlan)', function(obj) {
+            var ars = obj.event.split("_");
+            var material = ars[0];
+            //料号中会有'.'jquery的ID选择器选不到
+            material = material.replace("point",".");
+            var supplierCode = ars[1];
+            var fabDate = ars[2];
+            var fab = ars[3];
+            var label = ars[4];
+            switch(label){
+                case 'AllocationQty':
+                    layer.msg(obj.event);
+                    break;
+                case 'ArrivalQty':
+                    editArrivalQty(material, supplierCode, fabDate, fab);
+                    break;
+            }
+        });
+
+        //修改到货计划
+        var editArrivalQty = function(material, supplierCode, fabDate, fab) {
+            var material_ = material.replace(".","point");
+            var material_supplierCode_fabDate_fab = material_ + "_" + supplierCode + "_" + fabDate+"_"+fab;
+            var span = $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty span:first-child");
+            span.hide();
+            var oldValue = span.html();
+            $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty").append('<input style="height:25px;" class="layui-input"/>');
+            var input = $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty  input:last-child");
+            input.focus();
+            input.val(oldValue);
+            input.blur(function(){
+                var d = input.val();
+                if(d === "" || d===oldValue) {
+                    $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty  input").remove();
+                    span.show();
+                } else {
+                    $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty  input").remove();
+                    span.html(d);
+                    span.show();
+                    $.post('/mrp/arrivalPlan/saveArrivalQty', {
+                        fab: fab ,
+                        material: material,
+                        supplierCode: supplierCode,
+                        fabDate: fabDate,
+                        arrivalQty: d
+                    }, function(res) {
+                        if(res.code === 200) {
+                            var rangeDate = $("#rangeDate").val().split('~');
+                            var startDate = rangeDate[0].trim();
+                            var endDate = rangeDate[1].trim();
+                            renderMaterialArrivalPlan(fab, startDate, endDate, material, supplierCode);
+                        } else {
+                            layer.msg("修改到货计划失败,"+res.msg)
+                        }
+                    });
+                }
+            });
+            input.keydown(function(event){
+                if (event.keyCode === 13){ //回车事件
+                    input.blur();
+                }
+            });
+            input.click(function(event){
+                input.blur();
+                event.stopPropagation();
+            });
+        };
+
+
+        // 数据导入
+        var loadIndex;
+        upload.render({
+            elem: '#importArrivalPlan',
+            accept: 'file',
+            url: '/mrp/arrivalPlan/importArrivalPlan', //上传接口
+            before: function() {
+                loadIndex = layer.msg('EXCEL文件上传中...', {icon: 16, shade: 0.01, time: false});
+            },
+            done: function(res){ //上传成功后的回调
+                if(res.code === 200) {
+                    layer.close(loadIndex);
+                    notice.msg("数据上传成功", {icon: 5});
+                    tableRender();
+                } else {
+                    layer.close(loadIndex);
+                    notice.msg(res.msg, {icon: 2});
+                }
+            }
+        });
+
+        // 数据导出
+        $("#exportArrivalPlan").click(function(){
+            var rangeDate = $("#rangeDate").val().split('~');
+            var fromDate = rangeDate[0].trim();
+            var toDate = rangeDate[1].trim();
+            window.open('/mrp/arrivalPlan/exportArrivalPlan?startDate='+fromDate+'&endDate='+toDate+'&fab=ARY');
+        });
+    });
+</script>
+</body>
+</html>

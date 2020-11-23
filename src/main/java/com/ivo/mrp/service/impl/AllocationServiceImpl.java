@@ -116,4 +116,16 @@ public class AllocationServiceImpl implements AllocationService {
         list.addAll(list2);
         return list;
     }
+
+    @Override
+    public List<Allocation> getAryAllocation(Date startDate, Date endDate, String material, String supplierCode) {
+        return allocationRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                "ARY", material, supplierCode, startDate, endDate);
+    }
+
+    @Override
+    public List<Allocation> getCellAllocation(Date startDate, Date endDate, String material, String supplierCode) {
+        return allocationRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                "CELL", material, supplierCode, startDate, endDate);
+    }
 }

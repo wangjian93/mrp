@@ -5,6 +5,7 @@ import com.ivo.mrp.entity.direct.cell.DemandCell;
 import com.ivo.mrp.key.DemandKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.util.List;
@@ -22,7 +23,7 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      * @return List<String>
      */
     @Query(value = "select DISTINCT d.material from DemandCell d where d.ver=:ver")
-    List<String> getMaterial(String ver);
+    List<String> getMaterial(@Param("ver") String ver);
 
     /**
      * 汇总料号需求
@@ -31,7 +32,7 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      * @return List<Map<Date, Double>>
      */
     @Query(value = "select d.fabDate as fabDate, sum(d.demandQty) as demandQty from DemandCell d where d.ver=:ver and d.material=:material and d.demandQty>0 group by d.fabDate")
-    List<Map> getDemandQtyCell(String ver, String material);
+    List<Map> getDemandQtyCell(@Param("ver") String ver, @Param("material") String material);
 
     /**
      * 汇总料号、日期需求
@@ -41,7 +42,7 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      * @return Double
      */
     @Query(value = "select sum(d.demandQty) as demandQty from DemandCell d where d.ver=:ver and d.material=:material and d.demandQty>0 and d.fabDate=:fabDate")
-    Double getDemandQtyCell(String ver, String material, Date fabDate);
+    Double getDemandQtyCell(@Param("ver") String ver, @Param("material") String material,@Param("fabDate")  Date fabDate);
 
     /**
      * 筛选MRP版本、料号、日期
@@ -58,5 +59,5 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      * @return List<String>
      */
     @Query(value = "select DISTINCT d.product from DemandCell d where d.ver=:ver and d.material=:material")
-    List<String> getProduct(String ver, String material);
+    List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
 }

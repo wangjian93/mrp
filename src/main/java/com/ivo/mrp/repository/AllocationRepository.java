@@ -4,6 +4,7 @@ import com.ivo.mrp.entity.direct.Allocation;
 import com.ivo.mrp.key.AllocationKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ public interface AllocationRepository extends JpaRepository<Allocation, Allocati
      * @return Double
      */
     @Query(value = "select sum(a.allocationQty) from Allocation a where a.fab=:fab and a.material=:material and a.fabDate=:fabDate ")
-    Double getAllocation(String fab, String material, Date fabDate);
+    Double getAllocation(@Param("fab") String fab, @Param("material") String material, @Param("fabDate") Date fabDate);
 
     /**
      * 获取总的分配量
@@ -33,7 +34,7 @@ public interface AllocationRepository extends JpaRepository<Allocation, Allocati
      * @return Double
      */
     @Query(value = "select a.fabDate as fabDate, sum(a.allocationQty) as allocationQty from Allocation a where a.fab=:fab and a.material=:material and a.fabDate in :fabDateList group by a.fabDate")
-    List<Map> getAllocation(String fab, String material, List<Date> fabDateList);
+    List<Map> getAllocation(@Param("fab") String fab, @Param("material") String material,  @Param("fabDateList") List<Date> fabDateList);
 
     /**
      * 筛选厂别、料号、日期

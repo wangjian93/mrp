@@ -30,6 +30,8 @@ public class MonthSettle extends AutoIncreaseEntityModel {
      */
     private String product;
 
+    private String project;
+
     /**
      * 月份
      */

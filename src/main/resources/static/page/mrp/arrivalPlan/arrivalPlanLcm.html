@@ -109,6 +109,17 @@
                                 <i class="layui-icon">&#xe615;</i>搜索
                             </button>
                         </div>
+
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm"  id="importArrivalPlan" type="button">
+                                <i class="layui-icon layui-icon-upload"></i>数据导入
+                            </button>
+                        </div>
+                        <div class="layui-inline">
+                            <button class="layui-btn icon-btn layui-btn-sm"  id="exportArrivalPlan" type="button">
+                                <i class="layui-icon layui-icon-upload"></i>数据导出
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <table id="table_arrivalPlan" lay-filter="table_arrivalPlan"></table>
@@ -157,7 +168,7 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'laydate'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'laydate', 'notice', 'upload'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
@@ -165,6 +176,8 @@
         var admin = layui.admin;
         var form = layui.form;
         var laydate = layui.laydate;
+        var notice = layui.notice;
+        var upload = layui.upload;
 
 
         //格式化日期：yyyy-MM-dd
@@ -208,6 +221,10 @@
             btns: ['confirm']
         });
 
+        var weeks = [];
+        var days = [];
+        var months = [];
+
         var tableRender = function() {
             var rangeDate = $("#rangeDate").val().split('~');
             var startDate = rangeDate[0].trim();
@@ -218,11 +235,10 @@
             var material = $('input[name=material]').val();
             var supplier = $('input[name=supplier]').val();
 
-
             var calendar = getCalendar(startDate, endDate);
-            var weeks = calendar.weeks;
-            var months = calendar.months;
-            var days = calendar.days;
+            weeks = calendar.weeks;
+            months = calendar.months;
+            days = calendar.days;
 
             //计算表格的日历
             var calendarTitleLi = [];
@@ -294,7 +310,7 @@
                     layui.each(res.data, function(index, item){
                         var material = item.material;
                         var supplierCode = item.supplierCode;
-                        renderMaterialArrivalPlan(days, months, startDate, endDate, material, supplierCode);
+                        renderMaterialArrivalPlan(fab, startDate, endDate, material, supplierCode);
                     });
                 },
                 page: true,
@@ -324,8 +340,9 @@
         };
 
         //料号的MRP数据渲染
-        var renderMaterialArrivalPlan = function(days, months, startDate, endDate, material, supplierCode) {
+        var renderMaterialArrivalPlan = function(fab, startDate, endDate, material, supplierCode) {
             $.get('/mrp/arrivalPlan/getArrivalPlan',{
+                fab: fab,
                 startDate: startDate,
                 endDate: endDate,
                 material: material,
@@ -437,27 +454,26 @@
                     $('#'+material_supplierCode_fabDate_fab+"_ArrivalQty  input").remove();
                     span.html(d);
                     span.show();
-
-                    // $.get('/mrp/mrp/updateMrpBalanceQty', {
-                    //     ver: ver,
-                    //     material: material,
-                    //     fabDate: fabDate,
-                    //     balanceQty: d
-                    // }, function(res) {
-                    //     if(res.code === 200) {
-                    //         var id = 'mrp_'+material_;
-                    //         var mrp_month = 'mrp_month'+material_;
-                    //         $('#'+id).html('<div>加载中</div>');
-                    //         $('#'+mrp_month).html('<div>加载中</div>');
-                    //         renderMaterialMrp(material);
-                    //     } else {
-                    //         layer.msg("结余量修改失败,"+res.msg)
-                    //     }
-                    // });
+                    $.post('/mrp/arrivalPlan/saveArrivalQty', {
+                        fab: fab ,
+                        material: material,
+                        supplierCode: supplierCode,
+                        fabDate: fabDate,
+                        arrivalQty: d
+                    }, function(res) {
+                        if(res.code === 200) {
+                            var rangeDate = $("#rangeDate").val().split('~');
+                            var startDate = rangeDate[0].trim();
+                            var endDate = rangeDate[1].trim();
+                            renderMaterialArrivalPlan(fab, startDate, endDate, material, supplierCode);
+                        } else {
+                            layer.msg("修改到货计划失败,"+res.msg)
+                        }
+                    });
                 }
             });
             input.keydown(function(event){
-                if (event.keyCode == 13){ //回车事件
+                if (event.keyCode === 13){ //回车事件
                     input.blur();
                 }
             });
@@ -466,6 +482,35 @@
                 event.stopPropagation();
             });
         };
+
+        // 数据导入
+        var loadIndex;
+        upload.render({
+            elem: '#importArrivalPlan',
+            accept: 'file',
+            url: '/mrp/arrivalPlan/importArrivalPlan', //上传接口
+            before: function() {
+                loadIndex = layer.msg('EXCEL文件上传中...', {icon: 16, shade: 0.01, time: false});
+            },
+            done: function(res){ //上传成功后的回调
+                if(res.code === 200) {
+                    layer.close(loadIndex);
+                    notice.msg("数据上传成功", {icon: 5});
+                    tableRender();
+                } else {
+                    layer.close(loadIndex);
+                    notice.msg(res.msg, {icon: 2});
+                }
+            }
+        });
+
+        // 数据导出
+        $("#exportArrivalPlan").click(function(){
+            var rangeDate = $("#rangeDate").val().split('~');
+            var fromDate = rangeDate[0].trim();
+            var toDate = rangeDate[1].trim();
+            window.open('/mrp/arrivalPlan/exportArrivalPlan?startDate='+fromDate+'&endDate='+toDate+'&fab=LCM');
+        });
     });
 </script>
 </body>

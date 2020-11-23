@@ -4,11 +4,56 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ivo.rest.fcst.FcstMapper">
 
-  <!-- 获取MPS中的CELL BOM成品料号 -->
+  <!-- 获取MPS中的CELL BOM成品料号14料号 -->
   <select id="getBomCell" resultType="java.util.HashMap">
-    select  CellInPut, Material_FK, project, type
+    select  distinct CellInPut, Material_FK,project
     from SD_O_MPSModelDetail
-    WHERE ValidFlag=1 AND CellInPut is not null and type='cell' order by CellInPut
+    WHERE ValidFlag=1
+      AND CellInPut is not null
+    order by CellInPut
   </select>
 
+  <!-- 获取MPS中的Ary BOM的15料号 -->
+  <select id="getBomAry" resultType="java.util.HashMap">
+    select  distinct	ArrayInPut, TFTMtrl, project
+    from SD_O_MPSModelDetail
+    WHERE ValidFlag=1
+      AND ArrayInPut is not null
+    order by ArrayInPut
+  </select>
+
+  <!-- 获取MPS的DateOfInsert作版本 -->
+  <select id="getMpsDateOfInsertForVersion" resultType="java.lang.String">
+    select DISTINCT DateOfInsert from SD_D_MPSDetailbyDateNewHis where ValidFlag=1 and InsertType='release'
+  </select>
+
+  <!-- 获取CELL MPS的DateOfInsert版本数据 -->
+  <select id="getCellMpsDate" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select
+      CellInPut,OutOfDate, SUM(qty) as qty
+    from
+      (
+        select
+          (select  DISTINCT CellInPut from SD_O_MPSModelDetail b where b.ValidFlag=1 and b.CellOutPut=MPSKey) as CellInPut,
+          Cast(Value as decimal(10,3)) as qty,
+          *
+        from SD_D_MPSDetailbyDateNewHis
+        where ValidFlag=1 and InsertType='release'
+          and OutOfDate like '%Total%'
+          and DateOfInsert = #{dateOfInsert}
+          and MPSColumn='CellInPut'
+      )t
+    where CellInPut is not null
+    GROUP BY CellInPut,OutOfDate
+    order by  CellInPut
+  </select>
+
+  <!-- 获取ARY MPS的DateOfInsert版本数据 -->
+  <select id="getAryMpsDate" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select * from SD_D_MPSDetailbyDateNewHis where ValidFlag=1 and InsertType='release'
+                                               and OutOfDate like '%Total%'
+                                               and MPSColumn='ArrayInPut'
+                                               and MPSKey &lt;&gt; ''
+                                               and DateOfInsert = #{dateOfInsert}
+  </select>
 </mapper>

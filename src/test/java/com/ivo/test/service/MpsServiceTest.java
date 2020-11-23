@@ -34,4 +34,12 @@ public class MpsServiceTest extends AbstractTest {
         }
         mpsService.importMpsLcm(inputStream, file.getName(), "SYS");
     }
+
+    @Test
+    public void test_sync() {
+        mpsService.syncMpsAry2();
+        mpsService.syncMpsCell2();
+    }
+
+
 }

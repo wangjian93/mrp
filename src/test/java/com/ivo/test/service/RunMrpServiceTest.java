@@ -50,8 +50,19 @@ public class RunMrpServiceTest extends AbstractTest {
 
     @Test
     public void test_completeMrpMaterial() {
-        runMrpService.completeMrpMaterial("20200909002");
+        runMrpService.completeMrpMaterial("20201113025");
+
+//        String[] products = new String[] {"N1012 R0/R1/R2", "N140CV 0.15t连R0_EQ", "S0655 R0"};
+//        String mrpVer = "20201105019";
+//        String dpsVer = "20201103040";
+//        String mpsVer = "20201105009";
+//        for(String product : products) {
+//            runMrpService.computeDpsDemandAry(mrpVer, dpsVer, product);
+//            runMrpService.computeMpsDemandCell(mrpVer, mpsVer, product);
+//        }
+
     }
+
 
 }
 

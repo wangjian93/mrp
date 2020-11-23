@@ -168,7 +168,7 @@ public class SubstituteServiceImpl implements SubstituteService {
         List<Substitute> substituteList = new ArrayList<>();
         for(Map map : mapList) {
             String material = (String) map.get("material");
-            double substituteRate = (Double) map.get("substituteRate");
+            double substituteRate = Double.valueOf(String.valueOf( map.get("substituteRate")));
             Substitute substitute = new Substitute();
             substitute.setFab(fab);
             substitute.setProduct(product);

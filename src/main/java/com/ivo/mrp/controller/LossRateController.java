@@ -60,7 +60,7 @@ public class LossRateController {
     })
     @PostMapping("/saveLossRateForMaterial")
     public Result saveLossRateForMaterial(String material, double lossRate) {
-        lossRateService.saveMaterialLossRate(material, lossRate, "SYS");
+        lossRateService.saveMaterialLossRate(material, lossRate, "SYS", "");
         return ResultUtil.success("保存成功");
     }
 

@@ -7,6 +7,8 @@ import com.ivo.mrp.entity.direct.lcm.MpsLcm;
 import org.springframework.data.domain.Page;
 
 import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +45,16 @@ public interface MpsService {
      * 同步ARY MPS
      */
     void syncMpsAry();
+
+    /**
+     * 同步CELL MPS
+     */
+    void syncMpsCell2();
+
+    /**
+     * 同步ARY MPS
+     */
+    void syncMpsAry2();
 
     /**
      * 上传LCM MPS
@@ -149,6 +161,37 @@ public interface MpsService {
      * @param ver MPS版本
      * @return List
      */
-    List getDpsDate(String ver);
+    List getMpsDate(String ver);
 
+
+    /**
+     * 获取MPS的日历
+     * @param ver MRP版本
+     * @return List<Date>
+     */
+    List<Date> getMpsCalendar(String ver);
+
+    /**
+     * 获取LCM 机种的MPS数据
+     * @param mpsVer MPS版本
+     * @param product 机种
+     * @return  List<MpsLcm>
+     */
+    List<MpsLcm> getMpsLcm(String mpsVer, String product, java.sql.Date startDate);
+
+    /**
+     * 获取Ary 机种的MPS数据
+     * @param mpsVer MPS版本
+     * @param product 机种
+     * @return  List<MpsLcm>
+     */
+    List<MpsAry> getMpsAry(String mpsVer,  String product, java.sql.Date startDate);
+
+    /**
+     * 获取Cell 机种的MPS数据
+     * @param mpsVer MPS版本
+     * @param product 机种
+     * @return  List<MpsLcm>
+     */
+    List<MpsCell> getMpsCell(String mpsVer,  String product, java.sql.Date startDate);
 }

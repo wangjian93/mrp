@@ -12,12 +12,12 @@ import java.math.BigDecimal;
 public class DoubleUtil {
 
     // 保留小数
-    private static final int SCALE = 4;
+    private static final int SCALE = 0;
     // 向上模式
-    private static final int ROUND = BigDecimal.ROUND_HALF_UP;
+    private static final int ROUND = BigDecimal.ROUND_UP;
 
     /**
-     * 数字精度计算，采用的是向上取整
+     * 数字精度保留，采用的是向上取整
      * @param num 数字
      * @param scale 精度
      * @return Double
@@ -26,6 +26,18 @@ public class DoubleUtil {
         if(num == null) return null;
         BigDecimal bigDecimal = new BigDecimal(num);
         return bigDecimal.setScale(scale, BigDecimal.ROUND_UP).doubleValue();
+    }
+
+    /**
+     * 数字精度保留，采用四舍五入
+     * @param num 数字
+     * @param scale 精度
+     * @return Double
+     */
+    public static Double rounded(Double num, int scale) {
+        if(num == null) return null;
+        BigDecimal bigDecimal = new BigDecimal(num);
+        return bigDecimal.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
     /**
@@ -96,7 +108,7 @@ public class DoubleUtil {
         } else {
             BigDecimal bigDecimal1 = new BigDecimal(numerator);
             BigDecimal bigDecimal2 = new BigDecimal(denominator);
-            return bigDecimal1.divide(bigDecimal2, SCALE, ROUND).doubleValue();
+            return bigDecimal1.divide(bigDecimal2, 3, BigDecimal.ROUND_HALF_UP).doubleValue();
         }
     }
 
@@ -114,6 +126,11 @@ public class DoubleUtil {
         }
         if(o instanceof BigDecimal) return ((BigDecimal) o).doubleValue();
         return (Double) o;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(upPrecision(0.015*0.025*40*1000, 0));
+        System.out.println(multiply(0.015, 0.025, 40D, 1000D));
     }
 }
 

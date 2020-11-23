@@ -59,4 +59,8 @@ public interface AllocationService {
     void batchSaveAllocation(List<Map> mapList);
 
     List<Allocation> getLcmAllocation(Date startDate, Date endDate, String material, String supplierCode);
+
+    List<Allocation> getAryAllocation(Date startDate, Date endDate, String material, String supplierCode);
+
+    List<Allocation> getCellAllocation(Date startDate, Date endDate, String material, String supplierCode);
 }

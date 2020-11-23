@@ -1,5 +1,6 @@
 package com.ivo.rest;
 
+import com.ivo.mrp.service.PositionService;
 import com.ivo.rest.dpsAryCell.DpsAryCellMapper;
 import com.ivo.rest.dpsLcm.DpsLcmMapper;
 import com.ivo.rest.eif.EifMapper;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,14 +34,18 @@ public class RestServiceImpl implements RestService {
 
     private DpsAryCellMapper dpsAryCellMapper;
 
+    private PositionService positionService;
+
     @Autowired
     public RestServiceImpl(EifMapper eifMapper, FcstMapper fcstMapper, OracleMapper oracleMapper,
-                           DpsLcmMapper dpsLcmMapper, DpsAryCellMapper dpsAryCellMapper) {
+                           DpsLcmMapper dpsLcmMapper, DpsAryCellMapper dpsAryCellMapper,
+                           PositionService positionService) {
         this.eifMapper = eifMapper;
         this.fcstMapper = fcstMapper;
         this.oracleMapper = oracleMapper;
         this.dpsLcmMapper = dpsLcmMapper;
         this.dpsAryCellMapper = dpsAryCellMapper;
+        this.positionService = positionService;
     }
 
     @Override
@@ -82,8 +86,14 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public List<Map> getBomAry() {
-        log.info("从81数据库MM_O_ARYBOM获取ARY的BOM");
-        return eifMapper.getBomAry();
+        log.info("从MPS数据库同步Ary的BOM的15料号");
+        return fcstMapper.getBomAry();
+    }
+
+    @Override
+    public List<Map> getMaterialByAryMtrl(String aryMtr) {
+        log.info("从81数据库ARY的15料号查询51料号");
+        return eifMapper.getMaterialByAryMtrl(aryMtr);
     }
 
     @Override
@@ -154,57 +164,38 @@ public class RestServiceImpl implements RestService {
         return dpsAryCellMapper.getDpsPackage(ver, productList);
     }
 
-
-
-    // 良品仓位
-    private static final String[] position_lcm1 = {"3010","3150", "4010"};
-    private static final String[] position_lcm2 = {"2100","2101", "5610", "5611", "1400", "1401"};
-    private static final String[] position_cell = {"1100", "1111", "1200", "5300", "1400", "1401"};
-    private static final String[] position_ary = {"1100", "1111", "1200", "5300", "1400", "1401"};
-    // 呆滞品仓位
-    private static final String[] positionDull_lcm1 = {"3060"};
-    private static final String[] positionDull_lcm2 = {"1310","1311"};
-    private static final String[] positionDull_cell = {"1310","1311"};
-    private static final String[] positionDull_ary = {"1310","1311"};
-    // 厂别
-    private static final String plant_lcm1 = "3000";
-    private static final String plant_lcm2 = "1000";
-    private static final String plant_cell = "1000";
-    private static final String plant_ary = "1000";
     @Override
     public double getGoodInventory(String plant, String material, Date fabDate) {
         log.info("从Oracle数据库获取良品仓库存");
-        Double d = null;
+        Double d;
+        // LCM1 IVE
+        // LCM2/ARY/CELL IVO
         if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            d = oracleMapper.getInventory(material, fabDate.toString(), plant_lcm1, Arrays.asList(position_lcm1));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "LCM2")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_lcm2, Arrays.asList(position_lcm2));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "CELL")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_cell, Arrays.asList(position_cell));
-        }
-        if(StringUtils.equalsIgnoreCase(plant, "ARY")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_ary, Arrays.asList(position_ary));
+            String fab = "3000";
+            List<String> positionList = positionService.getPositionIveGood();
+            d = oracleMapper.getInventory(material, fabDate.toString(), fab, positionList);
+        } else {
+            String fab = "1000";
+            List<String> positionList = positionService.getPositionIvoGood();
+            d =  oracleMapper.getInventory(material, fabDate.toString(), fab, positionList);
         }
         return d == null ? 0 : d;
     }
 
     @Override
     public double getDullInventory(String plant, String material, Date fabDate) {
-        log.info("从Oracle数据库获取呆滞料库存");
-        Double d = null;
+        log.info("从Oracle数据库获取良品仓库存");
+        Double d;
+        // LCM1 IVE
+        // LCM2/ARY/CELL IVO
         if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            d = oracleMapper.getInventory(material, fabDate.toString(), plant_lcm1, Arrays.asList(positionDull_lcm1));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "LCM2")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_lcm2, Arrays.asList(positionDull_lcm2));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "CELL")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_cell, Arrays.asList(positionDull_cell));
-        }
-        if(StringUtils.equalsIgnoreCase(plant, "ARY")) {
-            d =  oracleMapper.getInventory(material, fabDate.toString(), plant_ary, Arrays.asList(positionDull_ary));
+            String fab = "3000";
+            List<String> positionList = positionService.getPositionIveDull();
+            d = oracleMapper.getInventory(material, fabDate.toString(), fab, positionList);
+        } else {
+            String fab = "1000";
+            List<String> positionList = positionService.getPositionIvoDull();
+            d =  oracleMapper.getInventory(material, fabDate.toString(), fab, positionList);
         }
         return d == null ? 0 : d;
     }
@@ -212,36 +203,78 @@ public class RestServiceImpl implements RestService {
     @Override
     public List<Map> getGoodInventory(String plant, List<String> materialList, Date fabDate) {
         log.info("从Oracle数据库获取良品仓库存");
+        if(materialList == null || materialList.size()==0) return new ArrayList<>();
         if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), plant_lcm1, Arrays.asList(position_lcm1));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "LCM2")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_lcm2, Arrays.asList(position_lcm2));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "CELL")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_cell, Arrays.asList(position_cell));
+            String fab = "3000";
+            List<String> positionList = positionService.getPositionIveGood();
+            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), fab, positionList);
+        } else {
+            String fab = "1000";
+            List<String> positionList = positionService.getPositionIvoGood();
+            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), fab, positionList);
         }
-        if(StringUtils.equalsIgnoreCase(plant, "ARY")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_ary, Arrays.asList(position_ary));
-        }
-        return new ArrayList<>();
     }
 
     @Override
     public List<Map> getDullInventory(String plant, List<String> materialList, Date fabDate) {
-        log.info("从Oracle数据库获取呆滞料库存");
+        log.info("从Oracle数据库获取良品仓库存");
+        if(materialList == null || materialList.size()==0) return new ArrayList<>();
         if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), plant_lcm1, Arrays.asList(positionDull_lcm1));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "LCM2")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_lcm2, Arrays.asList(positionDull_lcm2));
-        } else
-        if(StringUtils.equalsIgnoreCase(plant, "CELL")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_cell, Arrays.asList(positionDull_cell));
+            String fab = "3000";
+            List<String> positionList = positionService.getPositionIveDull();
+            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), fab, positionList);
+        } else {
+            String fab = "1000";
+            List<String> positionList = positionService.getPositionIvoDull();
+            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), fab, positionList);
         }
-        if(StringUtils.equalsIgnoreCase(plant, "ARY")) {
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), plant_ary, Arrays.asList(positionDull_ary));
-        }
-        return new ArrayList<>();
+    }
+
+    @Override
+    public List<Map> getSupplierMaterial() {
+        log.info("从81数据库获取料号供应商数据");
+        return eifMapper.getSupplierMaterial();
+    }
+
+    @Override
+    public List<Map> getActualArrivalQty(Date fabDate) {
+        log.info("从81数据库获取供应商的实际到货量");
+        return eifMapper.getActualArrivalQty(fabDate);
+    }
+
+    @Override
+    public List<Map> getAryMps(String ver) {
+        return dpsAryCellMapper.getAryMps(ver);
+    }
+
+    @Override
+    public List<String> getAryMpsVer() {
+        return dpsAryCellMapper.getAryMpsVer();
+    }
+
+    @Override
+    public List<Map> getCellMps(String ver) {
+        return dpsAryCellMapper.getCellMps(ver);
+    }
+
+    @Override
+    public List<String> getCellMpsVer() {
+        return dpsAryCellMapper.getCellMpsVer();
+    }
+
+
+    @Override
+    public List<String> getMpsDateOfInsertForVersion() {
+        return fcstMapper.getMpsDateOfInsertForVersion();
+    }
+
+    @Override
+    public List<Map> getAryMpsData(String dateOfInsert) {
+        return fcstMapper.getAryMpsDate(dateOfInsert);
+    }
+
+    @Override
+    public List<Map> getCellMpsData(String dateOfInsert) {
+        return fcstMapper.getCellMpsDate(dateOfInsert);
     }
 }

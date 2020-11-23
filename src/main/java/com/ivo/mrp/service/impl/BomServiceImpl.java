@@ -1,15 +1,16 @@
 package com.ivo.mrp.service.impl;
 
+import com.ivo.common.utils.DoubleUtil;
 import com.ivo.mrp.entity.direct.ary.BomAry;
+import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
 import com.ivo.mrp.entity.direct.cell.BomCell;
 import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.entity.direct.lcm.BomLcm;
+import com.ivo.mrp.key.BomAryKey;
+import com.ivo.mrp.key.BomAryMtrlKey;
 import com.ivo.mrp.key.BomCellKey;
 import com.ivo.mrp.key.BomCellMtrlKey;
-import com.ivo.mrp.repository.BomAryRepository;
-import com.ivo.mrp.repository.BomCellMtrlRepository;
-import com.ivo.mrp.repository.BomCellRepository;
-import com.ivo.mrp.repository.BomLcmRepository;
+import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.BomService;
 import com.ivo.mrp.service.MaterialGroupService;
 import com.ivo.mrp.service.MaterialService;
@@ -45,6 +46,8 @@ public class BomServiceImpl implements BomService {
 
     private BomCellMtrlRepository bomCellMtrlRepository;
 
+    private BomAryMtrlRepository bomAryMtrlRepository;
+
     private MaterialService materialService;
 
     private MaterialGroupService materialGroupService;
@@ -53,7 +56,8 @@ public class BomServiceImpl implements BomService {
     public BomServiceImpl(RestService restService, BomCellRepository bomCellRepository,
                           BomLcmRepository bomLcmRepository, BomAryRepository bomAryRepository,
                           BomCellMtrlRepository bomCellMtrlRepository,
-                          MaterialService materialService, MaterialGroupService materialGroupService) {
+                          MaterialService materialService, MaterialGroupService materialGroupService,
+                          BomAryMtrlRepository bomAryMtrlRepository) {
         this.restService = restService;
         this.bomCellRepository = bomCellRepository;
         this.bomLcmRepository = bomLcmRepository;
@@ -61,6 +65,7 @@ public class BomServiceImpl implements BomService {
         this.bomCellMtrlRepository = bomCellMtrlRepository;
         this.materialService = materialService;
         this.materialGroupService = materialGroupService;
+        this.bomAryMtrlRepository = bomAryMtrlRepository;
     }
 
     @Override
@@ -113,23 +118,63 @@ public class BomServiceImpl implements BomService {
     @Override
     public void syncBomAry() {
         log.info("同步ARY的BOM >> START");
-        //清空表
-        bomAryRepository.deleteAll();
-        List<Map> mapList = restService.getBomAry();
-        if(mapList == null || mapList.size() == 0) return;
-        for(Map map : mapList) {
-            BomAry bomAry = new BomAry();
-            bomAry.setFab("ARY");
-            bomAry.setProduct((String) map.get("product"));
-            bomAry.setMaterial((String) map.get("material"));
-            bomAry.setMeasureUnit((String) map.get("measureUnit"));
-            bomAry.setMaterialName((String) map.get("materialName"));
-            bomAry.setMaterialGroup((String) map.get("materialGroup"));
-            bomAry.setMaterialGroupName((String) map.get("materialGroupName"));
-            bomAry.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
-            bomAryRepository.save(bomAry);
+        List<Map> aryMtrlList = restService.getBomAry();
+        if(aryMtrlList == null || aryMtrlList.size() == 0) return;
+        int l = aryMtrlList.size();
+        for(Map aryMtrlMap : aryMtrlList) {
+            log.info("成品料号剩余"+l--);
+            //1.同步MPS的CellInPut数据
+            String product = (String) aryMtrlMap.get("ArrayInPut");
+            String aryMtrl = (String) aryMtrlMap.get("TFTMtrl");
+            String project = (String) aryMtrlMap.get("project");
+            if(StringUtils.isEmpty(product) || StringUtils.isEmpty(aryMtrl)) continue;
+            BomAry bomAry = getBomAry(product, aryMtrl);
+            if(bomAry == null) {
+                bomAry = new BomAry();
+                bomAry.setFab("ARY");
+                bomAry.setProject(project);
+                bomAry.setProduct(product);
+                bomAry.setAryMtrl(aryMtrl);
+                bomAry.setUseFlag(true);
+                bomAryRepository.save(bomAry);
+            }
+            //2.同步成品料号的材料
+            List<Map> materialMapList = restService.getMaterialByAryMtrl(aryMtrl);
+            if(materialMapList == null || materialMapList.size()==0) continue;
+            for(Map materialMap : materialMapList) {
+                String material = (String) materialMap.get("material");
+                BomAryMtrl bomAryMtrl = getBomAryMtrl(product, aryMtrl, material);
+                if(bomAryMtrl == null) {
+                    bomAryMtrl = new BomAryMtrl();
+                    bomAryMtrl.setFab("ARY");
+                    bomAryMtrl.setProject(project);
+                    bomAryMtrl.setProduct(product);
+                    bomAryMtrl.setAryMtrl(aryMtrl);
+                    bomAryMtrl.setUseFlag(true);
+                    bomAryMtrl.setMaterial(material);
+                    String materialGroup = materialService.getMaterialGroup(material);
+                    bomAryMtrl.setMaterialName(materialService.getMaterialName(material));
+                    bomAryMtrl.setMaterialGroup(materialGroup);
+                    bomAryMtrl.setMaterialGroupName(materialGroupService.getMaterialGroupName(materialGroup));
+                    bomAryMtrl.setMeasureUnit((String) materialMap.get("measureUnit"));
+                    Double baseQty = ((Integer) materialMap.get("baseQty")).doubleValue();
+                    Double qty = (Double) materialMap.get("qty");
+                    bomAryMtrl.setUsageQty(DoubleUtil.divide(qty, baseQty));
+                    bomAryMtrlRepository.save(bomAryMtrl);
+                }
+            }
         }
         log.info("同步ARY的BOM >> END");
+    }
+
+    private BomAry getBomAry(String product, String aryMtrl) {
+        BomAryKey bomAryKey = new BomAryKey("ARY", product, aryMtrl);
+        return bomAryRepository.findById(bomAryKey).orElse(null);
+    }
+
+    private BomAryMtrl getBomAryMtrl(String product, String cellMtrl, String material) {
+        BomAryMtrlKey bomAryMtrlKey = new BomAryMtrlKey("ARY", product, cellMtrl, material);
+        return bomAryMtrlRepository.findById(bomAryMtrlKey).orElse(null);
     }
 
     @Override
@@ -170,6 +215,8 @@ public class BomServiceImpl implements BomService {
                     bomCellMtrl.setUseFlag(true);
                     bomCellMtrl.setMaterial(material);
                     String materialGroup = materialService.getMaterialGroup(material);
+                    if(StringUtils.equalsAny(materialGroup, "104","103", "115", "116", "101", "922", "921", "917", "918")) continue;
+                    if(StringUtils.startsWith(material, "57")) continue;
                     bomCellMtrl.setMaterialName(materialService.getMaterialName(material));
                     bomCellMtrl.setMaterialGroup(materialGroup);
                     bomCellMtrl.setMaterialGroupName(materialGroupService.getMaterialGroupName(materialGroup));
@@ -198,11 +245,6 @@ public class BomServiceImpl implements BomService {
     }
 
     @Override
-    public List<BomAry> getAryBom(String product) {
-        return bomAryRepository.findByProduct(product);
-    }
-
-    @Override
     public List<Map> getAryOcBom(String product) {
         return bomAryRepository.getAryOcBom(product);
     }
@@ -210,6 +252,11 @@ public class BomServiceImpl implements BomService {
     @Override
     public List<BomCellMtrl> getCellBom(String product) {
         return bomCellMtrlRepository.findByProductAndUseFlag(product, true);
+    }
+
+    @Override
+    public List<BomAryMtrl> getAryBom(String product) {
+        return bomAryMtrlRepository.findByProductAndUseFlag(product, true);
     }
 
     @Override
@@ -228,5 +275,12 @@ public class BomServiceImpl implements BomService {
             return bomAryRepository.queryProduct(fab, searchProduct+"%", pageable);
         }
         return null;
+    }
+
+
+
+    @Override
+    public List<Map> queryAryBom(String product) {
+        return bomAryRepository.findByProduct(product);
     }
 }

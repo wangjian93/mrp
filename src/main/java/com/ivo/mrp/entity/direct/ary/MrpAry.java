@@ -56,9 +56,19 @@ public class MrpAry {
     private double lossQty;
 
     /**
-     * 计划到货量
+     * 供应商到货量
      */
     private double arrivalQty;
+
+    /**
+     * 实际收货数量
+     */
+    private double arrivalActualQty;
+
+    /**
+     * 计划到货量
+     */
+    private double arrivalPlanQty;
 
     /**
      * 结余量

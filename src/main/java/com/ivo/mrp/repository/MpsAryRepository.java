@@ -4,7 +4,9 @@ import com.ivo.mrp.entity.direct.ary.MpsAry;
 import com.ivo.mrp.key.MpsKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ public interface MpsAryRepository extends JpaRepository<MpsAry, MpsKey> {
      * @return List<String>
      */
     @Query(value = "select distinct m.product from MpsAry m where m.ver=:ver")
-    List<String> getProduct(String ver);
+    List<String> getProduct(@Param("ver") String ver);
 
     /**
      * 筛选版本、机种
@@ -35,4 +37,12 @@ public interface MpsAryRepository extends JpaRepository<MpsAry, MpsKey> {
      * @return List<MpsLcm>
      */
     List<MpsAry> findByVer(String ver);
+
+    /**
+     * 筛选版本、机种、开始日期
+     * @param ver MPS版本
+     * @param product 机种
+     * @return List<MpsLcm>
+     */
+    List<MpsAry> findByVerAndProductAndFabDateGreaterThanEqual(String ver, String product, Date startDate);
 }

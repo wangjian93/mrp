@@ -1,7 +1,9 @@
 package com.ivo.rest.eif;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,12 +46,6 @@ public interface EifMapper {
     List<Map> getBomLcm2();
 
     /**
-     * 获取ARY的BOM
-     * @return List<Map>
-     */
-    List<Map> getBomAry();
-
-    /**
      * 获取LCM1的替代料关系
      * @return List<Map>
      */
@@ -66,4 +62,23 @@ public interface EifMapper {
      * @return List<Map>
      */
     List<Map> getMaterialSubstituteCell();
+
+    /**
+     * ARY的15料号查询51料号
+     * @param aryMtr ARY的15料号
+     * @return List<Map>
+     */
+    List<Map> getMaterialByAryMtrl(@Param("aryMtr") String aryMtr);
+
+    /**
+     * 获取料号供应商数据
+     * @return List<Map>
+     */
+    List<Map> getSupplierMaterial();
+
+    /**
+     * 获取供应商的实际到货量
+     * @return List<Map>
+     */
+    List<Map> getActualArrivalQty(@Param("fabDate") Date fabDate);
 }

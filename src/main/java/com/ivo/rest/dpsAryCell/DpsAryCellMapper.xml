@@ -18,7 +18,8 @@
     output_name,
     sub_type,
     colum_name,
-    qty
+    qty,
+    file_name
     FROM dps_excel_arycel
     WHERE file_ver = #{ver}
     and output_name &lt;&gt; ''
@@ -33,11 +34,14 @@
       file_ver,
       fab_date,
       model_id_dps,
+      output_name,
       sub_type,
       colum_name,
-      qty
+      qty,
+      file_name
     from dps_excel_arycel
-    WHERE sub_type = 'Array Input'
+    WHERE output_name &lt;&gt; ''
+      and sub_type = 'Array Input'
       and file_ver = #{ver}
       and qty>0
     order by model_id,fab_date,colum_name
@@ -49,12 +53,15 @@
       file_ver,
       fab_date,
       model_id_dps,
+      output_name,
       sub_type,
       colum_name,
-      qty
+      qty,
+      file_name
     from dps_excel_arycel
-    WHERE sub_type = 'Array OC Input'
-      and file_ver = '20200813161111'
+    WHERE output_name &lt;&gt; ''
+      and sub_type = 'Array OC Input'
+      and file_ver = #{ver}
       and qty>0
     order by model_id,fab_date,colum_name
   </select>
@@ -66,7 +73,8 @@
       model_id_dps,
       sub_type,
       colum_name,
-      qty
+      qty,
+      file_name
     from dps_excel_arycel
     where file_ver= #{ver}
       and sub_type = 'Cell Input'
@@ -75,5 +83,28 @@
       <foreach item="item" index="index" collection="productList" open="(" separator="," close=")">
         #{item}
       </foreach>
+  </select>
+
+  <select id="getAryMps" resultType="java.util.HashMap">
+    SELECT mps_ver, ary_model_name as product, fab_date as fabDate,
+      mps_qty as qty,
+      model_id as project, tft_mtrl_id as tftMtrl
+    FROM dps_mps_demand WHERE ary_model_name &lt;&gt; '' AND mps_ver=#{ver}
+  </select>
+
+  <select id="getAryMpsVer" resultType="java.lang.String">
+    SELECT DISTINCT mps_ver FROM dps_mps_demand where ary_model_name &lt;&gt; ''
+  </select>
+
+  <select id="getCellMps" resultType="java.util.HashMap">
+    SELECT
+      mps_ver, cellin_model_name as product, fab_date as fabDate,
+      mps_qty as qty,
+      model_id as project, tft_mtrl_id as tftMtrl
+    from dps_mps_demand_cell WHERE cel_model_name &lt;&gt; '' AND mps_ver=#{ver}
+  </select>
+
+  <select id="getCellMpsVer" resultType="java.lang.String">
+    SELECT DISTINCT mps_ver from dps_mps_demand_cell where cel_model_name &lt;&gt; ''
   </select>
 </mapper>

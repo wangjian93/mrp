@@ -8,6 +8,8 @@ import com.ivo.mrp.entity.direct.lcm.DpsLcm;
 import com.ivo.mrp.entity.packaging.DpsPackage;
 import org.springframework.data.domain.Page;
 
+import java.io.InputStream;
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +119,7 @@ public interface DpsService {
     List<String> getDpsCellProduct(String ver);
 
     /**
-     * 获取LCM DPS的所有机种
+     * 获取LCM DPS的机种
      * @param ver DPS版本
      * @return List<String>
      */
@@ -190,4 +192,99 @@ public interface DpsService {
      * @return List
      */
     List getDpsDate(String ver);
+
+    /**
+     * 获取DPS的日历
+     * @param ver MRP版本
+     * @return List<Date>
+     */
+    List<Date> getDpsCalendar(String ver);
+
+    /**
+     * 获取机种DPS数据
+     * @param ver 版本
+     * @param searchProduct 查询机种条件
+     * @return Page
+     */
+    List getProductDpsData(String ver, String searchProduct);
+
+    /**
+     * 分页获取DPS中的机种
+     * @param ver DPS版本
+     * @param searchProduct 机种
+     * @return Page
+     */
+    Page getPageProduct(String ver, int page, int limit, String searchProduct);
+
+    /**
+     * 查询获取Ary DPS的所有机种
+     * @param ver DPS版本
+     * @return List<String>
+     */
+    Page getPagDpsAryProduct(String ver, int page, int limit, String searchProduct);
+
+    /**
+     * 查询获取Ary OC DPS的所有机种
+     * @param ver DPS版本
+     * @return List<String>
+     */
+    Page getPagDpsAryOcProduct(String ver, int page, int limit, String searchProduct);
+
+    /**
+     * 查询获取CELL DPS的所有机种
+     * @param ver DPS版本
+     * @return List<String>
+     */
+    Page getPagDpsCellProduct(String ver, int page, int limit, String searchProduct);
+
+    /**
+     * 查询获取LCM DPS的机种
+     * @param ver DPS版本
+     * @return List<String>
+     */
+    Page getPagDpsLcmProduct(String ver, int page, int limit, String searchProduct);
+
+    /**
+     * 获取LCM 机种的DPS
+     * @param ver 版本
+     * @param product 机种
+     * @param startDate 开始日期
+     * @return List<DpsLcm>
+     */
+    List<DpsLcm> getDpsLcm(String ver,  String product, Date startDate);
+
+    /**
+     * 获取Ary机种的DPS
+     * @param ver 版本
+     * @param product 机种
+     * @param startDate 开始日期
+     * @return List<DpsLcm>
+     */
+    List<DpsAry> getDpsAry(String ver,  String product, Date startDate);
+
+    /**
+     * 获取Ary OC 机种的DPS
+     * @param ver
+     * @param product
+     * @param startDate
+     * @return
+     */
+    List<DpsAryOc> getDpsAryOc(String ver,  String product, Date startDate);
+
+    /**
+     * 获取CELL 机种的DPS
+     * @param ver 版本
+     * @param product 机种
+     * @param startDate 开始日期
+     * @return List<DpsLcm>
+     */
+    List<DpsCell> getDpsCell(String ver,  String product, Date startDate);
+
+    /**
+     * 导入DPS
+     * @param inputStream 输入流
+     * @param fileName 文件名
+     * @return DPS版本
+     */
+    String importLcmDps(InputStream inputStream, String fileName);
 }

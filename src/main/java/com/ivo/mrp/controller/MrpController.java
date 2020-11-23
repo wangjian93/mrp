@@ -2,24 +2,30 @@ package com.ivo.mrp.controller;
 
 import com.ivo.common.result.Result;
 import com.ivo.common.utils.DateUtil;
+import com.ivo.common.utils.HttpServletUtil;
 import com.ivo.common.utils.ResultUtil;
 import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
-import com.ivo.mrp.entity.direct.cell.MrpCell;
 import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.service.MrpService;
+import com.ivo.mrp.service.MrpWarnService;
 import com.ivo.mrp.service.RunMrpService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,10 +45,13 @@ public class MrpController {
 
     private RunMrpService runMrpService;
 
+    private MrpWarnService mrpWarnService;
+
     @Autowired
-    public MrpController(MrpService mrpService,  RunMrpService runMrpService) {
+    public MrpController(MrpService mrpService,  RunMrpService runMrpService, MrpWarnService mrpWarnService) {
         this.mrpService = mrpService;
         this.runMrpService = runMrpService;
+        this.mrpWarnService = mrpWarnService;
     }
 
     @ApiOperation("查询MRP版本信息")
@@ -244,5 +253,71 @@ public class MrpController {
         map.put("weeks", weeks);
         map.put("months", months);
         return ResultUtil.success(map);
+    }
+
+    @GetMapping("/updateMrp")
+    public Result updateMrp(String ver) {
+        runMrpService.updateMrp(ver);
+        return ResultUtil.success("更新成功");
+    }
+
+    @ApiOperation("选择DPS/MPS版本运算MRP")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dpsVer", value = "DPS版本", required = true),
+            @ApiImplicitParam(name = "mpsVer", value = "MPS版本")
+    })
+    @PostMapping("/runMrp")
+    public Result runMrp(String dpsVer, String mpsVer) throws IOException, ClassNotFoundException {
+        String[] dpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(dpsVer)) {
+            dpsVers = dpsVer.split(",");
+        }
+        String[] mpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(mpsVer)) {
+            mpsVers = mpsVer.split(",");
+        }
+        runMrpService.runMrp(dpsVers, mpsVers, "SYS");
+        return ResultUtil.success();
+    }
+
+    @ApiOperation("Excel导出MRP数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "MRP版本", required = true),
+            @ApiImplicitParam(name = "product", value = "查询机种"),
+            @ApiImplicitParam(name = "materialGroup", value = "查询物料组"),
+            @ApiImplicitParam(name = "material", value = "查询料号"),
+            @ApiImplicitParam(name = "supplier", value = "查询供应商")
+    })
+    @GetMapping("/exportExcel")
+    public void exportExcel(String ver,
+                          @RequestParam(required = false, defaultValue = "") String product,
+                          @RequestParam(required = false, defaultValue = "") String materialGroup,
+                          @RequestParam(required = false, defaultValue = "") String material,
+                          @RequestParam(required = false, defaultValue = "") String supplier) {
+        Workbook workbook = mrpService.exportMrp(ver, product, materialGroup, material, supplier);
+        HttpServletResponse response = HttpServletUtil.getResponse();
+        response.setContentType("application/vnd.ms-excel;chartset=utf-8");
+        String fileName = "MRP_"+ver;
+        try {
+            fileName = URLEncoder.encode(fileName, "UTF8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        response.setHeader("Content-Disposition", "attachment;filename="+fileName + ".xlsx");
+        try {
+            OutputStream out = response.getOutputStream();
+            workbook.write(out);
+            out.flush();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperation("Excel导出MRP数据")
+    @GetMapping("/getMrpWarn")
+    public Result getWarn(String ver) {
+        List list = mrpWarnService.getMrpWarn(ver);
+        return ResultUtil.successPage(list, list.size());
     }
 }

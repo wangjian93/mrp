@@ -5,6 +5,7 @@ import com.ivo.mrp.key.MrpMaterialKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -27,6 +28,6 @@ public interface MrpAryMaterialRepository extends JpaRepository<MrpAryMaterial, 
      * @return List
      */
     @Query(value = "select m.material from MrpAryMaterial m where m.ver=:ver")
-    List<String> getMaterial(String ver);
+    List<String> getMaterial(@Param("ver") String ver);
 
 }

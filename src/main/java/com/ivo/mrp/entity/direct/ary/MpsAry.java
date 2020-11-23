@@ -50,6 +50,9 @@ public class MpsAry {
      */
     private double demandQty;
 
+    private String project;
+    private String tftMtrl;
+
     private String memo = "";
 
     private String creator = "";

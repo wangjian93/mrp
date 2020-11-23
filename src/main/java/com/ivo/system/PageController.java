@@ -52,6 +52,16 @@ public class PageController {
     private static final String arrivalPlan_ary_view = "page/mrp/arrivalPlan/arrivalPlanAry";
     private static final String arrivalPlan_cell_view = "page/mrp/arrivalPlan/arrivalPlanCell";
 
+    private static final String supplier_view = "page/mrp/supplier";
+
+    private static final String actualArrival_view = "page/mrp/actualArrival";
+
+    private static final String position_view = "page/mrp/position";
+
+
+    private static final String mps_ver_lcm_view = "page/mrp/mps/mpsVerLcm";
+    private static final String mps_ver_ary_view = "page/mrp/mps/mpsVerAry";
+    private static final String mps_ver_cell_view = "page/mrp/mps/mpsVerCell";
 
 
     /**
@@ -191,6 +201,52 @@ public class PageController {
         }
         if(StringUtils.equalsIgnoreCase(fab, "LCM")) {
             return arrivalPlan_lcm_view;
+        }
+        return null;
+    }
+
+    /**
+     * 供应商信息页面
+     * @return String
+     */
+    @GetMapping("/supplier")
+    public String supplier() {
+        return supplier_view;
+    }
+
+    /**
+     * 实际到货数据页面
+     * @return String
+     */
+    @GetMapping("/actualArrival")
+    public String actualArrival() {
+        return actualArrival_view;
+    }
+
+    /**
+     * 仓位
+     * @return String
+     */
+    @GetMapping("/position")
+    public String position() {
+        return position_view;
+    }
+
+    /**
+     * MPS版本
+     * @param type DPS类型
+     * @return String
+     */
+    @GetMapping("/mpsVer/{type}")
+    public String mpsVer(@PathVariable String type) {
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Ary)) {
+            return mps_ver_ary_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Cell)) {
+            return mps_ver_cell_view;
+        }
+        if(StringUtils.equalsIgnoreCase(type, DpsVer.Type_Lcm)) {
+            return mps_ver_lcm_view;
         }
         return null;
     }

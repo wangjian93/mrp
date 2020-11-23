@@ -1,5 +1,6 @@
 package com.ivo.mrp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -79,5 +80,6 @@ public class MpsVer {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createDate = new Date();
 }

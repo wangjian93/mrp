@@ -51,6 +51,16 @@ public class DpsAryOc {
      */
     private double demandQty;
 
+    /**
+     * DPS的outputName，多个时用逗号分割
+     */
+    private String outputName;
+
+    /**
+     * 机种
+     */
+    private String project;
+
     private String memo = "";
 
     private String creator = "";

@@ -4,6 +4,7 @@ import com.ivo.mrp.entity.direct.ary.DemandAryOc;
 import com.ivo.mrp.key.DemandKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.sql.Date;
 import java.util.List;
@@ -29,5 +30,5 @@ public interface DemandAryOcRepository extends JpaRepository<DemandAryOc, Demand
      * @return List<String>
      */
     @Query(value = "select DISTINCT d.product from DemandAryOc d where d.ver=:ver and d.material=:material")
-    List<String> getProduct(String ver, String material);
+    List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
 }

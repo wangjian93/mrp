@@ -66,4 +66,16 @@ public interface ArrivalPlanService {
                                     String searchMaterial, String searchSupplier);
 
     List<ArrivalPlan> getLcmArrivalPlan(Date startDate, Date endDate, String material, String supplierCode);
+
+    Page<Map> getPageCellArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup,
+                                            String searchMaterial, String searchSupplier);
+
+    List<ArrivalPlan> getCellArrivalPlan(Date startDate, Date endDate, String material, String supplierCode);
+
+    Page<Map> getPageAryArrivalPlanMaterial(Date startDate, Date endDate, int page, int limit, String searchMaterialGroup,
+                                            String searchMaterial, String searchSupplier);
+
+    List<ArrivalPlan> getAryArrivalPlan(Date startDate, Date endDate, String material, String supplierCode);
+
+    void saveArrivalPlan(String fab, String material, String supplierCode, Date fabDate, double arrivalQty);
 }

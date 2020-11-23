@@ -1,5 +1,7 @@
 package com.ivo.rest;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,10 +44,17 @@ public interface RestService {
     List<Map> getBomLcm2();
 
     /**
-     * 从81数据库MM_O_ARYBOM获取ARY的BOM
+     * 从MPS数据库同步Ary的BOM的15料号
      * @return List<Map>
      */
     List<Map> getBomAry();
+
+    /**
+     * ARY的15料号查询51料号
+     * @param aryMtr ARY的15料号
+     * @return List<Map>
+     */
+    List<Map> getMaterialByAryMtrl(String aryMtr);
 
     /**
      * 获取MPS中的CELL BOM成品料号
@@ -163,4 +172,46 @@ public interface RestService {
      * @return List<Map>
      */
     List<Map> getDullInventory(String plant, List<String> materialList, Date fabDate);
+
+    /**
+     * 从81数据库获取料号供应商数据
+     * @return List<Map>
+     */
+    List<Map> getSupplierMaterial();
+
+    /**
+     * 从81数据库获取供应商的实际到货量
+     * @return List<Map>
+     */
+    List<Map> getActualArrivalQty(@Param("fabDate") Date fabDate);
+
+    List<Map> getAryMps(@Param("ver") String ver);
+
+    List<String> getAryMpsVer();
+
+    List<Map> getCellMps(@Param("ver") String ver);
+
+    List<String> getCellMpsVer();
+
+
+
+    /**
+     * 获取MPS的DateOfInsert作版本
+     * @return List<String>
+     */
+    List<String> getMpsDateOfInsertForVersion();
+
+    /**
+     * 获取ARY MPS的DateOfInsert版本数据
+     * @param dateOfInsert
+     * @return  List<Map>
+     */
+    List<Map> getAryMpsData(String dateOfInsert);
+
+    /**
+     * 获取CELL MPS的DateOfInsert版本数据
+     * @param dateOfInsert
+     * @return  List<Map>
+     */
+    List<Map> getCellMpsData(String dateOfInsert);
 }

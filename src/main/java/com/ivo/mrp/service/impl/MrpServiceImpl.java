@@ -2,7 +2,6 @@ package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.DateUtil;
 import com.ivo.mrp.entity.MrpVer;
-import com.ivo.mrp.entity.Substitute;
 import com.ivo.mrp.entity.direct.ary.MrpAry;
 import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
 import com.ivo.mrp.entity.direct.cell.MrpCell;
@@ -16,6 +15,9 @@ import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.MrpService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,10 +26,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author wj
@@ -372,5 +375,242 @@ public class MrpServiceImpl implements MrpService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
         return mrpAryMaterialRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public Workbook exportMrp(String ver, String product, String materialGroup, String material, String supplier) {
+
+        String[] titleItems = new String[] {"料号", "机种", "供应商","物料名","物料组","物料组名","厂别","损耗率","良品库存","呆滞库存",""};
+        List list = getMrpCalendar(ver);
+        List list1 = DateUtil.format_(list);
+        List list2 = DateUtil.getMonthBetween((Date) list.get(0), (Date) list.get(list.size()-1));
+        String[] days = (String[]) list1.toArray(new String[list1.size()]);
+        String[] weeks = DateUtil.getWeekDay_(list);
+        String[] months = (String[]) list2.toArray(new String[list2.size()]);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+
+        int intRow =0;
+        //标题行
+        //标题居中、加背景
+        CellStyle titleCellStyle = workbook.createCellStyle();
+        titleCellStyle.setAlignment(HorizontalAlignment.CENTER); //水平居中
+        titleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER); //垂直居中
+        titleCellStyle.setFillForegroundColor(IndexedColors.SKY_BLUE.getIndex()); //设置背景色
+        titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND); //设置加粗
+
+        Row row0 = sheet.createRow(intRow++);
+        Row row1 = sheet.createRow(intRow++);
+        int intCel = 0;
+        for (String titleItem : titleItems) {
+            Cell cell = row0.createCell(intCel);
+            cell.setCellValue(titleItem);
+            cell.setCellStyle(titleCellStyle);
+
+            //标题行合并
+            sheet.addMergedRegion(new CellRangeAddress(0,  1, intCel, intCel));
+            intCel++;
+        }
+        for (String month : months) {
+            Cell cell = row0.createCell(intCel);
+            month = month.replace("-","年")+"月";
+            cell.setCellValue(month);
+            cell.setCellStyle(titleCellStyle);
+
+            //标题行合并
+            sheet.addMergedRegion(new CellRangeAddress(0,  1, intCel, intCel));
+            intCel++;
+        }
+        for (int i=0; i<days.length; i++) {
+            Cell cell1 = row0.createCell(intCel);
+            cell1.setCellValue(days[i]);
+            cell1.setCellStyle(titleCellStyle);
+
+            Cell cell2 = row1.createCell(intCel);
+            cell2.setCellValue(weeks[i]);
+            cell2.setCellStyle(titleCellStyle);
+            intCel++;
+        }
+
+        //设置列宽
+        for(int i=0; i<titleItems.length+months.length+weeks.length; i++) {
+            sheet.setColumnWidth(i, 15*256);
+        }
+        sheet.setColumnWidth(1, 15*256*2);  //机种、供应商宽度加倍
+        sheet.setColumnWidth(2, 15*256*2);
+
+        //日期对应的列
+        Map<String, Integer> fabDateMap = new HashMap<>();
+        for(int i=0; i<days.length; i++) {
+            fabDateMap.put(days[i], titleItems.length+months.length+i);
+        }
+
+        MrpVer mrpVer = getMrpVer(ver);
+
+        List<Object> mrpMaterialList = new ArrayList<>();
+        if(mrpVer.getType().equals(MrpVer.Type_Lcm)) {
+            Page p =  getPageMrpLcmMaterial(0, 5000, ver, product, materialGroup, material, supplier);
+            mrpMaterialList = p.getContent();
+        } else if(mrpVer.getType().equals(MrpVer.Type_Cell)) {
+            Page p =  getPageMrpCellMaterial(0, 5000, ver, product, materialGroup, material, supplier);
+            mrpMaterialList = p.getContent();
+        } else if(mrpVer.getType().equals(MrpVer.Type_Ary)) {
+            Page p =  getPageMrpAryMaterial(0, 5000, ver, product, materialGroup, material, supplier);
+            mrpMaterialList = p.getContent();
+        }
+        //单元格居中
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER); //水平居中
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); //垂直居中
+        cellStyle.setWrapText(true); //自动换行
+        int l = mrpMaterialList.size();
+        for(Object object : mrpMaterialList) {
+            System.out.println("剩余"+l--);
+            Map<String, Object> map = new HashMap<>();
+            String m = null;
+            if(object instanceof MrpLcmMaterial) {
+                m = ((MrpLcmMaterial) object).getMaterial();
+                map.put("料号", m);
+                map.put("机种", ((MrpLcmMaterial) object).getProducts().replace(",", "\r\n"));
+                map.put("供应商", ((MrpLcmMaterial) object).getSuppliers().replace(",", "\r\n"));
+                map.put("物料名", ((MrpLcmMaterial) object).getMaterialGroupName());
+                map.put("物料组", ((MrpLcmMaterial) object).getMaterialGroup());
+                map.put("物料组名", ((MrpLcmMaterial) object).getMaterialGroupName());
+                map.put("厂别", ((MrpLcmMaterial) object).getFab());
+                map.put("损耗率", ((MrpLcmMaterial) object).getLossRate());
+                map.put("良品库存", ((MrpLcmMaterial) object).getGoodInventory());
+                map.put("呆滞库存", ((MrpLcmMaterial) object).getDullInventory());
+            } else if(object instanceof MrpCellMaterial) {
+                m = ((MrpCellMaterial) object).getMaterial();
+                map.put("料号", m);
+                map.put("机种", ((MrpCellMaterial) object).getProducts().replace(",", "\r\n"));
+                map.put("供应商", ((MrpCellMaterial) object).getSuppliers().replace(",", "\r\n"));
+                map.put("物料名", ((MrpCellMaterial) object).getMaterialGroupName());
+                map.put("物料组", ((MrpCellMaterial) object).getMaterialGroup());
+                map.put("物料组名", ((MrpCellMaterial) object).getMaterialGroupName());
+                map.put("厂别", ((MrpCellMaterial) object).getFab());
+                map.put("损耗率", ((MrpCellMaterial) object).getLossRate());
+                map.put("良品库存", ((MrpCellMaterial) object).getGoodInventory());
+                map.put("呆滞库存", ((MrpCellMaterial) object).getDullInventory());
+            } else if(object instanceof MrpAryMaterial) {
+                m = ((MrpAryMaterial) object).getMaterial();
+                map.put("料号", m);
+                map.put("机种", ((MrpAryMaterial) object).getProducts().replace(",", "\r\n"));
+                map.put("供应商", ((MrpAryMaterial) object).getSuppliers().replace(",", "\r\n"));
+                map.put("物料名", ((MrpAryMaterial) object).getMaterialGroupName());
+                map.put("物料组", ((MrpAryMaterial) object).getMaterialGroup());
+                map.put("物料组名", ((MrpAryMaterial) object).getMaterialGroupName());
+                map.put("厂别", ((MrpAryMaterial) object).getFab());
+                map.put("损耗率", ((MrpAryMaterial) object).getLossRate());
+                map.put("良品库存", ((MrpAryMaterial) object).getGoodInventory());
+                map.put("呆滞库存", ((MrpAryMaterial) object).getDullInventory());
+            } else {
+                continue;
+            }
+
+            Row row1_demand = sheet.createRow(intRow++);
+            Row row2_loss = sheet.createRow(intRow++);
+            Row row3_arrival = sheet.createRow(intRow++);
+            Row row4_balance = sheet.createRow(intRow++);
+//            Row row5_short = sheet.createRow(intRow++);
+//            Row row6_allocation = sheet.createRow(intRow++);
+            intCel =0;
+            for (String titleItem : titleItems) {
+                if(intCel < titleItems.length-1) {
+                    Object o = map.get(titleItem);
+                    Cell cell = row1_demand.createCell(intCel);
+                    cell.setCellValue(o == null ? "" : o.toString());
+                    cell.setCellStyle(cellStyle);
+                    //合并
+                    sheet.addMergedRegion(new CellRangeAddress(intRow-4,  intRow-1, intCel, intCel));
+                } else {
+                    row1_demand.createCell(intCel).setCellValue("需求量");
+                    row2_loss.createCell(intCel).setCellValue("损耗量");
+                    row3_arrival.createCell(intCel).setCellValue("到货量");
+                    row4_balance.createCell(intCel).setCellValue("结余量");
+//                    row5_short.createCell(intCel).setCellValue("缺料量");
+//                    row6_allocation.createCell(intCel).setCellValue("分配量");
+                }
+                intCel++;
+            }
+
+
+
+            //MRP数据
+            List mrpList = new ArrayList<>();
+            if(mrpVer.getType().equals(MrpVer.Type_Lcm)) {
+                mrpList = getMrpLcm(ver, m);
+            } else if(mrpVer.getType().equals(MrpVer.Type_Cell)) {
+                mrpList = getMrpCell(ver, m);
+            } else if(mrpVer.getType().equals(MrpVer.Type_Ary)) {
+                mrpList = getMrpAry(ver, m);
+            }
+            for(Object mrp : mrpList) {
+                if(mrp instanceof MrpLcm) {
+                    Date fabDate = ((MrpLcm) mrp).getFabDate();
+                    Integer i = fabDateMap.get(fabDate.toString());
+                    if(i==null) continue;
+                    row1_demand.createCell(i).setCellValue(((MrpLcm) mrp).getDemandQty());
+                    row2_loss.createCell(i).setCellValue(((MrpLcm) mrp).getLossQty());
+                    row3_arrival.createCell(i).setCellValue(((MrpLcm) mrp).getArrivalQty());
+                    row4_balance.createCell(i).setCellValue(((MrpLcm) mrp).getBalanceQty());
+//                    row5_short.createCell(i).setCellValue(((MrpLcm) mrp).getShortQty());
+//                    row6_allocation.createCell(i).setCellValue(((MrpLcm) mrp).getAllocationQty());
+                } else if(mrp instanceof MrpCell) {
+                    Date fabDate = ((MrpCell) mrp).getFabDate();
+                    Integer i = fabDateMap.get(fabDate.toString());
+                    if(i==null) continue;
+                    row1_demand.createCell(i).setCellValue(((MrpCell) mrp).getDemandQty());
+                    row2_loss.createCell(i).setCellValue(((MrpCell) mrp).getLossQty());
+                    row3_arrival.createCell(i).setCellValue(((MrpCell) mrp).getArrivalQty());
+                    row4_balance.createCell(i).setCellValue(((MrpCell) mrp).getBalanceQty());
+//                    row5_short.createCell(i).setCellValue(((MrpCell) mrp).getShortQty());
+//                    row6_allocation.createCell(i).setCellValue(((MrpCell) mrp).getAllocationQty());
+                } else if(mrp instanceof MrpAry) {
+                    Date fabDate = ((MrpAry) mrp).getFabDate();
+                    Integer i = fabDateMap.get(fabDate.toString());
+                    if(i==null) continue;
+                    row1_demand.createCell(i).setCellValue(((MrpAry) mrp).getDemandQty());
+                    row2_loss.createCell(i).setCellValue(((MrpAry) mrp).getLossQty());
+                    row3_arrival.createCell(i).setCellValue(((MrpAry) mrp).getArrivalQty());
+                    row4_balance.createCell(i).setCellValue(((MrpAry) mrp).getBalanceQty());
+//                    row5_short.createCell(i).setCellValue(((MrpAry) mrp).getShortQty());
+//                    row6_allocation.createCell(i).setCellValue(((MrpAry) mrp).getAllocationQty());
+                }
+            }
+        }
+        return workbook;
+    }
+
+
+    @Override
+    public Page<MrpLcmMaterial> getPageMrpLcmMaterial(int page, int limit, String[] vers, String searchProduct,
+                                                      String searchMaterialGroup, String searchMaterial,
+                                                      String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "materialGroup", "material");
+        Specification<MrpLcmMaterial> spec = (Specification<MrpLcmMaterial>) (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            Path<Object> path = root.get("ver");
+            CriteriaBuilder.In<Object> in = criteriaBuilder.in(path);
+            for (String ver:vers){
+                in.value(ver);
+            }
+            predicates.add(criteriaBuilder.and(in));
+            if(StringUtils.isNotEmpty(searchProduct)) {
+                predicates.add(criteriaBuilder.like(root.get("products"), "%"+searchProduct+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterialGroup)) {
+                predicates.add(criteriaBuilder.like(root.get("materialGroup"), searchMaterialGroup+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchMaterial)) {
+                predicates.add(criteriaBuilder.like(root.get("material"), searchMaterial+"%"));
+            }
+            if(StringUtils.isNotEmpty(searchSupplier)) {
+                predicates.add(criteriaBuilder.like(root.get("suppliers"), "%"+searchSupplier+"%"));
+            }
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+        return mrpLcmMaterialRepository.findAll(spec, pageable);
     }
 }

@@ -1,6 +1,7 @@
 package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.direct.ary.BomAry;
+import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
 import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.entity.direct.lcm.BomLcm;
 import org.springframework.data.domain.Page;
@@ -39,13 +40,6 @@ public interface BomService {
     List<BomLcm> getLcmBom(String product, String fab);
 
     /**
-     * 获取ARY的机种BOM
-     * @param product 机种
-     * @return List<BomLcm>
-     */
-    List<BomAry> getAryBom(String product);
-
-    /**
      * 获取ARY二次Input时OC光刻胶材料的BOM
      * 从CELL的BOM List中抓取光刻胶112物料组
      * @param product 机种
@@ -59,6 +53,13 @@ public interface BomService {
      * @return List<BomLcm>
      */
     List<BomCellMtrl> getCellBom(String product);
+
+    /**
+     * 获取ARY的机种BOM
+     * @param product 机种
+     * @return List<BomLcm>
+     */
+    List<BomAryMtrl> getAryBom(String product);
 
     /**
      * 主材查询BOM的机种
@@ -76,4 +77,11 @@ public interface BomService {
      * @return List<Map>
      */
     List<Map> queryCellBom(String product);
+
+    /**
+     * 获取去Ary的机种BOM
+     * @param product 机种
+     * @return List<Map>
+     */
+    List<Map> queryAryBom(String product);
 }

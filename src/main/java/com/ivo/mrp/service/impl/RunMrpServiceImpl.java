@@ -2,15 +2,10 @@ package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.DateUtil;
 import com.ivo.common.utils.DoubleUtil;
-import com.ivo.common.utils.StringUtil;
 import com.ivo.mrp.entity.*;
 import com.ivo.mrp.entity.direct.ary.*;
 import com.ivo.mrp.entity.direct.cell.*;
 import com.ivo.mrp.entity.direct.lcm.*;
-import com.ivo.mrp.entity.packaging.BomPackage;
-import com.ivo.mrp.entity.packaging.BomPackageMaterial;
-import com.ivo.mrp.entity.packaging.DpsPackage;
-import com.ivo.mrp.entity.packaging.MrpPackage;
 import com.ivo.mrp.exception.MrpException;
 import com.ivo.mrp.service.*;
 import com.ivo.rest.RestService;
@@ -18,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -47,6 +41,8 @@ public class RunMrpServiceImpl implements RunMrpService {
     private MaterialService materialService;
     private MaterialGroupService materialGroupService;
     private SupplierService supplierService;
+    private ActualArrivalService actualArrivalService;
+    private MrpWarnService mrpWarnService;
 
     @Autowired
     public RunMrpServiceImpl(DpsService dpsService, MpsService mpsService, MrpService mrpService,
@@ -60,7 +56,9 @@ public class RunMrpServiceImpl implements RunMrpService {
                              BomPackageService bomPackageService,
                               MaterialService materialService,
                              MaterialGroupService materialGroupService,
-                             SupplierService supplierService) {
+                             SupplierService supplierService,
+                             ActualArrivalService actualArrivalService,
+                             MrpWarnService mrpWarnService) {
         this.dpsService = dpsService;
         this.mpsService = mpsService;
         this.mrpService = mrpService;
@@ -76,6 +74,8 @@ public class RunMrpServiceImpl implements RunMrpService {
         this.materialService = materialService;
         this.materialGroupService = materialGroupService;
         this.supplierService = supplierService;
+        this.actualArrivalService = actualArrivalService;
+        this.mrpWarnService = mrpWarnService;
     }
 
     @Override
@@ -85,6 +85,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         log.info("生成MRP版本" + ver);
         mrpVer.setVer(ver);
         mrpVer.setCreator(user);
+        mrpVer.setMemo("运算中");
         mrpService.saveMrpVer(mrpVer);
         return mrpVer;
     }
@@ -97,8 +98,8 @@ public class RunMrpServiceImpl implements RunMrpService {
             throw new MrpException("选择的DPS&MPS版本不能为空");
         String fab = null;
         String type = null;
-        List<java.sql.Date[]> dateList = new ArrayList<>();
         Set<String> dpsVerSet = new HashSet<>();
+        List<java.sql.Date[]> dps_dateList = new ArrayList<>();
         for(String ver : dpsVers) {
             if(dpsVerSet.contains(ver)) {
                 throw new MrpException("选择的DPS版本" + ver + "重复");
@@ -123,9 +124,10 @@ public class RunMrpServiceImpl implements RunMrpService {
             }
 
             java.sql.Date[] dates = new java.sql.Date[] {dpsVer.getStartDate(), dpsVer.getEndDate()};
-            dateList.add(dates);
+            dps_dateList.add(dates);
         }
         Set<String> mpsVerSet = new HashSet<>();
+        List<java.sql.Date[]> mps_dateList = new ArrayList<>();
         for(String ver : mpsVers) {
             if(mpsVerSet.contains(ver)) {
                 throw new MrpException("选择的MPS版本" + ver + "重复");
@@ -148,7 +150,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 throw new MrpException("所选MPS版本" + Arrays.toString(dpsVers) + "的类型不一致");
             }
             java.sql.Date[] dates = new java.sql.Date[] {mpsVer.getStartDate(), mpsVer.getEndDate()};
-            dateList.add(dates);
+            mps_dateList.add(dates);
         }
 
         if(!StringUtils.equalsAny(fab, "LCM1", "LCM2", "CELL", "ARY"))
@@ -156,12 +158,25 @@ public class RunMrpServiceImpl implements RunMrpService {
         if(!StringUtils.equalsAny(type, "LCM", "ARY", "CELL", "包材"))
             throw new MrpException("DPS&MPS版本的类型"+type+"不正确");
 
-        java.sql.Date[] dates = checkRangeDate(dateList.toArray(new java.sql.Date[dateList.size()][2]));
+        java.sql.Date[] dps_dates = checkRangeDate(dps_dateList.toArray(new java.sql.Date[dps_dateList.size()][2]));
+        java.sql.Date[] mps_dates = checkRangeDate(dps_dateList.toArray(new java.sql.Date[dps_dateList.size()][2]));
         MrpVer mrpVer = new MrpVer();
         assert fab != null;
         mrpVer.setFab(fab);
-        mrpVer.setStartDate(new java.sql.Date(DateUtil.getFirstDayOfMonth(dates[0]).getTime()));
-        mrpVer.setEndDate(dates[1]);
+
+        //每月第一天
+        java.sql.Date startDate = new java.sql.Date(DateUtil.getFirstDayOfMonth(dps_dates[0]).getTime());
+        java.sql.Date nowDate =  new java.sql.Date(DateUtil.getFirstDayOfMonth(new java.sql.Date(new Date().getTime())).getTime());
+        //如果开始时间在当月之后，以当月为准
+        if(!startDate.equals(nowDate)) {
+            startDate = nowDate;
+        }
+        java.sql.Date endDate = mps_dates[1];
+        if(startDate.after(endDate)) {
+            throw new MrpException("DPS&MPS版本的日期不正确");
+        }
+        mrpVer.setStartDate(startDate);
+        mrpVer.setEndDate(endDate);
         mrpVer.setDpsVer(mrpService.convertAryToString(dpsVers));
         mrpVer.setMpsVer(mrpService.convertAryToString(mpsVers));
         mrpVer.setType(type);
@@ -305,13 +320,15 @@ public class RunMrpServiceImpl implements RunMrpService {
     @Override
     public void computeDpsDemandLcm(String ver, String dpsVer, String product) {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
         List<BomLcm> bomLcmList = bomService.getLcmBom(product, fab);
         if(bomLcmList == null || bomLcmList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
             return;
         }
-        List<DpsLcm> dpsLcmList = dpsService.getDpsLcm(dpsVer, product);
+        List<DpsLcm> dpsLcmList = dpsService.getDpsLcm(dpsVer, product, mrpVer.getStartDate());
         List<DemandLcm> demandLcmList = new ArrayList<>();
         for(DpsLcm dpsLcm : dpsLcmList) {
             for(BomLcm bomLcm : bomLcmList) {
@@ -344,21 +361,24 @@ public class RunMrpServiceImpl implements RunMrpService {
     @Override
     public void computeDpsDemandAry(String ver, String dpsVer, String product) {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
-        List<BomAry> bomAryList = bomService.getAryBom(product);
+        List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
         if(bomAryList == null || bomAryList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
             return;
         }
-        Double cut = cutService.getProjectCut(product);
+        String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
+        Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：DPS机种"+product+"没有切片数，MRP版本"+ver);
             return;
         }
-        List<DpsAry> dpsAryList = dpsService.getDpsAry(dpsVer, product);
+        List<DpsAry> dpsAryList = dpsService.getDpsAry(dpsVer, product, mrpVer.getStartDate());
         List<DemandAry> demandAryList = new ArrayList<>();
         for(DpsAry dpsAry : dpsAryList) {
-            for(BomAry bomAry : bomAryList) {
+            for(BomAryMtrl bomAry : bomAryList) {
                 DemandAry demandAry = new DemandAry();
                 demandAry.setVer(ver);
                 demandAry.setType(DemandLcm.TYPE_DPS);
@@ -384,18 +404,22 @@ public class RunMrpServiceImpl implements RunMrpService {
     @Override
     public void computeDpsDemandAryOc(String ver, String dpsVer, String product) {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
         List<Map> bomOcList = bomService.getAryOcBom(product);
         if(bomOcList == null || bomOcList.size()==0) {
             log.warn("警告：DPS机种"+product+" ARY 2次Input没有OC BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "ARY 2次Input没有BOM");
             return;
         }
-        Double cut = cutService.getProjectCut(product);
+        String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
+        Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：DPS机种"+product+"没有切片数，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "没有切片数");
             return;
         }
-        List<DpsAryOc> dpsAryOcList = dpsService.getDpsAryOc(dpsVer, product);
+        List<DpsAryOc> dpsAryOcList = dpsService.getDpsAryOc(dpsVer, product, mrpVer.getStartDate());
         List<DemandAryOc> demandAryOcList = new ArrayList<>();
         for(DpsAryOc dpsAryOc : dpsAryOcList) {
             for(Map bomOc : bomOcList) {
@@ -425,19 +449,22 @@ public class RunMrpServiceImpl implements RunMrpService {
     @Override
     public void computeDpsDemandCell(String ver, String dpsVer, String product) {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
         List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
         if(bomCellList == null || bomCellList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
             return;
         }
         String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
         Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：DPS机种"+product+"没有切片数，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "DPS", "没有切片数");
             return;
         }
-        List<DpsCell> dpsCellList = dpsService.getDpsCell(dpsVer, product);
+        List<DpsCell> dpsCellList = dpsService.getDpsCell(dpsVer, product, mrpVer.getStartDate());
         List<DemandCell> demandCellList = new ArrayList<>();
         for(DpsCell dpsCell : dpsCellList) {
             for(BomCellMtrl bomCellMtrl : bomCellList) {
@@ -542,10 +569,23 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<BomLcm> bomLcmList = bomService.getLcmBom(product, fab);
         if(bomLcmList == null || bomLcmList.size()==0) {
             log.warn("警告：MPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
             return;
         }
 
-        List<MpsLcm> mpsLcmList = mpsService.getMpsLcm(mpsVer, product);
+        //MPS计算从DPS结束后开始
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String[] dpsVers = mrpService.convertStringToAry(mrpVer.getDpsVer());
+        java.sql.Date dps_endDate = mrpVer.getStartDate();
+        for(String dpsVer : dpsVers) {
+            java.sql.Date date = dpsService.getDpsVer(dpsVer).getEndDate();
+            if(dps_endDate.before(date)) {
+                dps_endDate = date;
+            }
+        }
+        java.sql.Date startDate = dps_endDate;
+
+        List<MpsLcm> mpsLcmList = mpsService.getMpsLcm(mpsVer, product, startDate);
         List<DemandLcm> demandLcmList = new ArrayList<>();
         for(MpsLcm mpsLcm : mpsLcmList) {
             for(BomLcm bomLcm : bomLcmList) {
@@ -579,20 +619,37 @@ public class RunMrpServiceImpl implements RunMrpService {
     public void computeMpsDemandAry(String ver, String mpsVer, String product) {
         MpsVer mps = mpsService.getMpsVer(mpsVer);
         String fab = mps.getFab();
-        List<BomAry> bomAryList = bomService.getAryBom(product);
+        List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
         if(bomAryList == null || bomAryList.size()==0) {
             log.warn("警告：MPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
             return;
         }
-        Double cut = cutService.getProjectCut(product);
+        String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
+        Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：MPS机种"+product+"没有切片数，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "MPS", "没有切片数");
             return;
         }
-        List<MpsAry> mpsAryList = mpsService.getMpsAry(mpsVer, product);
+
+        //MPS计算从DPS结束后开始
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String[] dpsVers = mrpService.convertStringToAry(mrpVer.getDpsVer());
+        java.sql.Date dps_endDate = mrpVer.getStartDate();
+        for(String dpsVer : dpsVers) {
+            java.sql.Date date = dpsService.getDpsVer(dpsVer).getEndDate();
+            if(dps_endDate.before(date)) {
+                dps_endDate = date;
+            }
+        }
+        java.sql.Date startDate = dps_endDate;
+
+
+        List<MpsAry> mpsAryList = mpsService.getMpsAry(mpsVer, product, startDate);
         List<DemandAry> demandAryList = new ArrayList<>();
         for(MpsAry mpsAry : mpsAryList) {
-            for(BomAry bomAry : bomAryList) {
+            for(BomAryMtrl bomAry : bomAryList) {
                 DemandAry demandAry = new DemandAry();
                 demandAry.setVer(ver);
                 demandAry.setType(DemandAry.TYPE_MPS);
@@ -622,15 +679,31 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
         if(bomCellList == null || bomCellList.size()==0) {
             log.warn("警告：MPS机种"+product+"没有BOM List，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
             return;
         }
         String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
         Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：MPS机种"+product+"没有切片数，MRP版本"+ver);
+            mrpWarnService.addWarn(ver, product, "MPS", "没有切片数");
             return;
         }
-        List<MpsCell> mpsCellList = mpsService.getMpsCell(mpsVer, product);
+
+        //MPS计算从DPS结束后开始
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String[] dpsVers = mrpService.convertStringToAry(mrpVer.getDpsVer());
+        java.sql.Date dps_endDate = mrpVer.getStartDate();
+        for(String dpsVer : dpsVers) {
+            java.sql.Date date = dpsService.getDpsVer(dpsVer).getEndDate();
+            if(dps_endDate.before(date)) {
+                dps_endDate = date;
+            }
+        }
+        java.sql.Date startDate = dps_endDate;
+
+
+        List<MpsCell> mpsCellList = mpsService.getMpsCell(mpsVer, product, startDate);
         List<DemandCell> demandCellList = new ArrayList<>();
         for(MpsCell mpsCell : mpsCellList) {
             for(BomCellMtrl bomCellMtrl : bomCellList) {
@@ -697,6 +770,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             List<BomLcm> bomLcmList = bomService.getLcmBom(product, fab);
             if(bomLcmList == null || bomLcmList.size()==0) {
                 log.warn("警告：月结机种"+product+"没有BOM List，MRP版本"+ver);
+                mrpWarnService.addWarn(ver, product, "月结", "没有BOM");
                 return;
             }
             List<DemandLcm> demandLcmList = new ArrayList<>();
@@ -737,18 +811,21 @@ public class RunMrpServiceImpl implements RunMrpService {
             java.sql.Date fabDate = monthSettle.getSettleDate();
             double settleQty = monthSettle.getSettleQty();
             String materialGroup = monthSettle.getMaterialGroup();
-            List<BomAry> bomAryList = bomService.getAryBom(product);
+            List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
             if(bomAryList == null || bomAryList.size()==0) {
                 log.warn("警告：月结机种"+product+"没有BOM List，MRP版本"+ver);
+                mrpWarnService.addWarn(ver, product, "月结", "没有BOM");
                 return;
             }
-            Double cut = cutService.getProjectCut(product);
+            String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
+            Double cut = cutService.getProjectCut(project);
             if(cut == null) {
                 log.warn("警告：月结机种"+product+"没有切片数，MRP版本"+ver);
+                mrpWarnService.addWarn(ver, product, "月结", "没有切片数");
                 return;
             }
             List<DemandAry> demandAryList = new ArrayList<>();
-            for(BomAry bomAry : bomAryList) {
+            for(BomAryMtrl bomAry : bomAryList) {
                 //要属于月结机种的同个物料组继续
                 if(!bomAry.getMaterialGroup().equals(materialGroup)) continue;
                 DemandAry demandAry = new DemandAry();
@@ -784,12 +861,14 @@ public class RunMrpServiceImpl implements RunMrpService {
             List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
             if(bomCellList == null || bomCellList.size()==0) {
                 log.warn("警告：月结机种"+product+"没有BOM List，MRP版本"+ver);
+                mrpWarnService.addWarn(ver, product, "月结", "没有BOM");
                 return;
             }
             String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
             Double cut = cutService.getProjectCut(project);
             if(cut == null) {
                 log.warn("警告：月结机种"+product+"没有切片数，MRP版本"+ver);
+                mrpWarnService.addWarn(ver, product, "月结", "没有切片数");
                 return;
             }
             List<DemandCell> demandCellList = new ArrayList<>();
@@ -877,6 +956,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             Double dullInventory = dullInventoryMap.get(material);
             mrpLcmMaterial.setGoodInventory(goodInventory == null ? 0 : goodInventory);
             mrpLcmMaterial.setDullInventory(dullInventory == null ? 0 : dullInventory);
+            mrpLcmMaterial.setInventorDate(inventoryDate);
             mrpLcmMaterialList.add(mrpLcmMaterial);
         }
         mrpService.saveMrpLcmMaterial(mrpLcmMaterialList);
@@ -916,6 +996,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             Double dullInventory = dullInventoryMap.get(material);
             mrpAryMaterial.setGoodInventory(goodInventory == null ? 0 : goodInventory);
             mrpAryMaterial.setDullInventory(dullInventory == null ? 0 : dullInventory);
+            mrpAryMaterial.setInventorDate(inventoryDate);
             mrpAryMaterialList.add(mrpAryMaterial);
         }
         mrpService.saveMrpAryMaterial(mrpAryMaterialList);
@@ -928,8 +1009,9 @@ public class RunMrpServiceImpl implements RunMrpService {
         java.sql.Date startDate = mrpVer.getStartDate();
         List<String>materialList = demandService.getDemandMaterialCell(ver);
         //期初库存
-        List<Map> goodInventoryList = restService.getGoodInventory(fab, materialList, startDate);
-        List<Map> dullInventoryList = restService.getDullInventory(fab, materialList, startDate);
+        java.sql.Date inventoryDate = new java.sql.Date(DateUtil.getFirstDayOfMonth(startDate).getTime());
+        List<Map> goodInventoryList = restService.getGoodInventory(fab, materialList, inventoryDate);
+        List<Map> dullInventoryList = restService.getDullInventory(fab, materialList, inventoryDate);
         HashMap<String, Double> goodInventoryMap = new HashMap<>();
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         for(Map map : goodInventoryList) {
@@ -954,6 +1036,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             Double dullInventory = dullInventoryMap.get(material);
             mrpCellMaterial.setGoodInventory(goodInventory == null ? 0 : goodInventory);
             mrpCellMaterial.setDullInventory(dullInventory == null ? 0 : dullInventory);
+            mrpCellMaterial.setInventorDate(inventoryDate);
             mrpCellMaterialList.add(mrpCellMaterial);
         }
         mrpService.saveMrpCellMaterial(mrpCellMaterialList);
@@ -1032,12 +1115,23 @@ public class RunMrpServiceImpl implements RunMrpService {
             //当日耗损量
             double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
 
-            // 到货量
-            double arrivalQty;
+            // 计划到货量
+            double arrivalPlanQty;
             if(arrivalQtyMap.get(fabDate) == null) {
-                arrivalQty = 0;
+                arrivalPlanQty = 0;
             } else {
-                arrivalQty = arrivalQtyMap.get(fabDate);
+                arrivalPlanQty = arrivalQtyMap.get(fabDate);
+            }
+            //实际收货量
+            double arrivalActualQty = 0;
+            //供应商到货量
+            double arrivalQty;
+            //当天之前按实际收货，之后按计划收货
+            if(fabDate.before(new java.sql.Date(new Date().getTime()))) {
+                arrivalActualQty = actualArrivalService.getActualArrivalQty(fabDate, material, fab);
+                arrivalQty = arrivalActualQty;
+            } else {
+                arrivalQty = arrivalPlanQty;
             }
 
             // 结余量
@@ -1097,6 +1191,9 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpLcm.setBalanceQty(balanceQty);
             mrpLcm.setShortQty(shortQty);
             mrpLcm.setAllocationQty(allocationQty);
+            mrpLcm.setArrivalActualQty(arrivalActualQty);
+            mrpLcm.setArrivalPlanQty(arrivalPlanQty);
+
         }
         mrpService.saveMrpLcm(mrpLcmList);
     }
@@ -1155,12 +1252,23 @@ public class RunMrpServiceImpl implements RunMrpService {
             //当日耗损量
             double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
 
-            // 到货量
-            double arrivalQty;
+            // 计划到货量
+            double arrivalPlanQty;
             if(arrivalQtyMap.get(fabDate) == null) {
-                arrivalQty = 0;
+                arrivalPlanQty = 0;
             } else {
-                arrivalQty = arrivalQtyMap.get(fabDate);
+                arrivalPlanQty = arrivalQtyMap.get(fabDate);
+            }
+            //实际收货量
+            double arrivalActualQty = 0;
+            //供应商到货量
+            double arrivalQty;
+            //当天之前按实际收货，之后按计划收货
+            if(fabDate.before(new java.sql.Date(new Date().getTime()))) {
+                arrivalActualQty = actualArrivalService.getActualArrivalQty(fabDate, material, fab);
+                arrivalQty = arrivalActualQty;
+            } else {
+                arrivalQty = arrivalPlanQty;
             }
 
             // 结余量
@@ -1220,6 +1328,8 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpAry.setBalanceQty(balanceQty);
             mrpAry.setShortQty(shortQty);
             mrpAry.setAllocationQty(allocationQty);
+            mrpAry.setArrivalActualQty(arrivalActualQty);
+            mrpAry.setArrivalPlanQty(arrivalPlanQty);
         }
         mrpService.saveMrpAry(mrpAryList);
     }
@@ -1280,12 +1390,23 @@ public class RunMrpServiceImpl implements RunMrpService {
             //当日耗损量
             double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
 
-            // 到货量
-            double arrivalQty;
+            // 计划到货量
+            double arrivalPlanQty;
             if(arrivalQtyMap.get(fabDate) == null) {
-                arrivalQty = 0;
+                arrivalPlanQty = 0;
             } else {
-                arrivalQty = arrivalQtyMap.get(fabDate);
+                arrivalPlanQty = arrivalQtyMap.get(fabDate);
+            }
+            //实际收货量
+            double arrivalActualQty = 0;
+            //供应商到货量
+            double arrivalQty;
+            //当天之前按实际收货，之后按计划收货
+            if(fabDate.before(new java.sql.Date(new Date().getTime()))) {
+                arrivalActualQty = actualArrivalService.getActualArrivalQty(fabDate, material, fab);
+                arrivalQty = arrivalActualQty;
+            } else {
+                arrivalQty = arrivalPlanQty;
             }
 
             // 结余量
@@ -1347,6 +1468,8 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpCell.setBalanceQty(balanceQty);
             mrpCell.setShortQty(shortQty);
             mrpCell.setAllocationQty(allocationQty);
+            mrpCell.setArrivalActualQty(arrivalActualQty);
+            mrpCell.setArrivalPlanQty(arrivalPlanQty);
         }
 
         mrpService.saveMrpCell(mrpCellList);
@@ -1381,11 +1504,14 @@ public class RunMrpServiceImpl implements RunMrpService {
             computeMrpBalance(ver);
             completeMrpMaterial(ver);
         }
+        mrpVer.setMemo("运算完成");
+        mrpService.saveMrpVer(mrpVer);
     }
 
     @Override
     public void completeMrpMaterial(String ver) {
         MrpVer mrpVer = mrpService.getMrpVer(ver);
+        log.info("MRP计算同步物料信息>> START");
         if(MrpVer.Type_Lcm.equals(mrpVer.getType())) {
             List<MrpLcmMaterial> materialList = mrpService.getMrpLcmMaterial(ver);
             for(MrpLcmMaterial mrpLcmMaterial : materialList) {
@@ -1518,7 +1644,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             }
             mrpService.saveMrpCellMaterial(materialList);
         }
-
+        log.info("MRP计算同步物料信息>> END");
     }
 
 
@@ -1634,5 +1760,27 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpService.saveMrpAry(list);
         }
         return allocationQty;
+    }
+
+
+    @Override
+    public void updateMrp(String ver) {
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        mrpVer.setMemo("更新中");
+        mrpService.saveMrpVer(mrpVer);
+        String type = mrpVer.getType();
+        switch (type) {
+            case MrpVer.Type_Lcm :
+                computeMrpBalanceLcm(ver);
+                break;
+            case MrpVer.Type_Ary :
+                computeMrpBalanceAry(ver);
+                break;
+            case MrpVer.Type_Cell :
+                computeMrpBalanceCell(ver);
+                break;
+        }
+        mrpVer.setMemo("更新完成");
+        mrpService.saveMrpVer(mrpVer);
     }
 }
