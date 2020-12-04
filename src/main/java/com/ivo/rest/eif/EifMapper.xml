@@ -33,6 +33,17 @@
       MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
       [usage] as usageQty
     from MM_V_BOM_M1
+    where
+      MATERIALGROUP_FK not in ('906', '912', '916', '917', '918','919','305','920','921','922','924')
+      or
+        (
+      MATERIALGROUP_FK = '924'
+      and
+      MATERIAL_FK not in ('3822617-010','380C41Q-010','2846802.000','2694001.000','32A93A6-000',
+      '3840302.000','3820304.000','3820153.000','3820155.000','39033S0-000','3280103-000',
+      '3280105-000','3280101-000','3280102-000','3280104-000','3280002-000','3280001-000',
+      '3802901-000','3820303.000')
+      )
   </select>
 
   <!-- 获取LCM2的BOM -->
@@ -42,6 +53,38 @@
       MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
       [usage] as usageQty
     from MM_V_BOM_M2
+    where
+      MATERIALGROUP_FK not in ('906', '912', '916', '917', '918','919','305','920','921','922','924')
+      or
+        (
+      MATERIALGROUP_FK = '924'
+      and
+      MATERIAL_FK not in ('2843801-000','2843802-000','28461L0-010','28468K0-000','32A93A6-000',
+      '39033S0-000','3802901-000','3280101-000','3280102-000')
+      )
+  </select>
+
+
+  <!-- 获取LCM1的包材BOM -->
+  <select id="getBomPackageLcm1" resultType="java.util.HashMap">
+    select
+      PLANT as plant, ProductModel_FK as product, MATERIAL_FK as material, MeasureUnit_FK as measureUnit,
+      MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
+      [usage] as usageQty
+    from MM_V_BOM_M1
+    where
+      MATERIALGROUP_FK in ('906', '912', '916', '917', '918','919','305','920','921','922')
+  </select>
+
+  <!-- 获取LCM2的包材BOM -->
+  <select id="getBomPackageLcm2" resultType="java.util.HashMap">
+    select
+      PLANT as plant, ProductModel_FK as product, MATERIAL_FK as material, MeasureUnit_FK as measureUnit,
+      MaterialName as materialName, MATERIALGROUP_FK as materialGroup, Mtrl_GroupName as materialGroupName,
+      [usage] as usageQty
+    from MM_V_BOM_M2
+    where
+      MATERIALGROUP_FK in ('906', '912', '916', '917', '918','919','305','920','921','922')
   </select>
 
   <!-- 获取LCM1的替代料关系 -->

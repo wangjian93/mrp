@@ -277,4 +277,15 @@ public class RestServiceImpl implements RestService {
     public List<Map> getCellMpsData(String dateOfInsert) {
         return fcstMapper.getCellMpsDate(dateOfInsert);
     }
+
+
+    @Override
+    public List<Map> getBomPackageLcm1() {
+        return eifMapper.getBomPackageLcm1();
+    }
+
+    @Override
+    public List<Map> getBomPackageLcm2() {
+        return eifMapper.getBomPackageLcm2();
+    }
 }

@@ -6,11 +6,13 @@ import com.ivo.mrp.entity.*;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.ary.DpsAryOc;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
+import com.ivo.mrp.entity.direct.cell.DpsCellOutputName;
 import com.ivo.mrp.entity.packaging.BomPackage;
 import com.ivo.mrp.entity.direct.lcm.DpsLcm;
 import com.ivo.mrp.entity.packaging.DpsPackage;
 import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.BomPackageService;
+import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
@@ -52,11 +54,13 @@ public class DpsServiceImpl implements DpsService {
 
     private BomPackageService bomPackageService;
 
+    private DpsOutputNameService dpsOutputNameService;
+
     @Autowired
     public DpsServiceImpl(DpsVerRepository dpsVerRepository, DpsLcmRepository dpsLcmRepository, DpsAryRepository dpsAryRepository,
                           DpsCellRepository dpsCellRepository, DpsPackageRepository dpsPackageRepository,
                           DpsAryOcRepository dpsAryOcRepository,
-                          RestService restService, BomPackageService bomPackageService) {
+                          RestService restService, BomPackageService bomPackageService, DpsOutputNameService dpsOutputNameService) {
         this.dpsVerRepository = dpsVerRepository;
         this.dpsLcmRepository = dpsLcmRepository;
         this.dpsAryRepository = dpsAryRepository;
@@ -65,6 +69,7 @@ public class DpsServiceImpl implements DpsService {
         this.dpsAryOcRepository = dpsAryOcRepository;
         this.restService = restService;
         this.bomPackageService = bomPackageService;
+        this.dpsOutputNameService = dpsOutputNameService;
     }
 
     @Override
@@ -201,6 +206,7 @@ public class DpsServiceImpl implements DpsService {
         Date startDate = null;
         Date endDate = null;
         List<DpsCell> dpsCellList = new ArrayList<>();
+        List<DpsCellOutputName> dpsCellOutputNameList = new ArrayList<>();
         String file_name = "";
         for(Map map : mapList) {
             String project = (String) map.get("model_id_dps");
@@ -216,6 +222,15 @@ public class DpsServiceImpl implements DpsService {
             String product;
             if(StringUtils.contains(outputName, ",")) {
                 product = outputName.substring(0, outputName.indexOf(","));
+
+                DpsCellOutputName dpsCellOutputName = new DpsCellOutputName();
+                dpsCellOutputName.setFab(fab);
+                dpsCellOutputName.setVer(dps_ver);
+                dpsCellOutputName.setOutputName(outputName);
+                dpsCellOutputName.setProject(project);
+                dpsCellOutputName.setFabDate(fabDate);
+                dpsCellOutputName.setDemandQty(demandQty);
+                dpsCellOutputNameList.add(dpsCellOutputName);
             } else {
                 product = outputName;
             }
@@ -233,12 +248,14 @@ public class DpsServiceImpl implements DpsService {
             if(endDate == null || endDate.before(fabDate)) {
                 endDate = fabDate;
             }
+
         }
         dpsVer.setStartDate(startDate);
         dpsVer.setEndDate(endDate);
         dpsVer.setFileName(file_name);
         dpsVerRepository.save(dpsVer);
         dpsCellRepository.saveAll(dpsCellList);
+        dpsOutputNameService.saveDpsCellOutputName(dpsCellOutputNameList);
     }
 
     @Override
@@ -710,5 +727,25 @@ public class DpsServiceImpl implements DpsService {
         dpsVerRepository.save(dpsVer);
         dpsLcmRepository.saveAll(dpsDataList);
         return ver;
+    }
+
+    @Override
+    public List<DpsCell> getDpsCellByOutputName(String ver, String outputName) {
+        return dpsCellRepository.findByVerAndOutputName(ver, outputName);
+    }
+
+    @Override
+    public List<DpsAry> getDpsAryByOutputName(String ver, String outputName) {
+        return null;
+    }
+
+    @Override
+    public void deleteDpsCell(List<DpsCell> dpsCellList) {
+        dpsCellRepository.deleteAll(dpsCellList);
+    }
+
+    @Override
+    public void saveDpsCell(List<DpsCell> list) {
+        dpsCellRepository.saveAll(list);
     }
 }

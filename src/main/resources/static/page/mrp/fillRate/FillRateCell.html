@@ -126,8 +126,9 @@
 
 <!-- MRP行数据label模板 -->
 <script type="text/html" id="titleDemo"><div class="box_parent">
-<div class="box">CELL计划</div>
-<div class="box" style="border-bottom: none">CELL实际</div>
+<div class="box">计划到货</div>
+<div class="box">实际收货</div>
+<div class="box" style="border-bottom: none">差异</div>
 </div></script>
 
 <!-- MRP月份日历模板 -->
@@ -138,13 +139,15 @@
 <!-- MRP月份汇总数据模板 -->
 <script type="text/html" id="arrivalPlanMonthDemo"><div class="box_parent" id="{{ d.material_supplierCode_month }}">
 <div class="box" id="{{ d.material_supplierCode_month }}_CELL_ArrivalQty"></div>
-<div class="box" id="{{ d.material_supplierCode_month }}_CELL_AllocationQty" style="border-bottom: none"></div>
+<div class="box" id="{{ d.material_supplierCode_month }}_CELL_AllocationQty"></div>
+<div class="box" id="{{ d.material_supplierCode_month }}_CELL_" style="border-bottom: none"></div>
 </div></script>
 
 <!-- MRP行数据模板 -->
 <script type="text/html" id="arrivalPlanDemo"><div class="box_parent hover" id="{{ d.material_supplierCode_fabDate }}">
 <div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_ArrivalQty" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_ArrivalQty"></div>
-<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty" style="border-bottom: none"></div>
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty"></div>
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_" style="border-bottom: none"></div>
 </div></script>
 
 <!-- js部分 -->
@@ -275,7 +278,7 @@
                             //料号中会有'.'jquery的ID选择器选不到
                             material = material.replace(".","point");
                             var id = 'arrivalPlan_month_'+material+'_'+supplierCode;
-                            return '<div id="'+id+'" style="white-space: nowrap;height: 50px;"></div>';
+                            return '<div id="'+id+'" style="white-space: nowrap;height: 75px;"></div>';
                         }
                     },
                     {title: calendarTitle, align: 'center', width: days.length*100,
@@ -285,7 +288,7 @@
                             //料号中会有'.'jquery的ID选择器选不到
                             material = material.replace(".","point");
                             var id = 'arrivalPlan_'+material+'_'+supplierCode;
-                            return '<div id="'+id+'" style="white-space: nowrap;height: 50px;"></div>';
+                            return '<div id="'+id+'" style="white-space: nowrap;height: 75px;"></div>';
                         }
                     }
                 ]],

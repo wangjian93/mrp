@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,19 +67,27 @@ public class BomPackageServiceImpl implements BomPackageService {
             bomPackage.setLinkQty(null);
             if(StringUtils.isEmpty(bomPackage.getMode()) ||
                     !StringUtils.containsAny(bomPackage.getMode(), "抽", "全切单")) {
-                throw new RuntimeException("包材BOM保存失败，机种"+bomPackage.getProduct()+"的单片需要维护抽单模式(例'全切单'或'600抽3')");
+                log.warn("包材BOM保存失败，机种"+bomPackage.getProduct()+"的单片需要维护抽单模式(例'全切单'或'600抽3')");
+                return;
+            }
+            if(bomPackage.getCutQty() == null) {
+                log.warn("包材BOM保存失败，机种" + bomPackage.getProduct() + "切片数数目不能为空')");
+                return;
             }
         } else {   //连片
             bomPackage.setMode(null);
             if (bomPackage.getLinkQty() == null) {
-                throw new RuntimeException("包材BOM保存失败，机种" + bomPackage.getProduct() + "的连片需要维护连片数')");
+                log.warn("包材BOM保存失败，机种" + bomPackage.getProduct() + "的连片需要维护连片数')");
+                return;
             }
             if (bomPackage.getMiddleQty() == null) {
-                throw new RuntimeException("包材BOM保存失败，机种" + bomPackage.getProduct() + "的连片需要中板数')");
+                log.warn("包材BOM保存失败，机种" + bomPackage.getProduct() + "的连片需要中板数')");
+                return;
             }
-        }
-        if(bomPackage.getCutQty() == null || bomPackage.getPanelQty() == null) {
-            throw new RuntimeException("包材BOM保存失败，机种" + bomPackage.getProduct() + "切片数/Panel数目不能为空')");
+            if(bomPackage.getPanelQty() == null) {
+                log.warn("包材BOM保存失败，机种" + bomPackage.getProduct() + "Panel数目不能为空')");
+                return;
+            }
         }
 
         for(BomPackageMaterial bomPackageMaterial : bomPackage.getMaterialList()) {
@@ -129,6 +138,9 @@ public class BomPackageServiceImpl implements BomPackageService {
         String mode_ = null;
         try {
             for(; rowInt<list.size(); rowInt++) {
+                if(rowInt == 1749) {
+                    System.out.println("");
+                }
                 List<Object> row = list.get(rowInt);
                 Map<String, Object> map = new HashMap<>();
                 for(; cellInt<row.size(); cellInt++) {
@@ -151,7 +163,12 @@ public class BomPackageServiceImpl implements BomPackageService {
                 Double cutQty = DoubleUtil.converDouble(map.get("切数"));
                 Double middleQty = DoubleUtil.converDouble(map.get("中板数"));
                 String consumeStr = (String) map.get("单耗量");
-                String material = (String) map.get("料号");
+                String material;
+                if(map.get("料号") instanceof BigDecimal) {
+                    material = ((BigDecimal) map.get("料号")).toString();
+                } else {
+                    material =  (String) map.get("料号");
+                }
                 Double specQty = DoubleUtil.converDouble(map.get("包装规格"));
                 Double lossRate = DoubleUtil.converDouble(map.get("损耗率"));
                 Double panelQty = DoubleUtil.converDouble(map.get("Panel数目"));

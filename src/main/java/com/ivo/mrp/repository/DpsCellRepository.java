@@ -61,4 +61,7 @@ public interface DpsCellRepository extends JpaRepository<DpsCell, DpsKey> {
      */
     List<DpsCell> findByVerAndProductAndFabDateGreaterThanEqual(String ver, String product, Date startDate);
 
+
+    List<DpsCell> findByVerAndOutputName(String ver, String outputName);
+
 }

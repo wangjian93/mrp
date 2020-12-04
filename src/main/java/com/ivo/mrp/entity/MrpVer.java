@@ -25,6 +25,7 @@ public class MrpVer {
     public static final String Type_Cell = "CELL";
     public static final String Type_Package = "包材";
     public static final String Type_Pol = "POL";
+    public static final String Type_Package_LCM = "LCM包材";
 
     /**
      * MRP版本

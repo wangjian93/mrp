@@ -214,4 +214,18 @@ public interface RestService {
      * @return  List<Map>
      */
     List<Map> getCellMpsData(String dateOfInsert);
+
+
+
+    /**
+     * 获取LCM1的包材BOM
+     * @return  List<Map>
+     */
+    List<Map> getBomPackageLcm1();
+
+    /**
+     * 获取LCM2的包材BOM
+     * @return List<Map>
+     */
+    List<Map> getBomPackageLcm2();
 }

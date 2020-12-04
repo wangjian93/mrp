@@ -5,6 +5,7 @@ import com.ivo.common.utils.HttpServletUtil;
 import com.ivo.common.utils.ResultUtil;
 import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
+import com.ivo.mrp.service.BomPackageLcmService;
 import com.ivo.mrp.service.BomPackageService;
 import com.ivo.mrp.service.BomPolService;
 import com.ivo.mrp.service.BomService;
@@ -40,11 +41,15 @@ public class BomController {
     private BomPackageService bomPackageService;
     private BomPolService bomPolService;
 
+    private BomPackageLcmService bomPackageLcmService;
+
     @Autowired
-    public BomController(BomService bomService,BomPackageService bomPackageService, BomPolService bomPolService) {
+    public BomController(BomService bomService,BomPackageService bomPackageService, BomPolService bomPolService,
+                         BomPackageLcmService bomPackageLcmService) {
         this.bomService = bomService;
         this.bomPackageService = bomPackageService;
         this.bomPolService = bomPolService;
+        this.bomPackageLcmService = bomPackageLcmService;
     }
 
     //** 主材 **//
@@ -216,4 +221,47 @@ public class BomController {
         out.flush();
         out.close();
     }
+
+
+
+
+    //** LCM包材 **//
+    @ApiOperation("查询LCM包材Bom的机种")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
+            @ApiImplicitParam(name = "limit", value = "分页大小", defaultValue = "50"),
+            @ApiImplicitParam(name = "fab", value = "厂别", required = true),
+            @ApiImplicitParam(name = "product", value = "查询机种")
+    })
+    @GetMapping("/queryBomPackageLcmProduct")
+    public Result queryBomPackageLcmProduct(@RequestParam(required = false, defaultValue = "1") int page,
+                                  @RequestParam(required = false, defaultValue = "50") int limit,
+                                  String fab,
+                                  @RequestParam(required = false, defaultValue = "") String product) {
+        Page p = bomPackageLcmService.queryProduct(page-1, limit, fab, product);
+        if(p!=null) {
+            return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+        } else {
+            return ResultUtil.successPage(new ArrayList(), 0);
+        }
+    }
+
+    @ApiOperation("获取LCM包材的机种Bom")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "fab", value = "厂别", required = true),
+            @ApiImplicitParam(name = "product", value = "机种", required = true)
+    })
+    @GetMapping("/getBomPackageLcm")
+    public Result getBomPackageLcm(String fab, String product) {
+        List list = bomPackageLcmService.getLcmPackageBom(fab, product);
+        return ResultUtil.success(list);
+    }
+
+    @ApiOperation("获取LCM包材材料单独拎出计算的小材料")
+    @GetMapping("/getAloneMaterial")
+    public Result getAloneMaterial() {
+        List list = bomPackageLcmService.getAloneMaterial();
+        return ResultUtil.successPage(list, list.size());
+    }
+
 }

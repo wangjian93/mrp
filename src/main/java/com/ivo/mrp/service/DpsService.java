@@ -287,4 +287,13 @@ public interface DpsService {
      * @return DPS版本
      */
     String importLcmDps(InputStream inputStream, String fileName);
+
+
+    List<DpsCell> getDpsCellByOutputName(String ver, String outputName);
+
+    List<DpsAry> getDpsAryByOutputName(String ver, String outputName);
+
+    void deleteDpsCell(List<DpsCell> dpsCellList);
+
+    void saveDpsCell(List<DpsCell> list);
 }

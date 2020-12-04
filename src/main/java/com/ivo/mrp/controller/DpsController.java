@@ -1,5 +1,7 @@
 package com.ivo.mrp.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ivo.common.result.Result;
 import com.ivo.common.utils.DateUtil;
 import com.ivo.common.utils.DoubleUtil;
@@ -10,12 +12,16 @@ import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.entity.DpsVer;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
+import com.ivo.mrp.entity.direct.cell.DpsCellOutputName;
 import com.ivo.mrp.entity.direct.lcm.DpsLcm;
+import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +47,17 @@ import java.util.Map;
 @Api(tags = "DPS数据接口")
 @RestController
 @RequestMapping("/mrp/dps")
+@Slf4j
 public class DpsController {
 
     private DpsService dpsService;
 
+    private DpsOutputNameService dpsOutputNameService;
+
     @Autowired
-    public DpsController(DpsService dpsService) {
+    public DpsController(DpsService dpsService, DpsOutputNameService dpsOutputNameService) {
         this.dpsService = dpsService;
+        this.dpsOutputNameService = dpsOutputNameService;
     }
 
     @ApiOperation("查询DPS版本信息")
@@ -241,5 +251,109 @@ public class DpsController {
             e.printStackTrace();
         }
         return ResultUtil.success();
+    }
+
+
+    @ApiOperation("获取OutputName的数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "DPS版本"),
+            @ApiImplicitParam(name = "outputName", value = "outputName"),
+    })
+    @GetMapping("/getDpsOutputName")
+    public Result getDpsOutputName(String ver, String outputName) {
+        List<DpsCellOutputName> dpsCellOutputNameList = dpsOutputNameService.getDpsCellOutputName(ver, outputName);
+        List<DpsCell> dpsCellList = dpsService.getDpsCellByOutputName(ver, outputName);
+        String[] products = outputName.split(",");
+        List<String> productList = new ArrayList<>();
+        List<Map> mapList = new ArrayList<>();
+        for(DpsCellOutputName dpsCellOutputName : dpsCellOutputNameList) {
+            String product = "";
+            Map map;
+            if(productList.contains(product)) {
+                map = mapList.get(productList.indexOf(product));
+            } else {
+                map = new HashMap();
+                map.put("product", product);
+                productList.add(product);
+                mapList.add(map);
+            }
+            map.put(dpsCellOutputName.getFabDate().toString(), dpsCellOutputName.getDemandQty());
+        }
+        for(DpsCell dpsCell : dpsCellList) {
+            String product =  dpsCell.getProduct();
+            Map map;
+            if(productList.contains(product)) {
+                map = mapList.get(productList.indexOf(product));
+            } else {
+                map = new HashMap();
+                map.put("product", product);
+
+                productList.add(product);
+                mapList.add(map);
+            }
+            map.put(dpsCell.getFabDate().toString(), dpsCell.getDemandQty());
+        }
+        for(String product : products) {
+            if(productList.contains(product)) continue;
+            Map map = new HashMap();
+            map.put("product", product);
+
+            productList.add(product);
+            mapList.add(map);
+        }
+        return ResultUtil.successPage(mapList, mapList.size());
+    }
+
+    @ApiOperation("OutputName的拆分数据提交")
+    @PostMapping("/submitDpsOutputName")
+    public Result submitDpsOutputName(String ver, String outputName, String jsonData) {
+        List<DpsCell> dpsCellList = dpsService.getDpsCellByOutputName(ver, outputName);
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map> mapList;
+        try {
+            mapList = objectMapper.readValue(jsonData, new TypeReference<List<Map>>() {});
+        } catch (IOException e) {
+            log.error("数据解析错误", e);
+            return ResultUtil.error("提交数据解析错误");
+        }
+        List<Date> dateList = dpsService.getDpsCalendar(ver);
+        List<DpsCell> newDpsCellList = new ArrayList<>();
+        for(Map map : mapList) {
+            String product = (String) map.get("product");
+            String project = (String) map.get("project");
+            for(Date fabDate : dateList) {
+                Object qtyObject = map.get(fabDate.toString());
+                if(qtyObject == null) continue;
+
+                Double qty;
+                if(qtyObject instanceof Double) {
+                    qty = (Double) qtyObject;
+                } else if(qtyObject instanceof Integer) {
+                    qty = (Double) qtyObject;
+                } else {
+                    String str = (String)qtyObject;
+                    if(StringUtils.isEmpty(str)) {
+                        qty = 0D;
+                    } else {
+                        qty = Double.parseDouble(str);
+                    }
+                }
+                if(qty == null || qty == 0) continue;
+                DpsCell dpsCell = new DpsCell();
+                dpsCell.setVer(ver);
+                dpsCell.setFab("CELL");
+                dpsCell.setOutputName(outputName);
+                dpsCell.setProduct(product);
+                dpsCell.setProject(project);
+                dpsCell.setFabDate(fabDate);
+                dpsCell.setDemandQty(qty);
+
+                newDpsCellList.add(dpsCell);
+            }
+        }
+
+        dpsService.deleteDpsCell(dpsCellList);
+        dpsService.saveDpsCell(newDpsCellList);
+        return ResultUtil.success("提交成功");
     }
 }

@@ -63,6 +63,13 @@ public class RunMrpServiceTest extends AbstractTest {
 
     }
 
+    @Test
+    public void test_() {
+        runMrpService.completeMrpMaterial("20201127040");
+        runMrpService.completeMrpMaterial("20201127041");
+        runMrpService.completeMrpMaterial("20201127042");
+    }
+
 
 }
 

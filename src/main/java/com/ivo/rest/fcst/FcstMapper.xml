@@ -6,20 +6,20 @@
 
   <!-- 获取MPS中的CELL BOM成品料号14料号 -->
   <select id="getBomCell" resultType="java.util.HashMap">
-    select  distinct CellInPut, Material_FK,project
-    from SD_O_MPSModelDetail
-    WHERE ValidFlag=1
-      AND CellInPut is not null
-    order by CellInPut
+    select distinct CellInPut, Material_FK,Project from (
+                                                          select CellInPut, Material_FK,Project from SD_O_MPSModelDetail WHERE CellInPut is not null
+                                                          union all
+                                                          select CellInPut, Material_FK,Project from SD_O_MPSModelDetailHis WHERE CellInPut is not null
+                                                        ) t  order by CellInPut
   </select>
 
   <!-- 获取MPS中的Ary BOM的15料号 -->
   <select id="getBomAry" resultType="java.util.HashMap">
-    select  distinct	ArrayInPut, TFTMtrl, project
-    from SD_O_MPSModelDetail
-    WHERE ValidFlag=1
-      AND ArrayInPut is not null
-    order by ArrayInPut
+    select distinct ArrayInPut, TFTMtrl,Project from (
+                                                       select ArrayInPut, TFTMtrl,Project from SD_O_MPSModelDetail WHERE ArrayInPut is not null
+                                                       union all
+                                                       select ArrayInPut, TFTMtrl,Project from SD_O_MPSModelDetailHis WHERE ArrayInPut is not null
+                                                     ) t ORDER BY ArrayInPut
   </select>
 
   <!-- 获取MPS的DateOfInsert作版本 -->

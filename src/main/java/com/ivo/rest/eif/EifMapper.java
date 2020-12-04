@@ -81,4 +81,16 @@ public interface EifMapper {
      * @return List<Map>
      */
     List<Map> getActualArrivalQty(@Param("fabDate") Date fabDate);
+
+    /**
+     * 获取LCM1的包材BOM
+     * @return  List<Map>
+     */
+    List<Map> getBomPackageLcm1();
+
+    /**
+     * 获取LCM2的包材BOM
+     * @return List<Map>
+     */
+    List<Map> getBomPackageLcm2();
 }

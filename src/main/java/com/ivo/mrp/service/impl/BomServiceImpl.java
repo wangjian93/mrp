@@ -72,7 +72,7 @@ public class BomServiceImpl implements BomService {
     public void syncBomLcm() {
         log.info("同步LCM的BOM >> START");
         //清空表
-        bomLcmRepository.deleteAll();
+//        bomLcmRepository.deleteAll();
         syncBomLcm1();
         syncBomLcm2();
         log.info("同步LCM的BOM >> END");
@@ -226,6 +226,7 @@ public class BomServiceImpl implements BomService {
                 }
             }
         }
+
         log.info("同步CELL的BOM >> END");
     }
 

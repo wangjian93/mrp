@@ -23,7 +23,7 @@ public class BomPackageServiceTest extends AbstractTest {
 
     @Test
     public void test() {
-        String path = "classpath:data/CELL包材BOM.xlsx";
+        String path = "classpath:data/BOM-list.xlsx";
         File file = null;
         InputStream inputStream = null;
         try {

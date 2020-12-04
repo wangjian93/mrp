@@ -63,6 +63,9 @@ public class PageController {
     private static final String mps_ver_ary_view = "page/mrp/mps/mpsVerAry";
     private static final String mps_ver_cell_view = "page/mrp/mps/mpsVerCell";
 
+    private static final String  bom_package_lcm_view = "page/mrp/bom/bomPacakgeLcm";
+    private static final String mrp_ver_package_lcm_view = "page/mrp/mrp/mrpVerPackageLcm";
+
 
     /**
      * 损耗率
@@ -183,6 +186,9 @@ public class PageController {
         if(StringUtils.equalsIgnoreCase(type, MrpVer.Type_Pol)) {
             return mrp_ver_pol_view;
         }
+        if(StringUtils.equalsIgnoreCase(type, "PackageLcm")) {
+            return mrp_ver_package_lcm_view;
+        }
         return null;
     }
 
@@ -249,6 +255,12 @@ public class PageController {
             return mps_ver_lcm_view;
         }
         return null;
+    }
+
+
+    @GetMapping("/bomPackageLcm")
+    public String bomPackageLcm() {
+        return bom_package_lcm_view;
     }
 
 }

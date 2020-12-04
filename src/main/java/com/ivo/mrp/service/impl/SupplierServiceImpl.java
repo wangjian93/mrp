@@ -116,6 +116,9 @@ public class SupplierServiceImpl implements SupplierService {
                 }
                 String material =  map.get("料号").trim();
                 String supplierCode = map.get("供应商Code").trim();
+                if(!StringUtils.startsWith(supplierCode, "0000")) {
+                    supplierCode = "0000"+supplierCode;
+                }
                 String supplierName = map.get("供应商").trim();
                 Supplier supplier = getSupplier(supplierCode);
                 if(supplier == null) {
@@ -294,6 +297,9 @@ public class SupplierServiceImpl implements SupplierService {
         for(Map map : list) {
             String material = ((String) map.get("material")).trim();
             String supplierCode = ((String) map.get("supplierCode")).trim();
+            if(!StringUtils.startsWith(supplierCode, "0000")) {
+                supplierCode = "0000"+supplierCode;
+            }
             String supplierName = ((String) map.get("supplierName")).trim();
             Supplier supplier = getSupplier(supplierCode);
             if(supplier == null) {
