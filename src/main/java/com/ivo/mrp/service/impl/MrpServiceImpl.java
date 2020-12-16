@@ -54,14 +54,12 @@ public class MrpServiceImpl implements MrpService {
 
     private MrpCellRepository mrpCellRepository;
 
-    private MrpPackageRpository mrpPackageRpository;
 
     @Autowired
     public MrpServiceImpl(MrpVerRepository mrpVerRepository, MrpLcmMaterialRepository mrpLcmMaterialRepository,
                           MrpAryMaterialRepository mrpAryMaterialRepository, MrpCellMaterialRepository mrpCellMaterialRepository,
                           MrpLcmRepository mrpLcmRepository, MrpAryRepository mrpAryRepository,
-                          MrpCellRepository mrpCellRepository,
-                          MrpPackageRpository mrpPackageRpository) {
+                          MrpCellRepository mrpCellRepository) {
         this.mrpVerRepository = mrpVerRepository;
         this.mrpLcmMaterialRepository = mrpLcmMaterialRepository;
         this.mrpAryMaterialRepository = mrpAryMaterialRepository;
@@ -69,7 +67,6 @@ public class MrpServiceImpl implements MrpService {
         this.mrpLcmRepository = mrpLcmRepository;
         this.mrpAryRepository = mrpAryRepository;
         this.mrpCellRepository = mrpCellRepository;
-        this.mrpPackageRpository = mrpPackageRpository;
     }
 
     @Override
@@ -208,12 +205,6 @@ public class MrpServiceImpl implements MrpService {
     }
 
     @Override
-    public List<MrpPackage> getMrpPackage(String ver) {
-        Sort sort = new Sort(Sort.Direction.ASC, "product", "type", "linkQty", "mode", "material");
-        return mrpPackageRpository.findByVer(ver, sort);
-    }
-
-    @Override
     public List<Date> getMrpCalendar(String ver) {
         MrpVer mrpVer = getMrpVer(ver);
         if(mrpVer == null) return new ArrayList<>();
@@ -241,24 +232,9 @@ public class MrpServiceImpl implements MrpService {
     }
 
     @Override
-    public List<MrpPackage> getMrpPackage(String ver, String product, String type, Double linkQty, String mode) {
-        return mrpPackageRpository.findByVerAndProductAndTypeAndLinkQtyAndMode(ver, product, type, linkQty, mode);
-    }
-
-    @Override
-    public void saveMrpPackage(List<MrpPackage> list) {
-        mrpPackageRpository.saveAll(list);
-    }
-
-    @Override
-    public void deleteMrpPackage(List<MrpPackage> list) {
-        mrpPackageRpository.deleteAll(list);
-    }
-
-    @Override
     public Page<MrpVer> queryMrpVer(int page, int limit, String searchFab, String searchType, String searchVer) {
         Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "ver");
-        return mrpVerRepository.findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchType+"%", searchVer+"%", pageable);
+        return mrpVerRepository.findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchType, searchVer+"%", pageable);
     }
 
     @Override
@@ -276,9 +252,6 @@ public class MrpServiceImpl implements MrpService {
                 break;
             case MrpVer.Type_Lcm:
                 list = getMrpLcm(ver);
-                break;
-            case MrpVer.Type_Package:
-                list = getMrpPackage(ver);
                 break;
             default:
                 list = new ArrayList();
@@ -612,5 +585,10 @@ public class MrpServiceImpl implements MrpService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
         return mrpLcmMaterialRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public String getLastMrpVer(String fab, String type) {
+        return mrpVerRepository.findTopByFabAndTypeAndValidFlagIsTrueOrderByVerDesc(fab, type).getVer();
     }
 }

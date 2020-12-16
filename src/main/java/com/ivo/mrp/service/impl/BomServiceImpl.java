@@ -1,11 +1,13 @@
 package com.ivo.mrp.service.impl;
 
+import com.ivo.common.BatchService;
 import com.ivo.common.utils.DoubleUtil;
 import com.ivo.mrp.entity.direct.ary.BomAry;
 import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
 import com.ivo.mrp.entity.direct.cell.BomCell;
 import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.entity.direct.lcm.BomLcm;
+import com.ivo.mrp.entity.lcmPackaging.BomPackagingLcm;
 import com.ivo.mrp.key.BomAryKey;
 import com.ivo.mrp.key.BomAryMtrlKey;
 import com.ivo.mrp.key.BomCellKey;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,12 +55,19 @@ public class BomServiceImpl implements BomService {
 
     private MaterialGroupService materialGroupService;
 
+    private BatchService batchService;
+
+    private BomPackagingLcmRepository bomPackagingLcmRepository;
+
+
     @Autowired
     public BomServiceImpl(RestService restService, BomCellRepository bomCellRepository,
                           BomLcmRepository bomLcmRepository, BomAryRepository bomAryRepository,
                           BomCellMtrlRepository bomCellMtrlRepository,
                           MaterialService materialService, MaterialGroupService materialGroupService,
-                          BomAryMtrlRepository bomAryMtrlRepository) {
+                          BomAryMtrlRepository bomAryMtrlRepository,
+                          BatchService batchService,
+                          BomPackagingLcmRepository bomPackagingLcmRepository) {
         this.restService = restService;
         this.bomCellRepository = bomCellRepository;
         this.bomLcmRepository = bomLcmRepository;
@@ -66,53 +76,112 @@ public class BomServiceImpl implements BomService {
         this.materialService = materialService;
         this.materialGroupService = materialGroupService;
         this.bomAryMtrlRepository = bomAryMtrlRepository;
+        this.batchService = batchService;
+        this.bomPackagingLcmRepository = bomPackagingLcmRepository;
     }
 
     @Override
     public void syncBomLcm() {
         log.info("同步LCM的BOM >> START");
-        //清空表
-//        bomLcmRepository.deleteAll();
-        syncBomLcm1();
+        bomLcmRepository.truncateTable();
+        bomPackagingLcmRepository.truncateTable();
+//        syncBomLcm1();
         syncBomLcm2();
         log.info("同步LCM的BOM >> END");
     }
 
     private void syncBomLcm1() {
-        log.info("LCM1 BOM...");
+        log.info("同步LCM1的BOM >> START");
         List<Map> mapList = restService.getBomLcm1();
         if(mapList == null || mapList.size() == 0) return;
-        for(Map map : mapList) {
-            BomLcm bomLcm = new BomLcm();
-            bomLcm.setFab("LCM1");
-            bomLcm.setProduct((String) map.get("product"));
-            bomLcm.setMaterial((String) map.get("material"));
-            bomLcm.setMeasureUnit((String) map.get("measureUnit"));
-            bomLcm.setMaterialName((String) map.get("materialName"));
-            bomLcm.setMaterialGroup((String) map.get("materialGroup"));
-            bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
-            bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
-            bomLcmRepository.save(bomLcm);
-        }
 
+        List<BomLcm> bomLcmList = new ArrayList<>();
+        List<BomPackagingLcm> bomPackagingLcmList = new ArrayList<>();
+        for(Map map : mapList) {
+            String material = (String) map.get("material");
+            String materialGroup = (String) map.get("materialGroup");
+
+            //分开主材包材
+            if(StringUtils.equalsAny(materialGroup, "906", "912", "916", "917", "918","919","920","921","922", "305") ||
+                    (materialGroup.equals("924") && StringUtils.equalsAny(material, "3822617-010","380C41Q-010",
+                            "2846802.000","2694001.000","32A93A6-000", "3840302.000","3820304.000","3820153.000","3820155.000",
+                            "39033S0-000","3280103-000","3280105-000","3280101-000","3280102-000","3280104-000","3280002-000",
+                            "3280001-000","3802901-000","3820303.000"))
+            ) {
+                BomPackagingLcm bomLcm = new BomPackagingLcm();
+                bomLcm.setFab("LCM1");
+                bomLcm.setProduct((String) map.get("product"));
+                bomLcm.setMaterial(material);
+                bomLcm.setMeasureUnit((String) map.get("measureUnit"));
+                bomLcm.setMaterialName((String) map.get("materialName"));
+                bomLcm.setMaterialGroup(materialGroup);
+                bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
+                bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
+
+                bomPackagingLcmList.add(bomLcm);
+            } else {
+                BomLcm bomLcm = new BomLcm();
+                bomLcm.setFab("LCM1");
+                bomLcm.setProduct((String) map.get("product"));
+                bomLcm.setMaterial(material);
+                bomLcm.setMeasureUnit((String) map.get("measureUnit"));
+                bomLcm.setMaterialName((String) map.get("materialName"));
+                bomLcm.setMaterialGroup(materialGroup);
+                bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
+                bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
+
+                bomLcmList.add(bomLcm);
+            }
+        }
+        batchService.batchInsert(bomLcmList);
+        batchService.batchInsert(bomPackagingLcmList);
+        log.info("同步LCM1的BOM >> END");
     }
 
     private void syncBomLcm2() {
-        log.info("LCM2 BOM...");
+        log.info("同步LCM2的BOM >> START");
         List<Map> mapList = restService.getBomLcm2();
         if(mapList == null || mapList.size() == 0) return;
+
+        List<BomLcm> bomLcmList = new ArrayList<>();
+        List<BomPackagingLcm> bomPackagingLcmList = new ArrayList<>();
         for(Map map : mapList) {
-            BomLcm bomLcm = new BomLcm();
-            bomLcm.setFab("LCM2");
-            bomLcm.setProduct((String) map.get("product"));
-            bomLcm.setMaterial((String) map.get("material"));
-            bomLcm.setMeasureUnit((String) map.get("measureUnit"));
-            bomLcm.setMaterialName((String) map.get("materialName"));
-            bomLcm.setMaterialGroup((String) map.get("materialGroup"));
-            bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
-            bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
-            bomLcmRepository.save(bomLcm);
+            String material = (String) map.get("material");
+            String materialGroup = (String) map.get("materialGroup");
+
+            //分开主材包材
+            if(StringUtils.equalsAny(materialGroup, "906", "912", "916", "917", "918","919","920","921","922", "305") ||
+                    (materialGroup.equals("924") && StringUtils.equalsAny(material, "2843801-000","2843802-000","28461L0-010","28468K0-000","32A93A6-000",
+                            "39033S0-000","3802901-000","3280101-000","3280102-000"))
+            ) {
+                BomPackagingLcm bomLcm = new BomPackagingLcm();
+                bomLcm.setFab("LCM2");
+                bomLcm.setProduct((String) map.get("product"));
+                bomLcm.setMaterial(material);
+                bomLcm.setMeasureUnit((String) map.get("measureUnit"));
+                bomLcm.setMaterialName((String) map.get("materialName"));
+                bomLcm.setMaterialGroup(materialGroup);
+                bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
+                bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
+
+                bomPackagingLcmList.add(bomLcm);
+            } else {
+                BomLcm bomLcm = new BomLcm();
+                bomLcm.setFab("LCM2");
+                bomLcm.setProduct((String) map.get("product"));
+                bomLcm.setMaterial(material);
+                bomLcm.setMeasureUnit((String) map.get("measureUnit"));
+                bomLcm.setMaterialName((String) map.get("materialName"));
+                bomLcm.setMaterialGroup(materialGroup);
+                bomLcm.setMaterialGroupName((String) map.get("materialGroupName"));
+                bomLcm.setUsageQty(((BigDecimal) map.get("usageQty")).doubleValue());
+
+                bomLcmList.add(bomLcm);
+            }
         }
+        batchService.batchInsert(bomLcmList);
+        batchService.batchInsert(bomPackagingLcmList);
+        log.info("同步LCM2的BOM >> END");
     }
 
     @Override

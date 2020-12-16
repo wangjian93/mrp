@@ -54,9 +54,7 @@ public class ActualArrivalServiceImpl implements ActualArrivalService {
 
     @Override
     public void syncActualArrival() {
-        String[] sts = new String[] {"2020-11-19", "2020-11-18", "2020-11-17", "2020-11-16", "2020-11-15",
-        "2020-11-14", "2020-11-13", "2020-11-12", "2020-11-11", "2020-11-10", "2020-11-09", "2020-11-08",
-        "2020-11-07", "2020-11-06", "2020-11-05"};
+        String[] sts = new String[] {"2020-12-11","2020-12-12","2020-12-13","2020-12-14","2020-12-15","2020-12-16"};
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for(String s : sts) {
             Date fabDate = null;
@@ -165,5 +163,17 @@ public class ActualArrivalServiceImpl implements ActualArrivalService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
         return actualArrivalRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public List<ActualArrival> getActualArrival(String fab, Date startDate, Date endDate, String material, String supplierCode) {
+        if(StringUtils.equalsIgnoreCase(fab, "LCM1")) {
+            fab = "3000";
+        } else {
+            fab = "1000";
+        }
+        return actualArrivalRepository.findByWerksAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                fab, material, supplierCode, startDate, endDate
+        );
     }
 }

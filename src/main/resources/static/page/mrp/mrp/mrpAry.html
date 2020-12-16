@@ -384,7 +384,14 @@
                     var lossQty = item.lossQty===0?'':item.lossQty;
                     $('#'+material_fabDate+"_lossQty").html('<span>'+lossQty+'</span>');
                     var arrivalQty = item.arrivalQty===0?'':item.arrivalQty;
-                    $('#'+material_fabDate+"_arrivalQty").html('<span style="color: #01AAED;">'+arrivalQty+'</span>');
+
+                    var nowDay = new Date();
+                    var fd = new Date(item.fabDate);
+                    if(nowDay.getTime() > fd.getTime()) {
+                        $('#'+material_fabDate+"_arrivalQty").html('<span style="color: red;">'+arrivalQty+'</span>');
+                    } else {
+                        $('#'+material_fabDate+"_arrivalQty").html('<span style="color: #01AAED;">'+arrivalQty+'</span>');
+                    }
 
                     var balanceQty = item.balanceQty===0?'':item.balanceQty;
                     if(item.balanceQty<0) {

@@ -1,10 +1,12 @@
 package com.ivo.mrp.entity.packaging;
 
-import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp.key.DpsPackageKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -17,12 +19,14 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "MRP3_Dps_Package")
-public class DpsPackage extends AutoIncreaseEntityModel {
+@IdClass(DpsPackageKey.class)
+public class DpsPackage {
 
-    public static final String TYPE_D = "单片";
-    public static final String TYPE_L = "连片";
-
+    @Id
     private String ver;
+
+    @Id
+    private String packageId;
 
     /**
      * 厂别
@@ -42,16 +46,12 @@ public class DpsPackage extends AutoIncreaseEntityModel {
     /**
      * 连片数
      */
-    private Double linkQty;
-
-    /**
-     * 抽单模式
-     */
-    private String mode;
+    private String linkQty;
 
     /**
      * 日期
      */
+    @Id
     private java.sql.Date fabDate;
 
     /**

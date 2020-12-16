@@ -7,7 +7,6 @@ import com.ivo.mrp.entity.direct.cell.MrpCell;
 import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcm;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
-import com.ivo.mrp.entity.packaging.MrpPackage;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 
@@ -191,13 +190,6 @@ public interface MrpService {
     List<MrpAry> getMrpAry(String ver);
 
     /**
-     * 获取包材的MRP
-     * @param ver MRP版本
-     * @return List<MrpPackage>
-     */
-    List<MrpPackage> getMrpPackage(String ver);
-
-    /**
      * 获取MRP的日历
      * @param ver MRP版本
      * @return List<Date>
@@ -222,29 +214,6 @@ public interface MrpService {
      */
     void saveMrpCell(List<MrpCell> list);
 
-
-    /**
-     * 获取包材机种的MRP数据
-     * @param ver MRP版本
-     * @param product 机种
-     * @param type 单片、连片类型
-     * @param linkQty 连片数
-     * @param mode 切单模式
-     * @return List<MrpPackage>
-     */
-    List<MrpPackage> getMrpPackage(String ver, String product, String type, Double linkQty, String mode);
-
-    /**
-     * 保存包材MRP
-     * @param list MrpPackage
-     */
-    void saveMrpPackage(List<MrpPackage> list);
-
-    /**
-     * 删除包材MRP
-     * @param list MrpPackage
-     */
-    void deleteMrpPackage(List<MrpPackage> list);
 
     /**
      * 分页查询MRP版本信息
@@ -369,4 +338,11 @@ public interface MrpService {
      */
     Page<MrpLcmMaterial> getPageMrpLcmMaterial(int page, int limit, String[] vers, String searchProduct, String searchMaterialGroup,
                                                String searchMaterial, String searchSupplier);
+
+    /**
+     * 获取最新的MRP版本
+     * @param fab
+     * @return
+     */
+    String getLastMrpVer(String fab, String type);
 }

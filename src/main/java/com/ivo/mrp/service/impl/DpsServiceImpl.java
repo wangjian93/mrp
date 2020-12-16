@@ -11,7 +11,7 @@ import com.ivo.mrp.entity.packaging.BomPackage;
 import com.ivo.mrp.entity.direct.lcm.DpsLcm;
 import com.ivo.mrp.entity.packaging.DpsPackage;
 import com.ivo.mrp.repository.*;
-import com.ivo.mrp.service.BomPackageService;
+import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
 import com.ivo.rest.RestService;
@@ -46,29 +46,25 @@ public class DpsServiceImpl implements DpsService {
 
     private DpsCellRepository dpsCellRepository;
 
-    private DpsPackageRepository dpsPackageRepository;
 
     private DpsAryOcRepository dpsAryOcRepository;
 
     private RestService restService;
 
-    private BomPackageService bomPackageService;
 
     private DpsOutputNameService dpsOutputNameService;
 
     @Autowired
     public DpsServiceImpl(DpsVerRepository dpsVerRepository, DpsLcmRepository dpsLcmRepository, DpsAryRepository dpsAryRepository,
-                          DpsCellRepository dpsCellRepository, DpsPackageRepository dpsPackageRepository,
+                          DpsCellRepository dpsCellRepository,
                           DpsAryOcRepository dpsAryOcRepository,
                           RestService restService, BomPackageService bomPackageService, DpsOutputNameService dpsOutputNameService) {
         this.dpsVerRepository = dpsVerRepository;
         this.dpsLcmRepository = dpsLcmRepository;
         this.dpsAryRepository = dpsAryRepository;
         this.dpsCellRepository = dpsCellRepository;
-        this.dpsPackageRepository = dpsPackageRepository;
         this.dpsAryOcRepository = dpsAryOcRepository;
         this.restService = restService;
-        this.bomPackageService = bomPackageService;
         this.dpsOutputNameService = dpsOutputNameService;
     }
 
@@ -92,17 +88,15 @@ public class DpsServiceImpl implements DpsService {
         return dpsLcmRepository.findByVer(ver);
     }
 
-    @Override
-    public List<DpsPackage> getDpsPackage(String ver) {
-        return dpsPackageRepository.findByVer(ver);
-    }
+
 
     @Override
     public List<DpsAryOc> getDpsAryOc(String ver) {
         return dpsAryOcRepository.findByVer(ver);
     }
 
-    private List<DpsVer> getDpsVerByFileVer(String ver, String type) {
+    @Override
+    public List<DpsVer> getDpsVerByFileVer(String ver, String type) {
         return dpsVerRepository.findByDpsFileAndType(ver, type);
     }
 
@@ -362,74 +356,7 @@ public class DpsServiceImpl implements DpsService {
         dpsAryOcRepository.saveAll(dpsAryOcList);
     }
 
-    @Override
-    public void syncDpsPackage() {
-        log.info("同步CELL包材DPS >> START");
-        List<String> verList = restService.getDpsCellAryVer();
-        if(verList == null || verList.size()==0) return;
-        for(String ver : verList) {
-            List list = getDpsVerByFileVer(ver, DpsVer.Type_Package);
-            if(list == null || list.size() == 0) {
-                syncDpsPackage(ver);
-            }
-        }
-        log.info("同步CELL包材DPS >> END");
-    }
 
-    @Override
-    public void syncDpsPackage(String ver) {
-        log.info("同步CELL包材DPS版本" + ver);
-        List<String> productList = bomPackageService.getPackageProduct();
-        List<Map> mapList = restService.getDpsPackage(ver, productList);
-        if(mapList==null || mapList.size() == 0) return;
-        String fab = "CELL";
-        String dps_ver = generateDpsVer();
-        DpsVer dpsVer = new DpsVer();
-        dpsVer.setFab(fab);
-        dpsVer.setDpsFile(ver);
-        dpsVer.setVer(dps_ver);
-        dpsVer.setSource(DpsVer.Source_Cell);
-        dpsVer.setType(DpsVer.Type_Package);
-        dpsVer.setCreator("SYS");
-        Date startDate = null;
-        Date endDate = null;
-        List<DpsPackage> dpsPackageList = new ArrayList<>();
-        String file_name = "";
-        for(Map map : mapList) {
-            String product = (String) map.get("model_id_dps");
-            double demandQty = (Double) map.get("qty");
-            Date fabDate = (Date) map.get("fab_date");
-            file_name = (String) map.get("file_name");
-            List<BomPackage> bomPackageList = bomPackageService.getBomPackage(product);
-            for(BomPackage bomPackage : bomPackageList) {
-                DpsPackage dpsPackage = new DpsPackage();
-                dpsPackage.setVer(dps_ver);
-                dpsPackage.setFab(fab);
-                dpsPackage.setProduct(product);
-                dpsPackage.setType(bomPackage.getType());
-                dpsPackage.setLinkQty(bomPackage.getLinkQty());
-                dpsPackage.setMode(bomPackage.getMode());
-                dpsPackage.setCreator("SYS");
-                dpsPackage.setFabDate(fabDate);
-                dpsPackage.setDemandQty(demandQty);
-                dpsPackage.setMemo("DPS同步");
-                dpsPackageList.add(dpsPackage);
-            }
-
-            //日期区间
-            if(startDate == null || startDate.after(fabDate)) {
-                startDate =fabDate;
-            }
-            if(endDate == null || endDate.before(fabDate)) {
-                endDate = fabDate;
-            }
-        }
-        dpsVer.setStartDate(startDate);
-        dpsVer.setEndDate(endDate);
-        dpsVer.setFileName(file_name);
-        dpsVerRepository.save(dpsVer);
-        dpsPackageRepository.saveAll(dpsPackageList);
-    }
 
 
     @Override
@@ -473,16 +400,6 @@ public class DpsServiceImpl implements DpsService {
     }
 
     @Override
-    public List<Map> getDpsPackageProduct(String ver) {
-        return dpsPackageRepository.getProduct(ver);
-    }
-
-    @Override
-    public List<DpsPackage> getDpsPackage(String ver, String product, String type, Double linkQty, String mode) {
-        return dpsPackageRepository.findByVerAndProductAndTypeAndLinkQtyAndMode(ver, product, type, linkQty, mode);
-    }
-
-    @Override
     public Page<DpsVer> queryDpsVer(int page, int limit, String searchFab, String searchType, String searchVer) {
         Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "ver");
         return dpsVerRepository.findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(searchFab+"%", searchType+"%",
@@ -504,9 +421,6 @@ public class DpsServiceImpl implements DpsService {
                 break;
             case DpsVer.Type_Lcm:
                 list = getDpsLcm(ver);
-                break;
-            case DpsVer.Type_Package:
-                list = getDpsPackage(ver);
                 break;
             default:
                 list = new ArrayList();
@@ -747,5 +661,10 @@ public class DpsServiceImpl implements DpsService {
     @Override
     public void saveDpsCell(List<DpsCell> list) {
         dpsCellRepository.saveAll(list);
+    }
+
+    @Override
+    public void saveDpsVer(DpsVer dpsVer) {
+        dpsVerRepository.save(dpsVer);
     }
 }

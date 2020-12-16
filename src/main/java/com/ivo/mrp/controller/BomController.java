@@ -6,7 +6,7 @@ import com.ivo.common.utils.ResultUtil;
 import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.service.BomPackageLcmService;
-import com.ivo.mrp.service.BomPackageService;
+import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.mrp.service.BomPolService;
 import com.ivo.mrp.service.BomService;
 import io.swagger.annotations.*;
@@ -103,16 +103,17 @@ public class BomController {
     })
     @GetMapping("/getBomPackage")
     public Result getBomPackage(String product, String type, @RequestParam(required = false, defaultValue = "") String linkQty, @RequestParam(required = false, defaultValue = "") String mode) {
-        Double linkQty_;
-        if(StringUtils.isEmpty(linkQty)) {
-            linkQty_ = null;
-        } else {
-            linkQty_ = Double.valueOf(linkQty);
-        }
-        if(StringUtils.isEmpty(mode)) {
-            mode = null;
-        }
-        return ResultUtil.success(bomPackageService.getBomPackage(product, type, linkQty_, mode));
+//        Double linkQty_;
+//        if(StringUtils.isEmpty(linkQty)) {
+//            linkQty_ = null;
+//        } else {
+//            linkQty_ = Double.valueOf(linkQty);
+//        }
+//        if(StringUtils.isEmpty(mode)) {
+//            mode = null;
+//        }
+//        return ResultUtil.success(bomPackageService.getBomPackage(product, type, linkQty_, mode));
+        return null;
     }
 
     @ApiOperation("查询包材的机种Bom")

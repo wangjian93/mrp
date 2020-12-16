@@ -21,24 +21,29 @@ public class MpsServiceTest extends AbstractTest {
     @Autowired
     private MpsService mpsService;
 
-    @Test
-    public void test_importMpsLcm() {
-        String path = "classpath:data/LCM_MPS.xlsx";
-        File file = null;
-        InputStream inputStream = null;
-        try {
-            file = ResourceUtils.getFile(path);
-            inputStream = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        mpsService.importMpsLcm(inputStream, file.getName(), "SYS");
-    }
+//    @Test
+//    public void test_importMpsLcm() {
+//        String path = "classpath:data/LCM_MPS.xlsx";
+//        File file = null;
+//        InputStream inputStream = null;
+//        try {
+//            file = ResourceUtils.getFile(path);
+//            inputStream = new FileInputStream(file);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        mpsService.importMpsLcm(inputStream, file.getName(), "SYS");
+//    }
 
     @Test
     public void test_sync() {
         mpsService.syncMpsAry2();
         mpsService.syncMpsCell2();
+    }
+
+    @Test
+    public void test_syncLcm() {
+        mpsService.syncMpsLcm();
     }
 
 

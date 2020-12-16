@@ -5,13 +5,11 @@ import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.ary.DpsAryOc;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
 import com.ivo.mrp.entity.direct.lcm.DpsLcm;
-import com.ivo.mrp.entity.packaging.DpsPackage;
 import org.springframework.data.domain.Page;
 
 import java.io.InputStream;
 import java.sql.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * DPS数据服务接口
@@ -48,12 +46,7 @@ public interface DpsService {
      */
     List<DpsLcm> getDpsLcm(String ver);
 
-    /**
-     * 获取CELL包材DPS
-     * @param ver dps版本
-     * @return List<DpsPackage>
-     */
-    List<DpsPackage> getDpsPackage(String ver);
+
 
     /**
      * 获取ARY OC DPS
@@ -91,11 +84,7 @@ public interface DpsService {
      */
     void syncDpsAryOc(String dpsVer, String fileVer);
 
-    /**
-     * 同步包材DPS
-     */
-    void syncDpsPackage();
-    void syncDpsPackage(String ver);
+
 
     /**
      * 获取Ary DPS的所有机种
@@ -157,23 +146,9 @@ public interface DpsService {
      */
     List<DpsLcm> getDpsLcm(String ver,  String product);
 
-    /**
-     * 获取包材 DPS的所有机种
-     * @param ver DPS版本
-     * @return List<Map>
-     */
-    List<Map> getDpsPackageProduct(String ver);
 
-    /**
-     * 获取包材 机种的DPS
-     * @param ver DPS版本
-     * @param product 机种
-     * @param type 单片/连片类型
-     * @param linkQty 连片数
-     * @param mode 切单模式
-     * @return List<DpsPackage>
-     */
-    List<DpsPackage> getDpsPackage(String ver, String product, String type, Double linkQty, String mode);
+
+
 
     /**
      * 分页查询DPS版本信息
@@ -296,4 +271,8 @@ public interface DpsService {
     void deleteDpsCell(List<DpsCell> dpsCellList);
 
     void saveDpsCell(List<DpsCell> list);
+
+    List<DpsVer> getDpsVerByFileVer(String ver, String type);
+
+    void saveDpsVer(DpsVer dpsVer);
 }

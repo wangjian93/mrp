@@ -1,12 +1,9 @@
 package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.ExcelUtil;
-import com.ivo.mrp.entity.LossRate;
 import com.ivo.mrp.entity.Supplier;
 import com.ivo.mrp.entity.direct.SupplierMaterial;
-import com.ivo.mrp.entity.packaging.SupplierPackage;
 import com.ivo.mrp.repository.SupplierMaterialRepository;
-import com.ivo.mrp.repository.SupplierPackageRepository;
 import com.ivo.mrp.repository.SupplierRepository;
 import com.ivo.mrp.service.SupplierService;
 import com.ivo.rest.RestService;
@@ -22,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -38,18 +34,14 @@ public class SupplierServiceImpl implements SupplierService {
 
     private SupplierMaterialRepository supplierMaterialRepository;
 
-    private SupplierPackageRepository supplierPackageRepository;
-
     private RestService restService;
 
     @Autowired
     public SupplierServiceImpl(SupplierRepository supplierRepository,
                                SupplierMaterialRepository supplierMaterialRepository,
-                               SupplierPackageRepository supplierPackageRepository,
                                RestService restService) {
         this.supplierRepository = supplierRepository;
         this.supplierMaterialRepository = supplierMaterialRepository;
-        this.supplierPackageRepository = supplierPackageRepository;
         this.restService = restService;
     }
 
@@ -278,12 +270,6 @@ public class SupplierServiceImpl implements SupplierService {
     public Page<Map> querySupplierMaterial(int page, int limit, String searchMaterial, String searchSupplier) {
         Pageable pageable = PageRequest.of(page, limit);
         return supplierMaterialRepository.querySupplierMaterial(searchMaterial+"%", searchSupplier+"%", pageable);
-    }
-
-    @Override
-    public Page<SupplierPackage> querySupplierPackage(int page, int limit, String month, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "project");
-        return supplierPackageRepository.findByMonthAndProjectLikeAndValidFlag(month, searchProduct+"%", true, pageable);
     }
 
     @Override

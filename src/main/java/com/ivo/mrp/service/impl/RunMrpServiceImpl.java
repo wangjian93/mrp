@@ -8,6 +8,8 @@ import com.ivo.mrp.entity.direct.cell.*;
 import com.ivo.mrp.entity.direct.lcm.*;
 import com.ivo.mrp.exception.MrpException;
 import com.ivo.mrp.service.*;
+import com.ivo.mrp.service.cell.BomCellService;
+import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +46,8 @@ public class RunMrpServiceImpl implements RunMrpService {
     private ActualArrivalService actualArrivalService;
     private MrpWarnService mrpWarnService;
 
+    private BomCellService bomCellService;
+
     @Autowired
     public RunMrpServiceImpl(DpsService dpsService, MpsService mpsService, MrpService mrpService,
                              MonthSettleService monthSettleService, BomService bomService,
@@ -58,7 +62,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                              MaterialGroupService materialGroupService,
                              SupplierService supplierService,
                              ActualArrivalService actualArrivalService,
-                             MrpWarnService mrpWarnService) {
+                             MrpWarnService mrpWarnService, BomCellService bomCellService) {
         this.dpsService = dpsService;
         this.mpsService = mpsService;
         this.mrpService = mrpService;
@@ -76,6 +80,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         this.supplierService = supplierService;
         this.actualArrivalService = actualArrivalService;
         this.mrpWarnService = mrpWarnService;
+        this.bomCellService = bomCellService;
     }
 
     @Override
@@ -159,7 +164,8 @@ public class RunMrpServiceImpl implements RunMrpService {
             throw new MrpException("DPS&MPS版本的类型"+type+"不正确");
 
         java.sql.Date[] dps_dates = checkRangeDate(dps_dateList.toArray(new java.sql.Date[dps_dateList.size()][2]));
-        java.sql.Date[] mps_dates = checkRangeDate(dps_dateList.toArray(new java.sql.Date[dps_dateList.size()][2]));
+        if(mps_dateList.size() == 0) mps_dateList = dps_dateList;
+        java.sql.Date[] mps_dates = checkRangeDate(mps_dateList.toArray(new java.sql.Date[mps_dateList.size()][2]));
         MrpVer mrpVer = new MrpVer();
         assert fab != null;
         mrpVer.setFab(fab);
@@ -451,7 +457,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
         MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
-        List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
+        List<BomCell2> bomCellList = bomCellService.getBomCell(product);
         if(bomCellList == null || bomCellList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
@@ -467,7 +473,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<DpsCell> dpsCellList = dpsService.getDpsCell(dpsVer, product, mrpVer.getStartDate());
         List<DemandCell> demandCellList = new ArrayList<>();
         for(DpsCell dpsCell : dpsCellList) {
-            for(BomCellMtrl bomCellMtrl : bomCellList) {
+            for(BomCell2 bomCellMtrl : bomCellList) {
                 DemandCell demandCell = new DemandCell();
                 demandCell.setVer(ver);
                 demandCell.setType(DemandLcm.TYPE_DPS);
@@ -482,7 +488,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandCell.setProject(project);
 
                 //替代料比例
-                Double substituteRate = bomCellMtrl.getSubstituteRate();
+                Double substituteRate = 100D;//bomCellMtrl.getSubstituteRate();
                 demandCell.setSubstituteRate(substituteRate);
 
                 //DPS需求量 * Bon使用量 * 1000 * 切片数 * 替代比列
@@ -1113,7 +1119,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandQty = demandQtyMap.get(fabDate);
             }
             //当日耗损量
-            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
+            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate, 0);
 
             // 计划到货量
             double arrivalPlanQty;
@@ -1250,7 +1256,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandQty = demandQtyMap.get(fabDate);
             }
             //当日耗损量
-            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
+            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate, 0);
 
             // 计划到货量
             double arrivalPlanQty;
@@ -1388,7 +1394,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandQty = demandQtyMap.get(fabDate);
             }
             //当日耗损量
-            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
+            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate, 0);
 
             // 计划到货量
             double arrivalPlanQty;
@@ -1771,13 +1777,19 @@ public class RunMrpServiceImpl implements RunMrpService {
         String type = mrpVer.getType();
         switch (type) {
             case MrpVer.Type_Lcm :
+                computeMrpMaterialLcm(ver);
                 computeMrpBalanceLcm(ver);
+                completeMrpMaterial(ver);
                 break;
             case MrpVer.Type_Ary :
+                computeMrpMaterialAry(ver);
                 computeMrpBalanceAry(ver);
+                completeMrpMaterial(ver);
                 break;
             case MrpVer.Type_Cell :
+                computeMrpMaterialCell(ver);
                 computeMrpBalanceCell(ver);
+                completeMrpMaterial(ver);
                 break;
         }
         mrpVer.setMemo("更新完成");

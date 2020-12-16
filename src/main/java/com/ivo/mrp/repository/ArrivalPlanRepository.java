@@ -88,4 +88,33 @@ public interface ArrivalPlanRepository extends JpaRepository<ArrivalPlan, Arriva
     List<ArrivalPlan> findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
             String fab, String material, String supplierCode, Date startDate, Date endDate
     );
+
+
+
+    @Query(value ="SELECT * from ( " +
+            " select DISTINCT a.material, a.supplier_code as supplierCode " +
+            " from mrp3_arrival_plan a " +
+            " LEFT JOIN mrp3_material m on m.material=a.material " +
+            " where a.fab=:fab and a.fab_date >= :startDate and a.fab_date <= :endDate " +
+            " and a.material like :searchMaterial " +
+            " and a.supplier_code like :searchSupplierCode " +
+            " and m.material_group like :searchMaterialGroup " +
+            ") t ORDER BY material,supplierCode",
+            countQuery = "SELECT COUNT(*) from ( " +
+                    " select DISTINCT a.material, a.supplier_code as supplierCode " +
+                    " from mrp3_arrival_plan a " +
+                    " LEFT JOIN mrp3_material m on m.material=a.material " +
+                    " where a.fab=:fab and a.fab_date >= :startDate and a.fab_date <= :endDate " +
+                    " and a.material like :searchMaterial " +
+                    " and a.supplier_code like :searchSupplierCode " +
+                    " and m.material_group like :searchMaterialGroup " +
+                    ") t ORDER BY material,supplierCode",
+            nativeQuery = true )
+    Page<Map> getPageFillRateMaterial(@Param("startDate") Date startDate,
+                                      @Param("endDate") Date endDate,
+                                      @Param("fab") String fab,
+                                      @Param("searchMaterialGroup") String searchMaterialGroup,
+                                      @Param("searchMaterial") String searchMaterial,
+                                      @Param("searchSupplierCode") String searchSupplierCode,
+                                      Pageable pageable);
 }

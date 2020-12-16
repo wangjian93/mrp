@@ -2,7 +2,6 @@ package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.Supplier;
 import com.ivo.mrp.entity.direct.SupplierMaterial;
-import com.ivo.mrp.entity.packaging.SupplierPackage;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 
@@ -120,16 +119,6 @@ public interface SupplierService {
      * @return Page<SupplierMaterial>
      */
     Page<Map> querySupplierMaterial(int page, int limit, String searchMaterial, String searchSupplier);
-
-    /**
-     * 分页查询包材的供应商
-     * @param page 页数
-     * @param limit 分页大小
-     * @param month 月份
-     * @param searchProduct 机种查询
-     * @return Page<SupplierPackage>
-     */
-    Page<SupplierPackage> querySupplierPackage(int page, int limit, String month, String searchProduct);
 
     /**
      * 同步材料供应商数据

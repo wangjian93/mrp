@@ -57,4 +57,9 @@ public interface ActualArrivalRepository extends JpaRepository<ActualArrival, Lo
      */
     @Query(value = "select SUM(a.qty) from ActualArrival a where a.fabDate=:fabDate and a.material=:material and a.werks=:fab")
     Double getActualArrivalQty(@Param("fabDate") Date fabDate, @Param("material") String material, @Param("fab") String fab);
+
+
+
+    List<ActualArrival> findByWerksAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+            String fab, String material, String supplierCode, Date startDate, Date endDate);
 }

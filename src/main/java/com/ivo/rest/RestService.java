@@ -62,12 +62,21 @@ public interface RestService {
      */
     List<Map> getBomCell();
 
+
+    /**
+     * 获取CELL的MPS机种命名
+     * @return
+     */
+    List<Map> getCellMpsMode();
+
     /**
      * 从Oracle数据库V_BOM_CELL_C获取成品料号的材料
      * @param cellMtrl 成品料号
      * @return
      */
     List<Map> getCellMtrl(String cellMtrl);
+
+    List<Map> getCellMtrl();
 
     /**
      * 从81数据库mm_v_bom_m1replace获取LCM1的替代料关系
@@ -228,4 +237,12 @@ public interface RestService {
      * @return List<Map>
      */
     List<Map> getBomPackageLcm2();
+
+    /**
+     * 获取MPS系统的LCM数据
+     * @param year 年份
+     * @param month 月份
+     * @return List<Map>
+     */
+    List<Map> getMpsLcm(int year, int month);
 }

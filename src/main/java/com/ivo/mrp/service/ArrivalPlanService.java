@@ -78,4 +78,9 @@ public interface ArrivalPlanService {
     List<ArrivalPlan> getAryArrivalPlan(Date startDate, Date endDate, String material, String supplierCode);
 
     void saveArrivalPlan(String fab, String material, String supplierCode, Date fabDate, double arrivalQty);
+
+    Page<Map> getPageFillRateMaterial(String fab, Date startDate, Date endDate, int page, int limit, String searchMaterialGroup,
+                                            String searchMaterial, String searchSupplier);
+
+    List<ArrivalPlan> getArrivalPlan(String fab, Date startDate, Date endDate, String material, String supplierCode);
 }

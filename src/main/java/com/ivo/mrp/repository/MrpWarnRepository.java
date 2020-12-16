@@ -16,5 +16,5 @@ public interface MrpWarnRepository extends JpaRepository<MrpWarn, Long> {
      * @param ver MRP版本
      * @return List<MrpWarn>
      */
-    List<MrpWarn> findByVer(String ver);
+    List<MrpWarn> findByVerAndValidFlagIsTrue(String ver);
 }

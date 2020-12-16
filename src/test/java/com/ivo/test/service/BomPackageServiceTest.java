@@ -1,6 +1,6 @@
 package com.ivo.test.service;
 
-import com.ivo.mrp.service.BomPackageService;
+import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.test.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -29,9 +29,4 @@ public class DpsServiceTest extends AbstractTest {
     public void test_syncDpsAry() {
         dpsService.syncDpsAry();
     }
-
-    @Test
-    public void test_syncDpsPackage() {
-        dpsService.syncDpsPackage();
-    }
 }

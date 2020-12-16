@@ -55,7 +55,6 @@
                                                     <div class="layui-input-inline">
                                                         <select class="layui-select">
                                                             <option>日</option>
-                                                            <option>周</option>
                                                             <option>月</option>
                                                         </select>
                                                     </div>
@@ -114,7 +113,7 @@
 <!-- 月份汇总数据模板 -->
 <script type="text/html" id="dpsMonthDemo">
     <div>
-        {{d.dpsQty}}
+        {{d.qty}}
     </div>
 </script>
 
@@ -138,9 +137,15 @@
         var form = layui.form;
         var laydate = layui.laydate;
 
-
-        var ver = "20201105019";
         var fab = "CELL";
+         var ver = "";
+                $.ajaxSettings.async = false;
+                $.get('/mrp/short/getLastMrpVer',{
+                    fab: fab
+                }, function(res) {
+                    ver = res.data;
+                });
+                $.ajaxSettings.async = true;
 
 
         //获取MRP的日历
@@ -187,9 +192,23 @@
                             }},
                         {field: 'fab', title: '厂别', align: 'center', width: 100},
                         {field: 'materialGroup', title: '物料组', align: 'center', width: 100},
-                        {field: 'materialName', title: '物料名', align: 'center', width: 240},
-                        {field: '', title: '客户', align: 'center', width: 200}
+                        {field: 'materialName', title: '物料名', align: 'center', width: 240}
+                        //{field: '', title: '客户', align: 'center', width: 200}
         ];
+        for(var i=0; i<months.length; i++) {
+                    (function(month) {
+                        var title = laytpl(calendarMonthDemo.innerHTML).render({month: month});
+                        cols.push({field: month, title: title, align: 'center', width: 100,
+                            templet: function(d) {
+                                var qty = d[month];
+                                if(!qty || qty===0) {
+                                    qty = '';
+                                }
+                                return laytpl(dpsMonthDemo.innerHTML).render({qty: qty});
+                            }
+                        });
+                    })(months[i]);
+                }
         for(var i=0; i<days.length; i++) {
             (function(day, week) {
                 var day_ = day.substring(5, 10);
@@ -234,7 +253,9 @@
         form.on('submit(search)', function(data) {
             table.reload('table_short', {
                 where: {
-                    fab: fab
+                    fab: fab,
+                    searchMaterial: data.field.material,
+                    searchMaterialGroup: data.field.materialGroup
                 },
                 page: {curr: 1}
             });

@@ -2,11 +2,9 @@ package com.ivo.test.service;
 
 import com.ivo.mrp.entity.lcmPackaging.AloneMaterial;
 import com.ivo.mrp.repository.AloneMaterialRepository;
-import com.ivo.mrp.repository.BomPackagingLcmRepository;
 import com.ivo.mrp.service.BomPackageLcmService;
 import com.ivo.mrp.service.MaterialGroupService;
 import com.ivo.mrp.service.MaterialService;
-import com.ivo.mrp.service.RunMrpLcmPackageService;
 import com.ivo.test.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +29,6 @@ public class BomPackageLcmServiceTest extends AbstractTest {
     @Autowired
     private MaterialGroupService materialGroupService;
 
-    @Autowired
-    private RunMrpLcmPackageService runMrpLcmPackageService;
-
     @Test
     public void test() {
         bomPackageLcmService.syncLcmPackageBom();
@@ -48,10 +43,5 @@ public class BomPackageLcmServiceTest extends AbstractTest {
             aloneMaterial.setMaterialGroupName(materialGroupService.getMaterialGroupName(aloneMaterial.getMaterialGroup()));
         }
         aloneMaterialRepository.saveAll(aloneMaterialList);
-    }
-
-    @Test
-    public void test3() {
-        runMrpLcmPackageService.run();
     }
 }

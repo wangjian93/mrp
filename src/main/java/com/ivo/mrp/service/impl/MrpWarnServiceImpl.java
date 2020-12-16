@@ -34,6 +34,6 @@ public class MrpWarnServiceImpl implements MrpWarnService {
 
     @Override
     public List<MrpWarn> getMrpWarn(String ver) {
-        return mrpWarnRepository.findByVer(ver);
+        return mrpWarnRepository.findByVerAndValidFlagIsTrue(ver);
     }
 }

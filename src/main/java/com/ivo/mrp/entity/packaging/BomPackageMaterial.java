@@ -1,13 +1,10 @@
 package com.ivo.mrp.entity.packaging;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ivo.common.model.AutoIncreaseEntityModel;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -20,12 +17,12 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "MRP3_Bom_Package_Material")
-public class BomPackageMaterial extends AutoIncreaseEntityModel {
+public class BomPackageMaterial extends AutoIncreaseEntityModel  {
 
-    @ManyToOne
-    @JoinColumn(name="bomPackage_fk")
-    @JsonIgnore
-    private BomPackage bomPackage;
+    /**
+     * 包材的ID
+     */
+    private String packageId;
 
     /**
      * 料号
@@ -50,23 +47,17 @@ public class BomPackageMaterial extends AutoIncreaseEntityModel {
     /**
      * 包装规格（pcs/每套）
      */
-    private Double specQty;
+    private String specQty;
 
     /**
      * 损耗率
      */
-    private Double lossRate;
+    private String lossRate;
 
     /**
-     * 单耗量（连片）包装规格/连片数/Panel数目
+     * 单耗量（连片）:包装规格/连片数/Panel数目
      */
-    private String consumeStr;
     private Double consumeQty;
-
-    /**
-     * 需求量
-     */
-    private String demandStr;
 
     /**
      * 供应商标识，是否发给供应商

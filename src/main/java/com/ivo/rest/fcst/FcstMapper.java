@@ -1,5 +1,6 @@
 package com.ivo.rest.fcst;
 
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,6 +25,14 @@ public interface FcstMapper {
      */
     List<Map> getBomAry();
 
+
+    /**
+     * 获取CELL的MPS机种命名
+     * @return
+     */
+    List<Map> getCellMpsMode();
+
+
     /**
      * 获取MPS的DateOfInsert作版本
      * @return List<String>
@@ -43,4 +52,12 @@ public interface FcstMapper {
      * @return  List<Map>
      */
     List<Map> getCellMpsDate(String dateOfInsert);
+
+    /**
+     * 获取LCM的MPS
+     * @param year 年份
+     * @param month 月
+     * @return List<Map>
+     */
+    List<Map> getMpsLcm(@Param("year") int year, @Param("month") int month);
 }

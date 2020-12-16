@@ -28,6 +28,26 @@
             background-color: transparent;
         }
     </style>
+
+    <!-- 表格单元格样式 -->
+    <style>
+        div .box_parent {
+            display: inline-block;
+            vertical-align: top;
+        }
+        div .box {
+            box-sizing:border-box;
+            -moz-box-sizing:border-box; /* Firefox */
+            -webkit-box-sizing:border-box; /* Safari */
+            border-top: none;
+            border-left: none;
+            border-bottom: 1px #e6e6e6 solid;
+            border-right: 1px #e6e6e6 solid;
+            height: 20px;
+            width: 100px;
+            overflow: hidden;
+        }
+    </style>
 </head>
 <body>
 <!-- 正文开始 -->
@@ -88,6 +108,23 @@
     </div>
 </script>
 
+<script type="text/html" id="bomPackageMaterialTitleDemo">
+    <div style="margin-left: -15px; margin-right: -15px;">
+        <div style="white-space: nowrap;">
+            <div class="box_parent"><div class="box">料号</div></div><div class="box_parent"><div class="box">物料组</div></div><div class="box_parent"><div class="box">包装规格</div></div><div class="box_parent"><div class="box">损耗量</div></div><div class="box_parent"><div class="box">供应商标示</div></div><div class="box_parent"><div class="box" style="width: 200px;">物料名</div></div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="bomPackageMaterialDemo">
+    <div style="margin-left: -15px; margin-right: -15px;">
+        {{#  layui.each(d.bomPackageMaterialList, function(index, bomPackageMaterial){ }}
+        <div style="white-space: nowrap;">
+            <div class="box_parent"><div class="box">{{ bomPackageMaterial.material }}</div></div><div class="box_parent"><div class="box">{{ bomPackageMaterial.materialGroup }}</div></div><div class="box_parent"><div class="box">{{ bomPackageMaterial.specQty }}</div></div><div class="box_parent"><div class="box">{{ bomPackageMaterial.lossRate ? bomPackageMaterial.lossRate:''}}</div></div><div class="box_parent"><div class="box">{{ bomPackageMaterial.supplierFlag }}</div></div><div class="box_parent"><div class="box" style="width: 200px;">{{ bomPackageMaterial.materialName }}</div></div>
+        </div>
+        {{#  }); }}
+    </div>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
@@ -99,10 +136,11 @@
         var form = layui.form;
         var laytpl = layui.laytpl;
 
+        var bomPackageMaterialTitle = laytpl(bomPackageMaterialTitleDemo.innerHTML).render({});
         // 包材BOM表格
         table.render({
             elem: '#table_bomPackage',
-            url: '/mrp/bom/queryBomPackage',
+            url: '/mrp/bomPackage/queryBomPackage',
             where: {
                 searchProduct: ''
             },
@@ -115,62 +153,65 @@
                 {field: 'cutQty', title: '切片数', align: 'center', width: 80},
                 {field: 'middleQty', title: '中板数', align: 'center', width: 80},
                 {field: 'panelQty', title: 'Panel数', align: 'center', width: 80},
-                {field: 'material', title: '料号', align: 'center', width: 120, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].material);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'materialName', title: '品名', align: 'center', width: 160, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].materialName);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'materialGroup', title: '物料组', align: 'center', width: 80, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].materialGroup);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 180, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].materialGroupName);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'spec', title: '<div>包装规格<br>(pcs/每套)</div>', align: 'center',  width: 80, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].specQty);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'lossRate', title: '损耗率', align: 'center', width: 80, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].lossRate);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
-                {field: 'supplierFlag', title: '<div>供应商<br>标识</div>', align: 'center', width: 80, templet: function(data) {
-                        var materials = data.materialList;
-                        var d = [];
-                        for(var i=0; i<materials.length; i++) {
-                            d.push(materials[i].supplierFlag ? 1 : 0);
-                        }
-                        return laytpl(bomPackageDemo.innerHTML).render(d);
-                    }},
+                {title: bomPackageMaterialTitle, align: 'center', width: 700, templet: function(d) {
+                        return laytpl(bomPackageMaterialDemo.innerHTML).render(d);
+                    }}
+                // {field: 'material', title: '料号', align: 'center', width: 120, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].material);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'materialName', title: '品名', align: 'center', width: 160, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].materialName);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'materialGroup', title: '物料组', align: 'center', width: 80, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].materialGroup);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'materialGroupName', title: '物料组名', align: 'center', width: 180, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].materialGroupName);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'spec', title: '<div>包装规格<br>(pcs/每套)</div>', align: 'center',  width: 80, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].specQty);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'lossRate', title: '损耗率', align: 'center', width: 80, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].lossRate);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
+                // {field: 'supplierFlag', title: '<div>供应商<br>标识</div>', align: 'center', width: 80, templet: function(data) {
+                //         var materials = data.materialList;
+                //         var d = [];
+                //         for(var i=0; i<materials.length; i++) {
+                //             d.push(materials[i].supplierFlag ? 1 : 0);
+                //         }
+                //         return laytpl(bomPackageDemo.innerHTML).render(d);
+                //     }},
             ]],
             page: true,
             limit: 50,

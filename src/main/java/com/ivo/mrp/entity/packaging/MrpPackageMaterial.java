@@ -1,10 +1,12 @@
 package com.ivo.mrp.entity.packaging;
 
-import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp.key.MrpPackageMaterialKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -16,15 +18,17 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "MRP3_Mrp_Package_Material")
-public class MrpPackageMaterial extends AutoIncreaseEntityModel {
-
-    public static final String TYPE_D = "单片";
-    public static final String TYPE_L = "连片";
+@IdClass(MrpPackageMaterialKey.class)
+public class MrpPackageMaterial {
 
     /**
      * MRP版本
      */
+    @Id
     private String ver;
+
+    @Id
+    private String packageId;
 
     /**
      * 机种
@@ -39,7 +43,7 @@ public class MrpPackageMaterial extends AutoIncreaseEntityModel {
     /**
      * 连片数
      */
-    private Double linkQty;
+    private String linkQty;
 
     /**
      * 抽单模式
@@ -49,7 +53,23 @@ public class MrpPackageMaterial extends AutoIncreaseEntityModel {
     /**
      * 料号
      */
+    @Id
     private String material;
+
+    /**
+     * 物料名
+     */
+    private String materialName;
+
+    /**
+     * 物料组
+     */
+    private String materialGroup;
+
+    /**
+     * 物料组名
+     */
+    private String materialGroupName;
 
     /**
      * 备注
@@ -65,4 +85,6 @@ public class MrpPackageMaterial extends AutoIncreaseEntityModel {
      * 创建时间
      */
     private Date createDate = new Date();
+
+    private String fab;
 }

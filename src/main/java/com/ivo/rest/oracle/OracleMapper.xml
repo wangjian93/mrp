@@ -11,6 +11,12 @@
     where cellmtrl =#{cellMtrl} ORDER BY mtrl_id
   </select>
 
+  <!--获取CELL料号的材料 -->
+  <select id="getCellMaterial" parameterType="java.lang.String" resultType="java.util.HashMap">
+    select PLANT, PRODUCT, CELLMTRL, MTRL_ID, MEASURE_UNIT, USAGEQTY, SUBFLAG, MEMO
+    from V_BOM_CELL_C
+  </select>
+
   <!-- 批量获取库存 -->
   <select id="getInventory" resultType="java.lang.Double">
     select SUM(LABST) as qty

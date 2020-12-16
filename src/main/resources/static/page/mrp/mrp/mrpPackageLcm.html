@@ -137,14 +137,14 @@
 <!-- MRP行数据label模板 -->
 <script type="text/html" id="mrpTitleDemo"><div class="box_parent">
 {{#  layui.each(d.p, function(index, item){ }}
-<div class="box" style="width: 160px;">{{ item }}</div>
+<div class="box" style="width: 120px;">{{ item }}</div>
 {{#  }); }}
-<div class="box" style="width: 160px;">需求量</div>
-<div class="box" style="width: 160px;color: #01AAED;">到货量</div>
-<div class="box" style="width: 160px;">损耗量</div>
-<div class="box" style="width: 160px;color: red;border-bottom: none">结余量</div>
-<div class="box" style="width: 160px;color: red;" hidden>缺料量</div>
-<div class="box" style="width: 160px;" hidden>分配量</div>
+<div class="box" style="width: 120px;">需求总量</div>
+<div class="box" style="width: 120px;color: #01AAED;">到货量</div>
+<div class="box" style="width: 120px;">损耗量</div>
+<div class="box" style="width: 120px;color: red;border-bottom: none">结余量</div>
+<div class="box" style="width: 120px;color: red;" hidden>缺料量</div>
+<div class="box" style="width: 120px;" hidden>分配量</div>
 </div></script>
 
 <!-- MRP月份日历模板 -->
@@ -373,8 +373,8 @@
         };
 
         var data1 = [
-            {"flag": false, "products": "5133NVFF-001M11,5133NVFL-001M10", "material": "2300203-000", "materialName": "ACF,OLB ,AC-7813 ,1.0mm*100M,Hitachi", "materialGroup":"912"},
-            {"flag": false, "products": "5133NVFF-001M11,5133NVFL-001M10", "material": "2813101-000", "materialName": "Carton Label (80*40mm) 銅板紙", "materialGroup":"917"},
+            {"flag": false, "goodInventory":1054, "products": "5133NVFF-001M11,5133NVFL-001M10", "material": "2300203-000", "materialName": "ACF,OLB ,AC-7813 ,1.0mm*100M,Hitachi", "materialGroup":"912"},
+            {"flag": false, "goodInventory":0, "products": "5133NVFF-001M11,5133NVFL-001M10", "material": "2813101-000", "materialName": "Carton Label (80*40mm) 銅板紙", "materialGroup":"917"},
 
 
 
@@ -402,12 +402,15 @@
             cols: [[
                 {type: 'numbers', align: 'center', fixed: 'left'},
                 {field: 'products', title: '机种', align: 'center', width: 160, fixed: 'left',templet: function(d) {
-                        if(d.products != null) {
-                            return '<div style="max-height: 80px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
-                        } else {
+                        if(!d.flag) {
                             return '';
+                        } else {
+                            if(d.products != null) {
+                                return '<div style="max-height: 80px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                            } else {
+                                return '';
+                            }
                         }
-
                     }},
                 {field: 'material', title: '<div style="line-height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
                 {title: '物料名', align: 'center', width: 160, templet: function (d) {
@@ -422,7 +425,7 @@
                 //             return '';
                 //         }
                 //     }},
-                {title: '', align: 'center', width: 160, templet: function (d) {
+                {title: '', align: 'center', width: 120, templet: function (d) {
                     if(!d.flag) {
                         d.p = d.products.split(",");
                     }

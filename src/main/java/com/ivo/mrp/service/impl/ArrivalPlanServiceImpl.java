@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -173,5 +172,19 @@ public class ArrivalPlanServiceImpl implements ArrivalPlanService {
         arrivalPlan.setArrivalQty(arrivalQty);
         arrivalPlan.setUpdateDate(new java.util.Date());
         arrivalPlanRepository.save(arrivalPlan);
+    }
+
+    @Override
+    public Page<Map> getPageFillRateMaterial(String fab, Date startDate, Date endDate, int page, int limit, String searchMaterialGroup, String searchMaterial, String searchSupplier) {
+        Pageable pageable = PageRequest.of(page, limit);
+        return arrivalPlanRepository.getPageFillRateMaterial(startDate, endDate, fab, searchMaterialGroup+"%",
+                searchMaterial+"%",
+                searchSupplier+"%", pageable);
+    }
+
+    @Override
+    public List<ArrivalPlan> getArrivalPlan(String fab, Date startDate, Date endDate, String material, String supplierCode) {
+        return arrivalPlanRepository.findByFabAndMaterialAndSupplierCodeAndFabDateGreaterThanEqualAndFabDateLessThanEqual(
+                fab, material, supplierCode, startDate, endDate);
     }
 }

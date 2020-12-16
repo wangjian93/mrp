@@ -98,8 +98,13 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public List<Map> getCellMtrl(String cellMtrl) {
-        log.info("从Oracle数据库V_BOM_CELL_C获取成品料号的材料");
+        log.info("从Oracle数据库V_BOM_CELL_C获取CELL成品料号的材料");
         return oracleMapper.getCellMtrl(cellMtrl);
+    }
+
+    public List<Map> getCellMtrl() {
+        log.info("从Oracle数据库V_BOM_CELL_C获取CELL成品料号的材料");
+        return oracleMapper.getCellMaterial();
     }
 
     @Override
@@ -287,5 +292,17 @@ public class RestServiceImpl implements RestService {
     @Override
     public List<Map> getBomPackageLcm2() {
         return eifMapper.getBomPackageLcm2();
+    }
+
+    @Override
+    public List<Map> getMpsLcm(int year, int month) {
+        return fcstMapper.getMpsLcm(year, month);
+    }
+
+
+    @Override
+    public List<Map> getCellMpsMode() {
+        log.info("从MPS数据库获取CELL的MPS机种命名");
+        return fcstMapper.getCellMpsMode();
     }
 }

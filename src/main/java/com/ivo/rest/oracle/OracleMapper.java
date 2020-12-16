@@ -21,6 +21,14 @@ public interface OracleMapper {
     List<Map> getCellMtrl(@Param("cellMtrl") String cellMtrl);
 
     /**
+     * 获取CELL料号的材料
+     * @return List<Map>
+     */
+    List<Map> getCellMaterial();
+
+
+
+    /**
      * 获取材料库存
      * @param material 料号
      * @param fabDate 日期

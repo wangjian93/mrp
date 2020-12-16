@@ -210,8 +210,9 @@ public class SupplierController {
                                        @RequestParam(required = false, defaultValue = "50") int limit,
                                        @RequestParam(required = false, defaultValue = "") String project,
                                        String month) {
-        Page p = supplierService.querySupplierPackage(page-1, limit, month, project);
-        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+//        Page p = supplierService.querySupplierPackage(page-1, limit, month, project);
+//        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
+        return null;
     }
 
     @ApiOperation("Excel导入包材的供应商")

@@ -1,10 +1,12 @@
 package com.ivo.mrp.entity.packaging;
 
-import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp.key.MrpPackageKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -17,15 +19,17 @@ import java.util.Date;
 @Getter
 @Entity
 @Table(name = "MRP3_Mrp_Package")
-public class MrpPackage extends AutoIncreaseEntityModel {
-
-    public static final String TYPE_D = "单片";
-    public static final String TYPE_L = "连片";
+@IdClass(MrpPackageKey.class)
+public class MrpPackage {
 
     /**
      * MRP版本
      */
+    @Id
     private String ver;
+
+    @Id
+    private String packageId;
 
     /**
      * 机种
@@ -40,34 +44,16 @@ public class MrpPackage extends AutoIncreaseEntityModel {
     /**
      * 连片数
      */
-    private Double linkQty;
-
-    /**
-     * 抽单模式
-     */
-    private String mode;
+    private String linkQty;
 
     /**
      * 料号
      */
+    @Id
     private String material;
 
+    @Id
     private java.sql.Date fabDate;
-
-    /**
-     * 物料名
-     */
-    private String materialName;
-
-    /**
-     * 物料组
-     */
-    private String materialGroup;
-
-    /**
-     * 物料组名
-     */
-    private String materialGroupName;
 
     /**
      * 需求量
@@ -75,19 +61,9 @@ public class MrpPackage extends AutoIncreaseEntityModel {
     private double demandQty;
 
     /**
-     * 计划到货量
-     */
-    private double arrivalQty;
-
-    /**
      * 分配数量
      */
     private double allocationQty;
-
-    /**
-     * 缺料量
-     */
-    private double shortQty;
 
     /**
      * 备注

@@ -65,7 +65,71 @@ public class MpsServiceImpl implements MpsService {
 
     @Override
     public void syncMpsLcm() {
-        //TODO...
+        syncMpsLcm(2021, 2);
+        syncMpsLcm(2021, 3);
+    }
+
+    private void syncMpsLcm(int year, int month) {
+        List<Map> mapList = restService.getMpsLcm(year, month);
+        if(mapList == null || mapList.size()==0) return;
+        List<MpsLcm> mpsLcmList1 = new ArrayList<>();
+        List<MpsLcm> mpsLcmList2 = new ArrayList<>();
+        String mpsVerLcm1 = generateMpsVer();
+        String mpsVerLcm2 = Long.toString(Long.parseLong(mpsVerLcm1) + 1);
+        java.sql.Date fabDate = new java.sql.Date(DateUtil.getFirstDayOfMonth1(year, month).getTime());
+        for(Map map : mapList){
+
+            double lcm1Qty = ((BigDecimal) map.get("lcm1Qty")).doubleValue();
+            if(lcm1Qty>0) {
+                MpsLcm mpsLcm1 = new MpsLcm();
+                mpsLcm1.setVer(mpsVerLcm1);
+                mpsLcm1.setProduct((String)map.get("product"));
+                mpsLcm1.setFullName("");
+                mpsLcm1.setFabDate(fabDate);
+                mpsLcm1.setDemandQty(lcm1Qty);
+                mpsLcm1.setCreator("SYS");
+
+                mpsLcmList1.add(mpsLcm1);
+            }
+
+
+            double lcm2Qty = ((BigDecimal) map.get("lcm2Qty")).doubleValue();
+            if(lcm2Qty>0) {
+                MpsLcm mpsLcm2 = new MpsLcm();
+                mpsLcm2.setVer(mpsVerLcm2);
+                mpsLcm2.setProduct((String)map.get("product"));
+                mpsLcm2.setFullName("");
+                mpsLcm2.setFabDate(fabDate);
+                mpsLcm2.setDemandQty(lcm2Qty);
+                mpsLcm2.setCreator("SYS");
+
+                mpsLcmList2.add(mpsLcm2);
+            }
+        }
+
+
+        MpsVer mpsVer1 = new MpsVer();
+        mpsVer1.setVer(mpsVerLcm1);
+        mpsVer1.setFab("LCM1");
+        mpsVer1.setType(MpsVer.Type_Lcm);
+        mpsVer1.setSource(MpsVer.Source_MPS);
+        mpsVer1.setStartDate(fabDate);
+        mpsVer1.setEndDate(new java.sql.Date(DateUtil.getLastDayOfMonth1(year, month).getTime()));
+        mpsVer1.setCreator("SYS");
+
+        MpsVer mpsVer2 = new MpsVer();
+        mpsVer2.setVer(mpsVerLcm2);
+        mpsVer2.setFab("LCM2");
+        mpsVer2.setType(MpsVer.Type_Lcm);
+        mpsVer2.setSource(MpsVer.Source_MPS);
+        mpsVer2.setStartDate(fabDate);
+        mpsVer2.setEndDate(new java.sql.Date(DateUtil.getLastDayOfMonth1(year, month).getTime()));
+        mpsVer2.setCreator("SYS");
+
+        mpsVerRepository.save(mpsVer1);
+        mpsLcmRepository.saveAll(mpsLcmList1);
+        mpsVerRepository.save(mpsVer2);
+        mpsLcmRepository.saveAll(mpsLcmList2);
     }
 
     List<MpsVer> getMpsVerByMpsFile(String mpsFile, String fab, String type) {
@@ -77,7 +141,7 @@ public class MpsServiceImpl implements MpsService {
     public void syncMpsCell2() {
         List<String> dateOfInsertList = restService.getMpsDateOfInsertForVersion();
         for(String dateOfInsert : dateOfInsertList) {
-            dateOfInsert = "2020-11-11";
+            dateOfInsert = "2020-12-11";
             List list = getMpsVerByMpsFile(dateOfInsert, "CELL", MpsVer.Type_Cell);
             if(list == null || list.size()==0) {
                 syncMpsCell2(dateOfInsert);
@@ -141,7 +205,7 @@ public class MpsServiceImpl implements MpsService {
     public void syncMpsAry2() {
         List<String> dateOfInsertList = restService.getMpsDateOfInsertForVersion();
         for(String dateOfInsert : dateOfInsertList) {
-            dateOfInsert = "2020-11-11";
+            dateOfInsert = "2020-12-11";
             List list = getMpsVerByMpsFile(dateOfInsert, "ARY", MpsVer.Type_Ary);
             if(list == null || list.size()==0) {
                 syncMpsAry2(dateOfInsert);

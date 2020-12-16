@@ -54,13 +54,13 @@
             height: 25px;
             width: 100px;
         }
-        div .box_parent.hover:hover {
-            background-color: lightyellow;
-            cursor:pointer
-        }
-        div .box.hover:hover {
-            background-color: #f2ffb4;
-        }
+        /*div .box_parent.hover:hover {*/
+        /*    background-color: lightyellow;*/
+        /*    cursor:pointer*/
+        /*}*/
+        /*div .box.hover:hover {*/
+        /*    background-color: #f2ffb4;*/
+        /*}*/
     </style>
 </head>
 <body>
@@ -68,7 +68,7 @@
 <!-- 正文开始 -->
 <div class="layui-fluid">
     <div class="layui-card">
-        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> CELL 供应商达交率</div>
+        <div class="layui-card-header"><i class="layui-icon layui-icon-tabs"></i> LCM2 供应商达交率</div>
         <div class="layui-card-body">
             <!-- MRP表格 -->
             <div class="mrp">
@@ -138,16 +138,16 @@
 
 <!-- MRP月份汇总数据模板 -->
 <script type="text/html" id="arrivalPlanMonthDemo"><div class="box_parent" id="{{ d.material_supplierCode_month }}">
-<div class="box" id="{{ d.material_supplierCode_month }}_CELL_ArrivalQty"></div>
-<div class="box" id="{{ d.material_supplierCode_month }}_CELL_AllocationQty"></div>
-<div class="box" id="{{ d.material_supplierCode_month }}_CELL_" style="border-bottom: none"></div>
+<div class="box" id="{{ d.material_supplierCode_month }}_ArrivalQty"></div>
+<div class="box" id="{{ d.material_supplierCode_month }}_AllocationQty"></div>
+<div class="box" id="{{ d.material_supplierCode_month }}_" style="border-bottom: none"></div>
 </div></script>
 
 <!-- MRP行数据模板 -->
 <script type="text/html" id="arrivalPlanDemo"><div class="box_parent hover" id="{{ d.material_supplierCode_fabDate }}">
-<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_ArrivalQty" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_ArrivalQty"></div>
-<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_AllocationQty"></div>
-<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_CELL_" lay-event="{{ d.material_supplierCode_fabDate }}_CELL_" style="border-bottom: none"></div>
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_ArrivalQty" lay-event="{{ d.material_supplierCode_fabDate }}_ArrivalQty"></div>
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_AllocationQty" lay-event="{{ d.material_supplierCode_fabDate }}_AllocationQty"></div>
+<div class="box hover" id="{{ d.material_supplierCode_fabDate }}_DifferentQty" lay-event="{{ d.material_supplierCode_fabDate }}_DifferentQty" style="border-bottom: none"></div>
 </div></script>
 
 <!-- js部分 -->
@@ -165,6 +165,8 @@
         var notice = layui.notice;
         var upload = layui.upload;
 
+        //厂别
+        var fab = 'CELL';
 
         //格式化日期：yyyy-MM-dd
         function formatDate(date) {
@@ -215,8 +217,6 @@
             var rangeDate = $("#rangeDate").val().split('~');
             var startDate = rangeDate[0].trim();
             var endDate = rangeDate[1].trim();
-            //厂别
-            var fab = 'CELL';
             var materialGroup =$('input[name=materialGroup]').val();
             var material = $('input[name=material]').val();
             var supplier = $('input[name=supplier]').val();
@@ -265,11 +265,38 @@
                 cols: [[
                     {type: 'numbers', align: 'center', fixed: 'left'},
                     {field: 'material', title: '<span style="line-height: 50px;">料号</span>', align: 'center', width: 140, fixed: 'left'},
-                    {field: 'supplierSname', title: '供应商', align: 'center', width: 140, fixed: 'left'},
+                    {field: 'supplierCode', title: '供应商ID', align: 'center', width: 140, fixed: 'left'},
                     {title: '', align: 'center', width: 100, templet: '#titleDemo', fixed: 'left'},
-                    {field: 'supplierCode', title: '供应商ID', align: 'center', width: 140},
-                    {field: 'materialName', title: '物料名', align: 'center', width: 140},
-                    {field: 'materialGroup', title: '物料组', align: 'center', width: 140},
+                    {field: 'supplierSname', title: '供应商', align: 'center', width: 140,
+                        templet: function(data) {
+                            var material = data.material;
+                            var supplierCode = data.supplierCode;
+                            //料号中会有'.'jquery的ID选择器选不到
+                            material = material.replace(".","point");
+                            var id = 'supplierName_'+material+'_'+supplierCode;
+                            return '<div id="'+id+'"></div>';
+                        }
+                    },
+                    {field: 'materialName', title: '物料名', align: 'center', width: 140,
+                        templet: function(data) {
+                            var material = data.material;
+                            var supplierCode = data.supplierCode;
+                            //料号中会有'.'jquery的ID选择器选不到
+                            material = material.replace(".","point");
+                            var id = 'materialName_'+material+'_'+supplierCode;
+                            return '<div id="'+id+'"></div>';
+                        }
+                    },
+                    {field: 'materialGroup', title: '物料组', align: 'center', width: 140,
+                        templet: function(data) {
+                            var material = data.material;
+                            var supplierCode = data.supplierCode;
+                            //料号中会有'.'jquery的ID选择器选不到
+                            material = material.replace(".","point");
+                            var id = 'materialGroup_'+material+'_'+supplierCode;
+                            return '<div id="'+id+'"></div>';
+                        }
+                    },
                     // {field: '', title: '机种', align: 'center', width: 140},
                     {title: calendarMonthTitle, align: 'center', width: months.length*100,
                         templet: function(data) {
@@ -337,13 +364,19 @@
                 //料号中会有'.'jquery的ID选择器选不到
                 var material_ = material.replace(".","point");
                 var lis = [];
+
+                $('#supplierName_'+material_+'_'+supplierCode).html(res.data.supplierName);
+                $('#materialName_'+material_+'_'+supplierCode).html(res.data.materialName);
+                $('#materialGroup_'+material_+'_'+supplierCode).html(res.data.materialGroup);
+
+
                 layui.each(days, function(i, day) {
                     var d = {
                         material_supplierCode_fabDate: material_+"_"+supplierCode+"_"+day
                     };
                     lis.push(laytpl(arrivalPlanDemo.innerHTML).render(d));
                 });
-                var id = 'arrivalPlan_'+material+'_'+supplierCode;
+                var id = 'arrivalPlan_'+material_+'_'+supplierCode;
                 $('#'+id).html(lis.join(""));
 
                 //月份汇总
@@ -354,37 +387,43 @@
                     };
                     lisMonth.push(laytpl(arrivalPlanMonthDemo.innerHTML).render(d));
                 });
-                var id_month = 'arrivalPlan_month_'+material+'_'+supplierCode;
+                var id_month = 'arrivalPlan_month_'+material_+'_'+supplierCode;
                 $('#'+id_month).html(lisMonth.join(""));
 
                 var monthSum = {};
-                layui.each(res.data, function(index, item) {
-                    var fab = item.fab;
+                layui.each(res.data.data, function(index, item) {
                     var material_supplierCode_fabDate = material_+"_"+supplierCode+"_"+item.fabDate;
                     var fabDate = item.fabDate;
                     var month = fabDate.substring(0, 7);
                     if(!monthSum[month]) {
                         monthSum[month] = {
-                            CELL_AllocationQty: 0,
-                            CELL_ArrivalQty: 0
+                            _AllocationQty: 0,
+                            _ArrivalQty: 0
                         };
                     }
-                    if(item.allocationQty) {
-                        $('#'+material_supplierCode_fabDate+"_"+fab+"_AllocationQty").html('<span>'+item.allocationQty+'</span>');
-                        monthSum[month][fab+"_AllocationQty"] += item.allocationQty;
-                    }
                     if(item.arrivalQty) {
-                        $('#'+material_supplierCode_fabDate+"_"+fab+"_ArrivalQty").html('<span>'+item.arrivalQty+'</span>');
-                        monthSum[month][fab+"_ArrivalQty"] += item.arrivalQty;
+                        $('#'+material_supplierCode_fabDate+"_ArrivalQty").html(item.arrivalQty);
+                        monthSum[month]["_ArrivalQty"] += item.arrivalQty;
+                    }
+                    if(item.actualArrivalQty) {
+                        $('#'+material_supplierCode_fabDate+"_AllocationQty").html(item.actualArrivalQty);
+                        monthSum[month]["_AllocationQty"] += item.actualArrivalQty;
+                    }
+                    if(item.differentQty) {
+                        $('#'+material_supplierCode_fabDate+"_DifferentQty").html(item.differentQty);
+                        $('#'+material_supplierCode_fabDate+"_DifferentQty").css("background-color","yellow");
                     }
                 });
 
                 layui.each(Object.keys(monthSum), function(index, month) {
                     var monthData = monthSum[month];
                     var material_supplierCode_month =  material_+"_"+supplierCode+"_"+month;
-                    $('#'+material_supplierCode_month+"_CELL_AllocationQty").html('<span>'+monthData.CELL_AllocationQty+'</span>');
-                    $('#'+material_supplierCode_month+"_CELL_ArrivalQty").html('<span>'+monthData.CELL_ArrivalQty+'</span>');
+                    $('#'+material_supplierCode_month+"_AllocationQty").html('<span>'+monthData._AllocationQty+'</span>');
+                    $('#'+material_supplierCode_month+"_ArrivalQty").html('<span>'+monthData._ArrivalQty+'</span>');
                 });
+
+                //计算差异值
+
             });
         };
 

@@ -2,12 +2,11 @@ package com.ivo.mrp.controller;
 
 import com.ivo.common.result.Result;
 import com.ivo.common.utils.ResultUtil;
-import com.ivo.mrp.entity.MrpVer;
-import com.ivo.mrp.service.ActualArrivalService;
-import com.ivo.mrp.service.AllocationService;
-import com.ivo.mrp.service.ArrivalPlanService;
+import com.ivo.mrp.entity.ActualArrival;
+import com.ivo.mrp.entity.Supplier;
+import com.ivo.mrp.entity.direct.ArrivalPlan;
+import com.ivo.mrp.service.*;
 import io.swagger.annotations.Api;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj
@@ -32,16 +33,18 @@ public class FillRateController {
 
     private ActualArrivalService actualArrivalService;
 
-    private AllocationService allocationService;
+    private MaterialService materialService;
+
+    private SupplierService supplierService;
 
     @Autowired
     public FillRateController(ArrivalPlanService arrivalPlanService, ActualArrivalService actualArrivalService,
-                              AllocationService allocationService) {
+                              MaterialService materialService, SupplierService supplierService) {
         this.arrivalPlanService = arrivalPlanService;
         this.actualArrivalService = actualArrivalService;
-        this.allocationService = allocationService;
+        this.materialService = materialService;
+        this.supplierService = supplierService;
     }
-
 
     @GetMapping("/getPageArrivalPlanMaterial")
     public Result getPageArrivalPlanMaterial(Date startDate, Date endDate,
@@ -50,40 +53,54 @@ public class FillRateController {
                                              @RequestParam(required = false, defaultValue = "") String materialGroup,
                                              @RequestParam(required = false, defaultValue = "") String material,
                                              @RequestParam(required = false, defaultValue = "") String supplier) {
-        if(StringUtils.equalsAnyIgnoreCase(fab, "LCM")) {
-            Page p = arrivalPlanService.getPageLcmArrivalPlanMaterial(startDate, endDate, page-1, limit, materialGroup, material, supplier);
-            return ResultUtil.successPage(p.getContent(), p.getTotalElements());
-        } else if(StringUtils.equalsAnyIgnoreCase(fab,MrpVer.Type_Cell) ) {
-            Page p = arrivalPlanService.getPageCellArrivalPlanMaterial(startDate, endDate, page-1, limit, materialGroup, material, supplier);
-            return ResultUtil.successPage(p.getContent(), p.getTotalElements());
-        } else if(StringUtils.equalsIgnoreCase(fab, MrpVer.Type_Ary)) {
-            Page p = arrivalPlanService.getPageAryArrivalPlanMaterial(startDate, endDate, page-1, limit, materialGroup, material, supplier);
-            return ResultUtil.successPage(p.getContent(), p.getTotalElements());
-        }
-        return null;
+        Page p = arrivalPlanService.getPageFillRateMaterial(fab, startDate, endDate, page-1, limit, materialGroup, material, supplier);
+        return ResultUtil.successPage(p.getContent(), p.getTotalElements());
     }
 
     @GetMapping("/getArrivalPlan")
     public Result getArrivalPlan(Date startDate, Date endDate,
                                  String fab,
                                  String material, String supplierCode) {
-        List list = new ArrayList();
-        if(StringUtils.equalsAnyIgnoreCase(fab, "LCM")) {
-            List list1 = arrivalPlanService.getLcmArrivalPlan(startDate, endDate, material, supplierCode);
-            List list2 = allocationService.getLcmAllocation(startDate, endDate, material, supplierCode);
-            list.addAll(list1);
-            list.addAll(list2);
-        } else if(StringUtils.equalsAnyIgnoreCase(fab,MrpVer.Type_Cell) ) {
-            List list1 = arrivalPlanService.getCellArrivalPlan(startDate, endDate, material, supplierCode);
-            List list2 = allocationService.getCellAllocation(startDate, endDate, material, supplierCode);
-            list.addAll(list1);
-            list.addAll(list2);
-        } else if(StringUtils.equalsIgnoreCase(fab, MrpVer.Type_Ary)) {
-            List list1 = arrivalPlanService.getAryArrivalPlan(startDate, endDate, material, supplierCode);
-            List list2 = allocationService.getAryAllocation(startDate, endDate, material, supplierCode);
-            list.addAll(list1);
-            list.addAll(list2);
+        List<ArrivalPlan> list1 = arrivalPlanService.getArrivalPlan(fab, startDate, endDate, material, supplierCode);
+        List<ActualArrival> list2 = actualArrivalService.getActualArrival(fab, startDate, endDate, material, supplierCode);
+        Map<String, Map> dataMap = new HashMap<>();
+        for(ArrivalPlan arrivalPlan : list1) {
+            String fabDate = arrivalPlan.getFabDate().toString();
+            if(dataMap.get(fabDate) == null) {
+                Map subMap = new HashMap();
+                subMap.put("fabDate", fabDate);
+                dataMap.put(fabDate, subMap);
+            }
+            dataMap.get(fabDate).put("arrivalQty", arrivalPlan.getArrivalQty());
+            dataMap.get(fabDate).put("differentQty", arrivalPlan.getArrivalQty());
         }
-        return ResultUtil.success(list);
+        for(ActualArrival actualArrival : list2) {
+            String fabDate = actualArrival.getFabDate().toString();
+            if(dataMap.get(fabDate) == null) {
+                Map subMap = new HashMap();
+                subMap.put("fabDate", fabDate);
+                dataMap.put(fabDate, subMap);
+            }
+            double arrivalQty = 0d;
+            double actualArrivalQty = actualArrival.getQty();
+            if(dataMap.get(fabDate).get("arrivalQty") != null) {
+                arrivalQty = (double) dataMap.get(fabDate).get("arrivalQty");
+            }
+
+            dataMap.get(fabDate).put("actualArrivalQty", actualArrivalQty);
+            dataMap.get(fabDate).put("differentQty", arrivalQty-actualArrivalQty);
+        }
+
+        List<Map> list = new ArrayList<>(dataMap.values());
+
+        String materialGroup = materialService.getMaterialGroup(material);
+        String materialName = materialService.getMaterialName(material);
+        Supplier supplier = supplierService.getSupplier(supplierCode);
+        Map map = new HashMap();
+        map.put("materialGroup",  materialGroup);
+        map.put("materialName",  materialName);
+        map.put("supplierName",  supplier!=null ? supplier.getSupplierSname() : "");
+        map.put("data", list);
+        return ResultUtil.success(map);
     }
 }

@@ -3,7 +3,6 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ivo.rest.fcst.FcstMapper">
-
   <!-- 获取MPS中的CELL BOM成品料号14料号 -->
   <select id="getBomCell" resultType="java.util.HashMap">
     select distinct CellInPut, Material_FK,Project from (
@@ -21,6 +20,16 @@
                                                        select ArrayInPut, TFTMtrl,Project from SD_O_MPSModelDetailHis WHERE ArrayInPut is not null
                                                      ) t ORDER BY ArrayInPut
   </select>
+
+
+  <!-- 获取CELL的MPS机种命名 -->
+  <select id="getCellMpsMode" resultType="java.util.HashMap">
+    select DISTINCT CellInPut_PC, Material_FK
+    from SD_O_MPSModelDetail
+    where CellInPut_PC is not NULL
+    and ValidFlag=1
+  </select>
+
 
   <!-- 获取MPS的DateOfInsert作版本 -->
   <select id="getMpsDateOfInsertForVersion" resultType="java.lang.String">
@@ -55,5 +64,19 @@
                                                and MPSColumn='ArrayInPut'
                                                and MPSKey &lt;&gt; ''
                                                and DateOfInsert = #{dateOfInsert}
+  </select>
+
+  <!-- 获取LCM的MPS  -->
+  <select id="getMpsLcm" resultType="java.util.HashMap">
+    select
+      Material_FK + Version as product,
+      LCM1InQty as lcm1Qty,
+      LCM2InQty as lcm2Qty
+    from SD_D_FCSTPSIManagementItemHis
+    where
+      InsertType='release' and ValidFlag=1
+      and MaterialType='MDL'
+      and (LCM1InQty>0 or LCM2InQty>0)
+      and [Year]=#{year} and [Month]=#{month}
   </select>
 </mapper>

@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author wj
  * @version 1.0
@@ -20,5 +22,7 @@ public interface MrpVerRepository extends JpaRepository<MrpVer, String> {
      * @return  Page<DpsVer>
      */
     Page<MrpVer> findByFabLikeAndTypeLikeAndVerLikeAndValidFlagIsTrue(String searchFab, String searchType, String searchVer, Pageable pageable);
+
+    MrpVer findTopByFabAndTypeAndValidFlagIsTrueOrderByVerDesc(String fab, String type);
 
 }

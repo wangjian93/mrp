@@ -1,7 +1,9 @@
 package com.ivo.mrp.controller;
 
 import com.ivo.common.result.Result;
+import com.ivo.common.utils.DoubleUtil;
 import com.ivo.common.utils.ResultUtil;
+import com.ivo.mrp.entity.MrpVer;
 import com.ivo.mrp.entity.direct.ary.MrpAry;
 import com.ivo.mrp.entity.direct.ary.MrpAryMaterial;
 import com.ivo.mrp.entity.direct.cell.MrpCell;
@@ -9,6 +11,7 @@ import com.ivo.mrp.entity.direct.cell.MrpCellMaterial;
 import com.ivo.mrp.entity.direct.lcm.MrpLcm;
 import com.ivo.mrp.entity.direct.lcm.MrpLcmMaterial;
 import com.ivo.mrp.service.MrpService;
+import com.ivo.mrp.service.ProductCustomerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -20,10 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author wj
@@ -36,9 +38,12 @@ public class ShortController {
 
     private MrpService mrpService;
 
+    private ProductCustomerService productCustomerService;
+
     @Autowired
-    public ShortController(MrpService mrpService) {
+    public ShortController(MrpService mrpService, ProductCustomerService productCustomerService) {
         this.mrpService = mrpService;
+        this.productCustomerService = productCustomerService;
     }
 
     @ApiOperation("分页获取MRP缺料数据")
@@ -61,8 +66,11 @@ public class ShortController {
                                          @RequestParam(required = false, defaultValue = "") String searchSupplier) {
 
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+
+
         if(StringUtils.containsIgnoreCase(fab, "LCM")) {
-            String ver = "20201106021";
+            String ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Lcm);
             List<Map> mapList = new ArrayList<>();
             Long total = 0L;
             Page<MrpLcmMaterial> p = mrpService.getPageMrpLcmMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
@@ -78,12 +86,34 @@ public class ShortController {
                 List<MrpLcm> mrpLcmList = mrpService.getMrpLcm(ver, mrpLcmMaterial.getMaterial());
                 for(MrpLcm mrpLcm : mrpLcmList) {
                     map.put(mrpLcm.getFabDate().toString(), mrpLcm.getShortQty());
+
+                    String month = sdf.format(mrpLcm.getFabDate());
+                    if(map.get(month) == null) {
+                        map.put(month, 0d);
+                    }
+                    map.put(month, DoubleUtil.sum((double)map.get(month), mrpLcm.getShortQty()));
+                }
+
+                //客户
+                if(StringUtils.isNotEmpty(mrpLcmMaterial.getProducts())) {
+                   List<String> productList = new ArrayList<>(Arrays.asList(mrpLcmMaterial.getProducts().split(",")));
+                    List<String> customerList = productCustomerService.getCustomer(productList);
+                    String customers = "";
+                    if(customerList != null && customerList.size()>0) {
+                        for(int i=0; i<customerList.size(); i++) {
+                            if(i != 0) {
+                                customers += ",";
+                            }
+                            customers += customerList.get(i);
+                        }
+                    }
+                    map.put("customers", customers);
                 }
                 mapList.add(map);
             }
             return ResultUtil.successPage(mapList, total);
         } else if(StringUtils.equalsIgnoreCase(fab, "ARY")) {
-            String ver = "20201105020";
+            String ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Ary);
             List<Map> mapList = new ArrayList<>();
             Long total = 0L;
             Page<MrpAryMaterial> p = mrpService.getPageMrpAryMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
@@ -99,14 +129,20 @@ public class ShortController {
                 List<MrpAry> mrpAryList = mrpService.getMrpAry(ver, mrpAryMaterial.getMaterial());
                 for(MrpAry mrpAry : mrpAryList) {
                     map.put(mrpAry.getFabDate().toString(), mrpAry.getShortQty());
+
+                    String month = sdf.format(mrpAry.getFabDate());
+                    if(map.get(month) == null) {
+                        map.put(month, 0d);
+                    }
+                    map.put(month, DoubleUtil.sum((double)map.get(month), mrpAry.getShortQty()));
                 }
+
                 mapList.add(map);
             }
             return ResultUtil.successPage(mapList, total);
 
         } else if(StringUtils.equalsIgnoreCase(fab, "CELL")) {
-
-            String ver = "20201105019";
+            String ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Cell);
             List<Map> mapList = new ArrayList<>();
             Long total = 0L;
             Page<MrpCellMaterial> p = mrpService.getPageMrpCellMaterial(page-1, limit, ver, searchProduct, searchMaterialGroup, searchMaterial, searchSupplier);
@@ -122,11 +158,32 @@ public class ShortController {
                 List<MrpCell> mrpCellList = mrpService.getMrpCell(ver, mrpCellMaterial.getMaterial());
                 for(MrpCell mrpCell : mrpCellList) {
                     map.put(mrpCell.getFabDate().toString(), mrpCell.getShortQty());
+
+                    String month = sdf.format(mrpCell.getFabDate());
+                    if(map.get(month) == null) {
+                        map.put(month, 0D);
+                    }
+                    map.put(month, DoubleUtil.sum((double)map.get(month), mrpCell.getShortQty()));
                 }
+
                 mapList.add(map);
             }
             return ResultUtil.successPage(mapList, total);
         }
         return ResultUtil.successPage(new ArrayList(), 0);
+    }
+
+
+    @RequestMapping("/getLastMrpVer")
+    public Result getLastMrpVer(String fab) {
+        String ver = "";
+        if(StringUtils.containsIgnoreCase(fab, "LCM")) {
+            ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Lcm);
+        } else if(StringUtils.equalsIgnoreCase(fab, "ARY")) {
+            ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Ary);
+        } else if(StringUtils.equalsIgnoreCase(fab, "CELL")) {
+            ver = mrpService.getLastMrpVer(fab, MrpVer.Type_Cell);
+        }
+        return ResultUtil.success("", ver);
     }
 }

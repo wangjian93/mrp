@@ -65,6 +65,8 @@ public interface ActualArrivalService {
      */
     List<ActualArrival> getActualArrival(Date fabDate, String material, String fab);
 
+    List<ActualArrival> getActualArrival(String fab, Date startDate, Date endDate, String material, String supplierCode);
+
     /**
      * 分页查询到货数据
      * @param page 页数
