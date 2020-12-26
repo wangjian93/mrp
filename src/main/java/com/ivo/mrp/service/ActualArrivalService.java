@@ -77,5 +77,5 @@ public interface ActualArrivalService {
      * @param fab 工厂
      * @return Page<ActualArrival>
      */
-    Page<ActualArrival> queryActualArrival(int page, int limit, Date fabDate, String material, String supplierCode, String fab);
+    Page<ActualArrival> queryActualArrival(int page, int limit, Date fabDate, String materialGroup, String material, String supplierCode, String fab);
 }

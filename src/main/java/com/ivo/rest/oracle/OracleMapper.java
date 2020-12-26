@@ -54,4 +54,7 @@ public interface OracleMapper {
                                 @Param("plant") String plant,
                                 @Param("positionList") List<String> positionList);
 
+
+    List<Map> getInventoryAll(@Param("fabDate") String fabDate, @Param("positionList") List<String> positionList);
+
 }

@@ -1,6 +1,8 @@
 package com.ivo.mrp.repository.cell;
 
 import com.ivo.mrp.entity.direct.cell.BomCell2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

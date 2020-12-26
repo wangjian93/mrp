@@ -67,4 +67,6 @@ public class DpsCell {
 
     private Date createDate = new Date();
 
+    private boolean splitFlag = false;
+
 }

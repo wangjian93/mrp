@@ -48,7 +48,7 @@ public class PackageAllocation {
     /**
      * 连片数
      */
-    private Double linkQty;
+    private String linkQty;
 
     @Id
     private String material;

@@ -87,14 +87,23 @@
 <!-- 月份汇总数据模板 -->
 <script type="text/html" id="dpsMonthDemo">
     <div>
-        {{d.dpsQty}}
+        {{d.dpsQty || ''}}
     </div>
 </script>
 
 <!-- 行数据模板 -->
 <script type="text/html" id="dpsDemo">
     <div>
-        {{d.dpsQty}}
+        {{d.dpsQty || ''}}
+    </div>
+</script>
+
+<!-- outputName处理弹框 -->
+<script type="text/html" id="outputNameDialog">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table_outputName" lay-filter="table_outputName"></table>
+        </div>
     </div>
 </script>
 
@@ -102,13 +111,14 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'tableX'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
         var laytpl = layui.laytpl;
         var admin = layui.admin;
         var form = layui.form;
+        var tableX = layui.tableX;
 
         /* 获取URL请求的参数 */
         var getQueryVariable = function (variable) {
@@ -146,22 +156,36 @@
 
         var cols = [
             {type: 'numbers', align: 'center', fixed: 'left'},
-            {field: 'product',  title:'<div style="height: 40px;">机种</div>', align: 'center', width: 160, fixed: 'left', templet: function(d) {
+            {field: 'product',  title:'<div style="line-height: 40px;">机种</div>', align: 'center', width: 180, fixed: 'left', templet: function(d) {
                     return '<div style="line-height: 30px;">'+d.product+'</div>'
                 }},
-            {field: 'outputName', title: 'outputName', align: 'center', width: 100, fixed: 'left'},
-            {field: 'fab', title: '厂别', align: 'center', width: 100, fixed: 'left'}
+            {field: 'outputName', title: 'PC_InputName', align: 'center', width: 240, templet: function(d) {
+                    if(d.outputName.indexOf(",") > -1) {
+                        return '<a title="点击拆分" style="color: #01AAED" onclick="showOutputName(\''+d.outputName+'\')">'+d.outputName+'</a>';
+                    } else {
+                        return d.outputName;
+                    }
+                }},
+            {title: 'BOM', align: 'center', width: 140, templet: function(d) {
+                    var bomStr = '';
+                    layui.each(d.bomList, function(index, bom){
+                        if(bomStr !== '') {
+                            bomStr += '/'
+                        }
+                        bomStr += bom.material;
+                    });
+                    return bomStr;
+                }},
+            // {field: 'project', title: 'Project', align: 'center', width: 100},
+            {field: 'fab', title: '厂别', align: 'center', width: 100}
         ];
         for(var i=0; i<months.length; i++) {
             (function(month) {
                 var title = laytpl(calendarMonthDemo.innerHTML).render({month: month});
                 cols.push({title: title, align: 'center', width: 100,
                     templet: function(d) {
-                        var dpsQty = d[month];
-                        if(!dpsQty || dpsQty===0) {
-                            dpsQty = '';
-                        }
-                        return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: dpsQty});
+                        var data = d[month] || '';
+                        return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
                     }
                 });
             })(months[i]);
@@ -182,11 +206,7 @@
                 cols.push({field: day, title: title, align: 'center', width: 100,
                     templet: function(d) {
                         var data = d[day] || {};
-                        var dpsQty = data.demandQty;
-                        if(!dpsQty || dpsQty===0) {
-                            dpsQty = '';
-                        }
-                        return laytpl(dpsDemo.innerHTML).render({dpsQty: dpsQty});
+                        return laytpl(dpsDemo.innerHTML).render({dpsQty: data.demandQty});
                     }
                 });
             })(days[i], weeks[i]);
@@ -204,7 +224,10 @@
             limit: 50,
             size: 'sm',
             height: 'full-80',
-            even: true
+            // even: true,
+            done: function(res, curr, count) {
+                tableX.merges('table_dps', [2], ["outputName"]);
+            }
         });
 
         // 表格搜索
@@ -218,6 +241,85 @@
             });
             return false;
         });
+
+
+        window.showOutputName = function(outputName) {
+            admin.open({
+                type: 1,
+                title: 'outputName拆分',
+                content: $('#outputNameDialog').html(),
+                area: '1150px',
+                btn: ['提交', '取消'],
+                success: function (layero, dIndex) {
+                    var cols2 = [
+                        {type: 'numbers', align: 'center', fixed: 'left'},
+                        {field: 'product',  title:'机种', align: 'center', width: 160, fixed: 'left'},
+                        {title: 'BOM', align: 'center', width: 140, templet: function(d) {
+                                var bomStr = '';
+                                layui.each(d.bomList, function(index, bom){
+                                    if(bomStr !== '') {
+                                        bomStr += '/'
+                                    }
+                                    bomStr += bom.material;
+                                });
+                                return bomStr;
+                            }}
+                    ];
+                    for(var i=0; i<days.length; i++) {
+                        (function(day) {
+                            var day_ = day.substring(5, 10);
+                            if(day_.indexOf('0') === 0) {
+                                day_ = day_.substring(1, 5);
+                            }
+                            cols2.push({field: day, title: day_, align: 'center', width: 70, edit: 'text' });
+                        })(days[i]);
+                    }
+                    table.render({
+                        elem: '#table_outputName',
+                        url: '/mrp/dps/getAryDpsOutputName',
+                        where: {
+                            ver: ver,
+                            outputName: outputName
+                        },
+                        cols: [cols2],
+                        page: {layout: ['count']},
+                        height: 300,
+                        width: 1100,
+                        size: 'sm',
+                        done: function(res, curr, count) {
+                            for(var i=0; i<res.data.length; i++) {
+                                var LAY_TABLE_INDEX = res.data[i].LAY_TABLE_INDEX;
+                                if(res.data[i].product==='') {
+                                    layui.$('[lay-id="table_outputName"] .layui-table-body tbody tr[data-index="'+LAY_TABLE_INDEX+'"]').css('background-color', '#FDF5E6')
+                                        .find('td').data('edit',false);
+                                }
+                            }
+                        },
+                    });
+                },
+                yes: function(index, layero) {
+                    var d = table.cache["table_outputName"];
+                    var dd = [];
+                    for(var i=0; i<d.length; i++) {
+                        if(d[i].product !== '') {
+                            dd.push(d[i])
+                        }
+                    }
+                    $.post('/mrp/dps/submitAryDpsOutputName', {
+                        ver: ver,
+                        outputName: outputName,
+                        jsonData: JSON.stringify(dd)
+                    }, function(res) {
+                        if(res.code === 200) {
+                            layer.close(index);
+                            table.reload('table_dps');
+                        } else {
+                            layer.msg("提交失败，"+res.msg)
+                        }
+                    });
+                }
+            });
+        }
     });
 </script>
 </body>

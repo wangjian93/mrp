@@ -71,12 +71,13 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['table', 'layer', 'form', 'upload', 'dropdown'], function() {
+    layui.use(['table', 'layer', 'form', 'upload', 'dropdown', 'tableX'], function() {
         var table = layui.table;
         var layer = layui.layer;
         var $ = layui.$;
         var form = layui.form;
         var upload = layui.upload;
+        var tableX = layui.tableX;
 
         // POL BOM表格
         table.render({
@@ -87,17 +88,16 @@
             },
             cols: [[
                 {type: 'numbers', align: 'center'},
-                {field: 'product', title: '机种', align: 'center', width: 100},
+                {field: 'product', title: '机种', align: 'center', width: 160},
+                {field: 'supplierName', title: '供应商', align: 'center', width: 100},
+                {field: 'type', title: '类型', align: 'center', width: 100},
                 {field: 'material', title: '料号', align: 'center', width: 100},
                 {field: 'materialGroup', title: '物料组', align: 'center', width: 100},
-                {field: 'materialName', title: '物料名', align: 'center', width: 300},
-                {field: 'type', title: '类型', align: 'center', width: 100},
-                {field: 'sort', title: '组', align: 'center', width: 100}
+                {field: 'materialName', title: '物料名', align: 'center', width: 300}
             ]],
             done: function(res, curr, count) {
                 // 同厂别、机种、物料组的设置合并单元格，设置行变色
-                var mergeFields = ['product'];
-                tableX.merges('table_bomPol', [1], [mergeFields]);
+                tableX.merges('table_bomPol', [1], ['product']);
                 var s = "";
                 var flag = true;
                 for(var i=0; i<res.data.length; i++) {

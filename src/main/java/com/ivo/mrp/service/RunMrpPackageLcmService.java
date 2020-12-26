@@ -4,6 +4,8 @@ import com.ivo.mrp.entity.MrpVer;
 import com.ivo.mrp.entity.lcmPackaging.MrpPackageLcm;
 import com.ivo.mrp.entity.lcmPackaging.MrpPackageLcmMaterial;
 
+import java.sql.Date;
+
 /**
  * @author wj
  * @version 1.0
@@ -42,4 +44,9 @@ public interface RunMrpPackageLcmService {
 
 
     void runMrp(String[] dpsVers, String[] mpsVers, String user);
+
+
+    void updateMrpPackageMaterial(String ver, String product, String material);
+
+    void updateMrpBalanceQty(String ver, String product, String material, Date fabDate, double balanceQty);
 }

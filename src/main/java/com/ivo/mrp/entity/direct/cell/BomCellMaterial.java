@@ -33,4 +33,12 @@ public class BomCellMaterial extends AutoIncreaseEntityModel {
     private int SUBFLAG;
 
     private String  MEMO;
+
+    private String materialName;
+
+    private String materialGroup;
+
+    private String materialGroupName;
+
+    private boolean validFlag;
 }

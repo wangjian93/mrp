@@ -15,8 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.criteria.Predicate;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,5 +97,23 @@ public class MrpPackageLcmServiceImpl implements MrpPackageLcmService {
     @Override
     public List<MrpPackageLcmMaterial> getMrpPackageLcmMaterial(String ver) {
         return mrpPackageLcmMaterialRepository.findByVer(ver);
+    }
+
+    @Override
+    public MrpPackageLcm getMrpPackageLcm(String ver, String product, String material, Date fabDate) {
+        if(StringUtils.isEmpty(product)) {
+            return mrpPackageLcmRepository.findByVerAndMaterialAndFabDate(ver, material, fabDate);
+        } else {
+            return mrpPackageLcmRepository.findByVerAndProductAndMaterialAndFabDate(ver, product, material, fabDate);
+        }
+    }
+
+    @Override
+    public MrpPackageLcmMaterial getMrpPackageLcmMaterial(String ver, String product, String material) {
+        if(StringUtils.isEmpty(product)) {
+            return mrpPackageLcmMaterialRepository.findByVerAndMaterial(ver, material);
+        } else {
+            return mrpPackageLcmMaterialRepository.findByVerAndProductsAndMaterial(ver, product, material);
+        }
     }
 }

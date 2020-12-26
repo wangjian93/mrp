@@ -2,8 +2,10 @@ package com.ivo.mrp.service.packageing;
 
 import com.ivo.mrp.entity.packaging.MrpPackage;
 import com.ivo.mrp.entity.packaging.MrpPackageMaterial;
+import oracle.sql.DATE;
 import org.springframework.data.domain.Page;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -20,4 +22,8 @@ public interface MrpPackageService {
                                                        String searchMaterial, String searchSupplier);
 
     List<MrpPackage> getMrpPackage(String ver, String packageId, String material);
+
+
+    MrpPackage getMrpPackage(String ver, String packageId, String material, Date fabDate);
+    void updateAllocationQty(String ver, String packageId, String material, Date fabDate, double allocationQty);
 }

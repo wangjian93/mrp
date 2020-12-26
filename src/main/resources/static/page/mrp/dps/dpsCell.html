@@ -111,13 +111,14 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'tableX'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
         var laytpl = layui.laytpl;
         var admin = layui.admin;
         var form = layui.form;
+        var tableX = layui.tableX;
 
         /* 获取URL请求的参数 */
         var getQueryVariable = function (variable) {
@@ -154,19 +155,19 @@
         var days = calendar.days;
 
         var cols = [
-            {type: 'numbers', align: 'center', fixed: 'left'},
-            {field: 'product',  title:'<div style="line-height: 40px;">机种</div>', align: 'center', width: 160, fixed: 'left', templet: function(d) {
+            {type: 'numbers', align: 'center', fixed: 'left', totalRowText: '合计'},
+            {field: 'product',  title:'<div style="line-height: 40px;">机种</div>', align: 'center', width: 180, fixed: 'left', templet: function(d) {
                     return '<div style="line-height: 30px;">'+d.product+'</div>'
                 }},
-            {field: 'outputName', title: 'outputName', align: 'center', width: 200, fixed: 'left', templet: function(d) {
+            {field: 'outputName', title: 'PC_InputName', align: 'center', width: 240, templet: function(d) {
                     if(d.outputName.indexOf(",") > -1) {
                         return '<a title="点击拆分" style="color: #01AAED" onclick="showOutputName(\''+d.outputName+'\')">'+d.outputName+'</a>';
                     } else {
                         return d.outputName;
                     }
                 }},
-            {field: 'project', title: 'Project', align: 'center', width: 100, fixed: 'left'},
-            {field: 'fab', title: '厂别', align: 'center', width: 100, fixed: 'left'}
+            // {field: 'project', title: 'Project', align: 'center', width: 100, fixed: 'left'},
+            {field: 'fab', title: '厂别', align: 'center', width: 100}
         ];
         for(var i=0; i<months.length; i++) {
             (function(month) {
@@ -175,7 +176,8 @@
                     templet: function(d) {
                         var data = d[month] || '';
                         return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
-                    }
+                    },
+                    totalRow: true
                 });
             })(months[i]);
         }
@@ -196,7 +198,8 @@
                     templet: function(d) {
                         var data = d[day] || {};
                         return laytpl(dpsDemo.innerHTML).render({dpsQty: data.demandQty});
-                    }
+                    },
+                    totalRow: true
                 });
             })(days[i], weeks[i]);
         }
@@ -213,7 +216,10 @@
             limit: 50,
             size: 'sm',
             height: 'full-80',
-            even: true
+            totalRow: true,
+            done: function(res, curr, count) {
+                tableX.merges('table_dps', [2], ["outputName"]);
+            }
         });
 
         // 表格搜索

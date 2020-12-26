@@ -27,4 +27,13 @@ public class MrpPackageKey implements Serializable {
     private String material;
 
     private Date fabDate;
+
+    public MrpPackageKey(String ver, String packageId, String material, Date fabDate) {
+        this.ver = ver;
+        this.packageId = packageId;
+        this.material = material;
+        this.fabDate = fabDate;
+    }
+
+    public MrpPackageKey() {}
 }

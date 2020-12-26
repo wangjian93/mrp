@@ -7,7 +7,7 @@ import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.service.BomPackageLcmService;
 import com.ivo.mrp.service.packageing.BomPackageService;
-import com.ivo.mrp.service.BomPolService;
+import com.ivo.mrp.service.pol.BomPolService;
 import com.ivo.mrp.service.BomService;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;

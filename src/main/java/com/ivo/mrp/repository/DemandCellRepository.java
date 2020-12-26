@@ -60,4 +60,6 @@ public interface DemandCellRepository extends JpaRepository<DemandCell, DemandKe
      */
     @Query(value = "select DISTINCT d.product from DemandCell d where d.ver=:ver and d.material=:material")
     List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
+
+    List<DemandCell> findByVer(String ver);
 }

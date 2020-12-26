@@ -224,4 +224,9 @@ public class BomPackageServiceImpl implements BomPackageService {
     public List<BomPackageMaterial> getBomPackageForSupplier(String packageId) {
         return bomPackageMaterialRepository.findByPackageIdAndSupplierFlagIsTrue(packageId);
     }
+
+    @Override
+    public BomPackageMaterial getBomPackageMaterial(String packageId, String material) {
+        return bomPackageMaterialRepository.findFirstByPackageIdAndMaterial(packageId, material);
+    }
 }

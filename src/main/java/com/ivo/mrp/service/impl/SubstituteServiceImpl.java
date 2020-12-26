@@ -62,16 +62,16 @@ public class SubstituteServiceImpl implements SubstituteService {
     @Override
     public void syncSubstitute() {
         log.info("同步替代料 >> START");
-        log.info("LCM1替代料...");
-        List<Map> lcm1MapList = restService.getMaterialSubstituteLcm1();
-        if(lcm1MapList != null && lcm1MapList.size()>0) {
-            convertMapToSubstitute(lcm1MapList);
-        }
-        log.info("LCM2替代料...");
-        List<Map> lcm2MapList = restService.getMaterialSubstituteLcm2();
-        if(lcm2MapList != null && lcm2MapList.size()>0) {
-            convertMapToSubstitute(lcm2MapList);
-        }
+//        log.info("LCM1替代料...");
+//        List<Map> lcm1MapList = restService.getMaterialSubstituteLcm1();
+//        if(lcm1MapList != null && lcm1MapList.size()>0) {
+//            convertMapToSubstitute(lcm1MapList);
+//        }
+//        log.info("LCM2替代料...");
+//        List<Map> lcm2MapList = restService.getMaterialSubstituteLcm2();
+//        if(lcm2MapList != null && lcm2MapList.size()>0) {
+//            convertMapToSubstitute(lcm2MapList);
+//        }
         log.info("CELL替代料...");
         List<Map> cellMapList = restService.getMaterialSubstituteCell();
         if(cellMapList != null && cellMapList.size()>0) {

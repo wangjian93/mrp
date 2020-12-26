@@ -1,5 +1,6 @@
 package com.ivo.mrp.service.impl;
 
+import com.ivo.mrp.entity.MrpVer;
 import com.ivo.mrp.entity.direct.ary.DemandAry;
 import com.ivo.mrp.entity.direct.ary.DemandAryOc;
 import com.ivo.mrp.entity.direct.cell.DemandCell;
@@ -9,6 +10,7 @@ import com.ivo.mrp.repository.DemandAryRepository;
 import com.ivo.mrp.repository.DemandCellRepository;
 import com.ivo.mrp.repository.DemandLcmRepository;
 import com.ivo.mrp.service.DemandService;
+import com.ivo.mrp.service.MrpService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,13 +37,17 @@ public class DemandServiceImpl implements DemandService {
 
     private DemandLcmRepository demandLcmRepository;
 
+    private MrpService mrpService;
+
     @Autowired
     public DemandServiceImpl(DemandAryRepository demandAryRepository, DemandAryOcRepository demandAryOcRepository,
-                             DemandCellRepository demandCellRepository, DemandLcmRepository demandLcmRepository) {
+                             DemandCellRepository demandCellRepository, DemandLcmRepository demandLcmRepository,
+                             MrpService mrpService) {
         this.demandAryRepository = demandAryRepository;
         this.demandAryOcRepository = demandAryOcRepository;
         this.demandCellRepository = demandCellRepository;
         this.demandLcmRepository = demandLcmRepository;
+        this.mrpService = mrpService;
     }
 
     @Override
@@ -173,5 +179,23 @@ public class DemandServiceImpl implements DemandService {
     @Override
     public List<String> getDemandProductCell(String ver, String material) {
         return demandCellRepository.getProduct(ver, material);
+    }
+
+    @Override
+    public void deleteDemand(String ver) {
+        MrpVer mrpVer = mrpService.getMrpVer(ver);
+        String type = mrpVer.getType();
+        switch (type) {
+            case MrpVer.Type_Lcm :
+                break;
+            case MrpVer.Type_Ary :
+                demandAryRepository.deleteAll(demandAryRepository.findByVer(ver));
+                demandAryOcRepository.deleteAll(demandAryOcRepository.findByVer(ver));
+
+                break;
+            case MrpVer.Type_Cell :
+                demandCellRepository.deleteAll(demandCellRepository.findByVer(ver));
+                break;
+        }
     }
 }

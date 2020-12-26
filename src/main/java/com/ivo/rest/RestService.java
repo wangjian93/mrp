@@ -144,7 +144,12 @@ public interface RestService {
      */
     List<Map> getDpsPackage(String ver, List<String> productList);
 
-
+    /**
+     * 从2.75 DPS数据库获取CELL POL的DPS数据
+     * @param ver dps版本
+     * @return List<Map>
+     */
+    List<Map> getDpsPol(String ver);
 
     /**
      * 从Oracle数据库获取良品仓的材料库存

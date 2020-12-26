@@ -1,5 +1,7 @@
 package com.ivo.rest;
 
+import com.ivo.mrp.entity.Inventory;
+import com.ivo.mrp.service.InventoryService;
 import com.ivo.mrp.service.PositionService;
 import com.ivo.rest.dpsAryCell.DpsAryCellMapper;
 import com.ivo.rest.dpsLcm.DpsLcmMapper;
@@ -36,16 +38,19 @@ public class RestServiceImpl implements RestService {
 
     private PositionService positionService;
 
+    private InventoryService inventoryService;
+
     @Autowired
     public RestServiceImpl(EifMapper eifMapper, FcstMapper fcstMapper, OracleMapper oracleMapper,
                            DpsLcmMapper dpsLcmMapper, DpsAryCellMapper dpsAryCellMapper,
-                           PositionService positionService) {
+                           PositionService positionService,InventoryService inventoryService) {
         this.eifMapper = eifMapper;
         this.fcstMapper = fcstMapper;
         this.oracleMapper = oracleMapper;
         this.dpsLcmMapper = dpsLcmMapper;
         this.dpsAryCellMapper = dpsAryCellMapper;
         this.positionService = positionService;
+        this.inventoryService = inventoryService;
     }
 
     @Override
@@ -170,6 +175,12 @@ public class RestServiceImpl implements RestService {
     }
 
     @Override
+    public List<Map> getDpsPol(String ver) {
+        log.info("从2.75 DPS数据库获取CELL POL的DPS数据");
+        return dpsAryCellMapper.getDpsPol(ver);
+    }
+
+    @Override
     public double getGoodInventory(String plant, String material, Date fabDate) {
         log.info("从Oracle数据库获取良品仓库存");
         Double d;
@@ -207,32 +218,12 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public List<Map> getGoodInventory(String plant, List<String> materialList, Date fabDate) {
-        log.info("从Oracle数据库获取良品仓库存");
-        if(materialList == null || materialList.size()==0) return new ArrayList<>();
-        if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            String fab = "3000";
-            List<String> positionList = positionService.getPositionIveGood();
-            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), fab, positionList);
-        } else {
-            String fab = "1000";
-            List<String> positionList = positionService.getPositionIvoGood();
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), fab, positionList);
-        }
+        return inventoryService.getGoodInventory(plant, materialList, fabDate);
     }
 
     @Override
     public List<Map> getDullInventory(String plant, List<String> materialList, Date fabDate) {
-        log.info("从Oracle数据库获取良品仓库存");
-        if(materialList == null || materialList.size()==0) return new ArrayList<>();
-        if(StringUtils.equalsIgnoreCase(plant, "LCM1")) {
-            String fab = "3000";
-            List<String> positionList = positionService.getPositionIveDull();
-            return oracleMapper.getInventoryBatch( materialList, fabDate.toString(), fab, positionList);
-        } else {
-            String fab = "1000";
-            List<String> positionList = positionService.getPositionIvoDull();
-            return oracleMapper.getInventoryBatch(materialList, fabDate.toString(), fab, positionList);
-        }
+        return inventoryService.getDullInventory(plant, materialList, fabDate);
     }
 
     @Override

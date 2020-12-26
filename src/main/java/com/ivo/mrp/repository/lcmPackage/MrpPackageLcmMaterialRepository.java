@@ -15,4 +15,8 @@ public interface MrpPackageLcmMaterialRepository extends JpaRepository<MrpPackag
     List<MrpPackageLcmMaterial> findByVerAndIsAlone(String ver, boolean isAlone);
 
     List<MrpPackageLcmMaterial> findByVer(String ver);
+
+    MrpPackageLcmMaterial findByVerAndMaterial(String ver, String material);
+
+    MrpPackageLcmMaterial findByVerAndProductsAndMaterial(String ver, String product, String material);
 }

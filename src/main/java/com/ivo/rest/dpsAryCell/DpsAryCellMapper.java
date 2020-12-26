@@ -49,6 +49,13 @@ public interface DpsAryCellMapper {
      */
     List<Map> getDpsPackage(@Param("ver") String ver, @Param("productList") List<String> productList);
 
+    /**
+     * 获取CELL POL的DPS数据
+     * @param ver dps版本
+     * @return List<Map>
+     */
+    List<Map> getDpsPol(String ver);
+
     List<Map> getAryMps(@Param("ver") String ver);
 
     List<String> getAryMpsVer();

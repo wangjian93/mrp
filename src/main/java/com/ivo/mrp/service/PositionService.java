@@ -32,4 +32,6 @@ public interface PositionService {
      */
     List<String> getPositionIveDull();
 
+    List<String> getPositionAll();
+
 }

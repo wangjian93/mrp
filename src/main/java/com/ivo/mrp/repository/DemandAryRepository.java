@@ -72,4 +72,6 @@ public interface DemandAryRepository extends JpaRepository<DemandAry, DemandKey>
      */
     @Query(value = "select DISTINCT d.product from DemandAry d where d.ver=:ver and d.material=:material")
     List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
+
+    List<DemandAry> findByVer(String ver);
 }

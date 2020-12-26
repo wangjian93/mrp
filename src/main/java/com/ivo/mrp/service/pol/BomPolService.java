@@ -1,4 +1,4 @@
-package com.ivo.mrp.service;
+package com.ivo.mrp.service.pol;
 
 import com.ivo.mrp.entity.pol.BomPol;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -64,4 +64,7 @@ public interface BomPolService {
      * @return Workbook
      */
     Workbook downloadBomPolExcel();
+
+
+    List<String> getBomPolProduct(String searchProduct);
 }

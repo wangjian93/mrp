@@ -1,5 +1,6 @@
 package com.ivo.mrp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ivo.common.model.AutoIncreaseEntityModel;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,6 +62,14 @@ public class Substitute extends AutoIncreaseEntityModel {
     private boolean validFlag = true;
 
     /**
+     * 有效时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private java.sql.Date startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private java.sql.Date endDate;
+
+    /**
      * 备注
      */
     private String memo = "";
@@ -73,6 +82,7 @@ public class Substitute extends AutoIncreaseEntityModel {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date createDate = new Date();
 
     /**
@@ -83,5 +93,6 @@ public class Substitute extends AutoIncreaseEntityModel {
     /**
      * 修改时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date updateDate = new Date();
 }

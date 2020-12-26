@@ -174,4 +174,7 @@ public interface DemandService {
      * @return List<String>
      */
     List<String> getDemandProductCell(String ver, String material);
+
+
+    void deleteDemand(String ver);
 }

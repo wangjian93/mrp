@@ -21,8 +21,7 @@ public class PackageSupplier extends AutoIncreaseEntityModel {
     public static final String MaterialType_BOX = "纸箱";
     public static final String MaterialType_TRAY = "TRAY";
 
-
-    private String packageId;
+    private String month;
 
     /**
      * 机种

@@ -59,6 +59,34 @@
                     </td>
                 </tr>
             </table>
+            <br>
+            <br>
+
+            <!-- 表格工具栏 -->
+            <div class="layui-form toolbar">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">日期:</label>
+                        <div class="layui-input-inline">
+                            <input name="fabDate" class="layui-input" type="text" placeholder="搜索料号" value="2020-12-01"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label w-auto">料号:</label>
+                        <div class="layui-input-inline">
+                            <input name="material" class="layui-input" type="text" placeholder="搜索料号"/>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
+                            <i class="layui-icon">&#xe615;</i>搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 供应商料号表格 -->
+            <table id="table_inventory" lay-filter="table_inventory"></table>
         </div>
     </div>
 </div>
@@ -71,6 +99,8 @@
     layui.use(['form', 'dropdown', 'table', 'upload', 'tableX', 'admin', 'element', 'layer'], function() {
         var $ = layui.$;
         var layer = layui.layer;
+        var table = layui.table;
+        var form = layui.form;
 
         $.get('/mrp/position/getPosition',{}, function (res) {
             if(res.code === 200) {
@@ -82,6 +112,35 @@
             } else {
                 layer.msg("请求失败，" + res.msg);
             }
+        });
+
+        table.render({
+            elem: '#table_inventory',
+            url: '/mrp/inventory/getPageInventory',
+            where: {
+                fabDate: '2020-12-01'
+            },
+            cols: [[
+                {type: 'numbers', align: 'center'},
+                {field: 'fabDate', title: '日期', align: 'center', width: 100},
+                {field: 'matnr', title: '料号', align: 'center', width: 140},
+                {field: 'matkl', title: 'MATKL', align: 'center', width: 80},
+                {field: 'werks', title: '工厂', align: 'center', width: 100},
+                {field: 'lgort', title: '仓位', align: 'center', width: 100},
+                {field: 'meins', title: 'MEINS', align: 'center', width: 160},
+                {field: 'labst', title: '数量', align: 'center', width: 100}
+            ]],
+            page: true,
+            limit: 50,
+            size: 'sm'
+        });
+
+        form.on('submit(search)', function(data) {
+            table.reload('table_inventory', {
+                where: data.field,
+                page: {curr: 1}
+            });
+            return false;
         });
     });
 </script>

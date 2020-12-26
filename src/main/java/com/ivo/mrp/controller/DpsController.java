@@ -10,10 +10,14 @@ import com.ivo.common.utils.ResultUtil;
 import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.entity.DpsVer;
+import com.ivo.mrp.entity.direct.ary.BomAry;
+import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
+import com.ivo.mrp.entity.direct.ary.DpsAryOutputName;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
 import com.ivo.mrp.entity.direct.cell.DpsCellOutputName;
 import com.ivo.mrp.entity.direct.lcm.DpsLcm;
+import com.ivo.mrp.service.BomService;
 import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
 import io.swagger.annotations.Api;
@@ -54,10 +58,14 @@ public class DpsController {
 
     private DpsOutputNameService dpsOutputNameService;
 
+    private BomService bomService;
+
     @Autowired
-    public DpsController(DpsService dpsService, DpsOutputNameService dpsOutputNameService) {
+    public DpsController(DpsService dpsService, DpsOutputNameService dpsOutputNameService,
+                         BomService bomService) {
         this.dpsService = dpsService;
         this.dpsOutputNameService = dpsOutputNameService;
+        this.bomService = bomService;
     }
 
     @ApiOperation("查询DPS版本信息")
@@ -114,6 +122,9 @@ public class DpsController {
             map.put("project", project);
             map.put("outputName", outputName);
             List list;
+
+
+
             //月份汇总
             switch (type) {
                 case DpsVer.Type_Ary:
@@ -127,6 +138,8 @@ public class DpsController {
                         map.putIfAbsent(month, 0D);
                         map.put(month, DoubleUtil.rounded((double)map.get(month)+demandQty, 3));
                     }
+                    List<BomAryMtrl> bomAryList = bomService.getAryBom(pro);
+                    map.put("bomList", bomAryList);
                     break;
                 case DpsVer.Type_Cell:
                     list = dpsService.getDpsCell(ver, pro);
@@ -343,6 +356,7 @@ public class DpsController {
                 dpsCell.setVer(ver);
                 dpsCell.setFab("CELL");
                 dpsCell.setOutputName(outputName);
+                dpsCell.setSplitFlag(true);
                 dpsCell.setProduct(product);
                 dpsCell.setProject(project);
                 dpsCell.setFabDate(fabDate);
@@ -354,6 +368,113 @@ public class DpsController {
 
         dpsService.deleteDpsCell(dpsCellList);
         dpsService.saveDpsCell(newDpsCellList);
+        return ResultUtil.success("提交成功");
+    }
+
+    @ApiOperation("获取OutputName的数据")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ver", value = "DPS版本"),
+            @ApiImplicitParam(name = "outputName", value = "outputName"),
+    })
+    @GetMapping("/getAryDpsOutputName")
+    public Result getAryDpsOutputName(String ver, String outputName) {
+        List<DpsAryOutputName> dpsAryOutputNameList = dpsOutputNameService.getDpsAryOutputName(ver, outputName);
+        List<DpsAry> dpsAryList = dpsService.getDpsAryByOutputName(ver, outputName);
+        String[] products = outputName.split(",");
+        List<String> productList = new ArrayList<>();
+        List<Map> mapList = new ArrayList<>();
+        for(DpsAryOutputName dpsAryOutputName : dpsAryOutputNameList) {
+            String product = "";
+            Map map;
+            if(productList.contains(product)) {
+                map = mapList.get(productList.indexOf(product));
+            } else {
+                map = new HashMap();
+                map.put("product", product);
+                productList.add(product);
+                mapList.add(map);
+            }
+            map.put(dpsAryOutputName.getFabDate().toString(), dpsAryOutputName.getDemandQty());
+        }
+        for(DpsAry dpsAry : dpsAryList) {
+            String product =  dpsAry.getProduct();
+            Map map;
+            if(productList.contains(product)) {
+                map = mapList.get(productList.indexOf(product));
+            } else {
+                map = new HashMap();
+                map.put("product", product);
+                List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+                map.put("bomList", bomAryList);
+
+                productList.add(product);
+                mapList.add(map);
+            }
+            map.put(dpsAry.getFabDate().toString(), dpsAry.getDemandQty());
+        }
+        for(String product : products) {
+            if(productList.contains(product)) continue;
+            Map map = new HashMap();
+            map.put("product", product);
+            List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+            map.put("bomList", bomAryList);
+            productList.add(product);
+            mapList.add(map);
+        }
+        return ResultUtil.successPage(mapList, mapList.size());
+    }
+
+    @ApiOperation("OutputName的拆分数据提交")
+    @PostMapping("/submitAryDpsOutputName")
+    public Result submitAryDpsOutputName(String ver, String outputName, String jsonData) {
+        List<DpsAry> dpsAryList = dpsService.getDpsAryByOutputName(ver, outputName);
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<Map> mapList;
+        try {
+            mapList = objectMapper.readValue(jsonData, new TypeReference<List<Map>>() {});
+        } catch (IOException e) {
+            log.error("数据解析错误", e);
+            return ResultUtil.error("提交数据解析错误");
+        }
+        List<Date> dateList = dpsService.getDpsCalendar(ver);
+        List<DpsAry> newDpsAryList = new ArrayList<>();
+        for(Map map : mapList) {
+            String product = (String) map.get("product");
+            String project = (String) map.get("project");
+            for(Date fabDate : dateList) {
+                Object qtyObject = map.get(fabDate.toString());
+                if(qtyObject == null) continue;
+
+                Double qty;
+                if(qtyObject instanceof Double) {
+                    qty = (Double) qtyObject;
+                } else if(qtyObject instanceof Integer) {
+                    qty = (Double) qtyObject;
+                } else {
+                    String str = (String)qtyObject;
+                    if(StringUtils.isEmpty(str)) {
+                        qty = 0D;
+                    } else {
+                        qty = Double.parseDouble(str);
+                    }
+                }
+                if(qty == null || qty == 0) continue;
+                DpsAry dpsAry = new DpsAry();
+                dpsAry.setVer(ver);
+                dpsAry.setFab("CELL");
+                dpsAry.setOutputName(outputName);
+                dpsAry.setSplitFlag(true);
+                dpsAry.setProduct(product);
+                dpsAry.setProject(project);
+                dpsAry.setFabDate(fabDate);
+                dpsAry.setDemandQty(qty);
+
+                newDpsAryList.add(dpsAry);
+            }
+        }
+
+        dpsService.deleteDpsAry(dpsAryList);
+        dpsService.saveDpsAry(newDpsAryList);
         return ResultUtil.success("提交成功");
     }
 }

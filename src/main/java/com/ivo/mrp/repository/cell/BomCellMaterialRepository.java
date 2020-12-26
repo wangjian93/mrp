@@ -19,5 +19,5 @@ public interface BomCellMaterialRepository extends JpaRepository<BomCellMaterial
     @Query(value = "TRUNCATE TABLE MRP3_Bom_Cell_Material", nativeQuery = true)
     void truncateTable();
 
-    List<BomCellMaterial> findByCELLMTRLIn(List<String> cellMtrlList);
+    List<BomCellMaterial> findByCELLMTRLInAndValidFlagIsTrue(List<String> cellMtrlList);
 }

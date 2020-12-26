@@ -60,4 +60,6 @@ public interface DpsAryRepository extends JpaRepository<DpsAry, DpsKey> {
      * @return List<DpsLcm>
      */
     List<DpsAry> findByVerAndProductAndFabDateGreaterThanEqual(String ver, String product, Date statDate);
+
+    List<DpsAry> findByVerAndOutputName(String ver, String outputName);
 }

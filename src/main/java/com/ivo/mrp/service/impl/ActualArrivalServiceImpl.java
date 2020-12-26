@@ -144,7 +144,7 @@ public class ActualArrivalServiceImpl implements ActualArrivalService {
     }
 
     @Override
-    public Page<ActualArrival> queryActualArrival(int page, int limit, Date fabDate, String material, String supplierCode, String fab) {
+    public Page<ActualArrival> queryActualArrival(int page, int limit, Date fabDate, String materialGroup, String material, String supplierCode, String fab) {
         Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "fabDate", "material", "supplierCode");
         Specification<ActualArrival> spec = (Specification<ActualArrival>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -153,6 +153,9 @@ public class ActualArrivalServiceImpl implements ActualArrivalService {
             }
             if(StringUtils.isNotEmpty(material)) {
                 predicates.add(criteriaBuilder.like(root.get("material"), material+"%"));
+            }
+            if(StringUtils.isNotEmpty(materialGroup)) {
+                predicates.add(criteriaBuilder.like(root.get("materialGroup"), materialGroup+"%"));
             }
             if(StringUtils.isNotEmpty(supplierCode)) {
                 predicates.add(criteriaBuilder.like(root.get("supplierCode"), supplierCode+"%"));

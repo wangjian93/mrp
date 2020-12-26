@@ -10,11 +10,14 @@ import com.ivo.mrp.service.DpsService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -151,5 +154,36 @@ public class DpsPackageServiceImpl implements DpsPackageService {
     @Override
     public List<DpsPackage> getDpsPackage(List<String> dpsVers, String packageId) {
         return dpsPackageRepository.findByVerInAndPackageId(dpsVers, packageId);
+    }
+
+    @Override
+    public List<DpsPackage> getDpsPackage(String dpsVer, String packageId) {
+        return dpsPackageRepository.findByVerAndPackageId(dpsVer, packageId);
+    }
+
+    @Override
+    public Page<Map> getPagePackageId(String ver, int page, int limit, String searchProduct) {
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "packageId");
+        return dpsPackageRepository.getPagePackageId(ver, searchProduct+"%", pageable);
+    }
+
+    @Override
+    public List<DpsCellProduct> getDpsCellProduct(String ver, String product) {
+        return dpsCellProductRepository.findByVerAndProduct(ver, product);
+    }
+
+    @Override
+    public List<DpsPackage> getDpsPackageByProduct(String ver, String product) {
+        return dpsPackageRepository.findByVerAndProduct(ver, product);
+    }
+
+    @Override
+    public void delete(List<DpsPackage> dpsPackageList) {
+        dpsPackageRepository.deleteAll(dpsPackageList);
+    }
+
+    @Override
+    public void save(List<DpsPackage> dpsPackageList) {
+        dpsPackageRepository.saveAll(dpsPackageList);
     }
 }

@@ -272,6 +272,10 @@ public interface DpsService {
 
     void saveDpsCell(List<DpsCell> list);
 
+    void deleteDpsAry(List<DpsAry> list);
+
+    void saveDpsAry(List<DpsAry> list);
+
     List<DpsVer> getDpsVerByFileVer(String ver, String type);
 
     void saveDpsVer(DpsVer dpsVer);

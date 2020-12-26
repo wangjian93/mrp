@@ -1,9 +1,9 @@
-package com.ivo.mrp.service.impl;
+package com.ivo.mrp.service.pol;
 
 import com.ivo.common.utils.ExcelUtil;
 import com.ivo.mrp.entity.pol.BomPol;
-import com.ivo.mrp.repository.BomPolRepository;
-import com.ivo.mrp.service.BomPolService;
+import com.ivo.mrp.repository.pol.BomPolRepository;
+import com.ivo.mrp.service.pol.BomPolService;
 import com.ivo.mrp.service.MaterialService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,13 +41,13 @@ public class BomPolServiceImpl implements BomPolService {
 
     @Override
     public Page<BomPol> queryBomPol(int page, int limit, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product", "sort", "type");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product", "supplierCode", "type");
         return bomPolRepository.findByProductLike(searchProduct+"%", pageable);
     }
 
     @Override
     public List<BomPol> queryBomPol(String searchProduct) {
-        Sort sort = new Sort(Sort.Direction.ASC, "product", "sort", "type");
+        Sort sort = new Sort(Sort.Direction.ASC, "product", "supplierCode", "type");
         return bomPolRepository.findByProductLike(searchProduct+"%", sort);
     }
 
@@ -122,7 +122,8 @@ public class BomPolServiceImpl implements BomPolService {
 
     @Override
     public List<BomPol> getBomPol(String product) {
-        return bomPolRepository.findByProduct(product);
+        Sort sort = new Sort(Sort.Direction.ASC, "product", "supplierCode", "type");
+        return bomPolRepository.findByProduct(product, sort);
     }
 
     private Workbook writeToExcel(List<BomPol> bomPolList) {
@@ -176,5 +177,10 @@ public class BomPolServiceImpl implements BomPolService {
     @Override
     public Workbook downloadBomPolExcel() {
         return writeToExcel(new ArrayList<>());
+    }
+
+    @Override
+    public List<String> getBomPolProduct(String searchProduct) {
+        return bomPolRepository.getBomPolProduct(searchProduct+"%");
     }
 }

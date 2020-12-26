@@ -2,8 +2,10 @@ package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.lcmPackaging.MrpPackageLcm;
 import com.ivo.mrp.entity.lcmPackaging.MrpPackageLcmMaterial;
+import com.ivo.mrp.entity.packaging.MrpPackage;
 import org.springframework.data.domain.Page;
 
+import java.sql.Date;
 import java.util.List;
 
 /**
@@ -29,4 +31,7 @@ public interface MrpPackageLcmService {
     Page<MrpPackageLcmMaterial> getPageMrpPackageLcmMaterial(int page, int limit, String ver, String searchProduct, String searchMaterialGroup,
                                                              String searchMaterial, String searchSupplier);
 
+    MrpPackageLcm getMrpPackageLcm(String ver, String product, String material, Date fabDate);
+
+    MrpPackageLcmMaterial getMrpPackageLcmMaterial(String ver, String product, String material);
 }

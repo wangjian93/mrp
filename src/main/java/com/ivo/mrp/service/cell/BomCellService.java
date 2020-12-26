@@ -1,11 +1,10 @@
 package com.ivo.mrp.service.cell;
 
-import com.ivo.mrp.entity.direct.cell.BomCell;
-import com.ivo.mrp.entity.direct.cell.BomCell2;
-import com.ivo.mrp.entity.direct.cell.BomCellMaterial;
-import com.ivo.mrp.entity.direct.cell.CellMpsMode;
+import com.ivo.mrp.entity.direct.cell.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wj
@@ -28,7 +27,7 @@ public interface BomCellService {
      */
     void syncBomCellProduct();
 
-    void test();
+    void syncBomCell2();
 
 
     /**
@@ -51,4 +50,10 @@ public interface BomCellService {
      * @return List<BomCell
      */
     List<BomCell2> getBomCell(String product);
+
+    Page<BomCellProduct> queryProduct(int page, int limit, String searchProduct);
+
+
+    void deleteBomCell(List<BomCell2> list);
+    void saveBomCell(List<BomCell2> list);
 }

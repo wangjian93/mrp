@@ -54,6 +54,7 @@ public class ActualArrivalController {
                                      @RequestParam(required = false, defaultValue = "50") int limit,
                                      @RequestParam(required = false, defaultValue = "") String fabDate,
                                      @RequestParam(required = false, defaultValue = "") String material,
+                                     @RequestParam(required = false, defaultValue = "") String materialGroup,
                                      @RequestParam(required = false, defaultValue = "") String supplierCode,
                                      @RequestParam(required = false, defaultValue = "") String fab) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -65,7 +66,7 @@ public class ActualArrivalController {
                 e.printStackTrace();
             }
         }
-        Page p = actualArrivalService.queryActualArrival(page-1, limit, date, material, supplierCode, fab);
+        Page p = actualArrivalService.queryActualArrival(page-1, limit, date, materialGroup, material, supplierCode, fab);
         return ResultUtil.successPage(p.getContent(), p.getTotalElements());
     }
 

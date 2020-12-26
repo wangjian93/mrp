@@ -47,4 +47,14 @@
     GROUP BY MATNR
   </select>
 
+  <select id="getInventoryAll" resultType="java.util.Map">
+    select *
+    from EXF.SZA_STOCK
+    WHERE FAB_DATE= TO_DATE(#{fabDate},'YYYY-MM-DD')
+    AND LGORT IN
+    <foreach item="item" index="index" collection="positionList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
 </mapper>

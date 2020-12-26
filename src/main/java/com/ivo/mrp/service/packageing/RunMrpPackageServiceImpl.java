@@ -11,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author wj
@@ -285,17 +283,24 @@ public class RunMrpPackageServiceImpl implements RunMrpPackageService {
         List<String> dpsVerList = Arrays.asList(dpsVers);
         List<String> packageIdList = dpsPackageService.getPackageId(dpsVerList);
 
+        //栈板需求，合并机种计算
+        Map<String, Map<Date, Double>> palletMap = new HashMap<>();
+        Map<String, BomPackageMaterial> palletMatrialMap = new HashMap<>();
+
         for(String packageId : packageIdList) {
+            List<MrpPackageMaterial> mrpPackageMaterialList = new ArrayList<>();
+            List<MrpPackage> mrpPackageList = new ArrayList<>();
+
             List<DpsPackage> dpsPackageList = dpsPackageService.getDpsPackage(dpsVerList, packageId);
             BomPackage bomPackage = bomPackageService.getBomPackageById(packageId);
             List<BomPackageMaterial> bomPackageMaterialList = bomPackageService.getBomPackageForSupplier(packageId);
 
-            List<MrpPackageMaterial> mrpPackageMaterialList = new ArrayList<>();
-            List<MrpPackage> mrpPackageList = new ArrayList<>();
             //纸箱
             BomPackageMaterial box = null;
             //Tray
             List<BomPackageMaterial> otherList = new ArrayList<>();
+            //栈板
+            BomPackageMaterial pallet = null;
             for(BomPackageMaterial bomPackageMaterial : bomPackageMaterialList) {
                 MrpPackageMaterial mrpPackageMaterial = new MrpPackageMaterial();
                 mrpPackageMaterial.setVer(ver);
@@ -309,16 +314,113 @@ public class RunMrpPackageServiceImpl implements RunMrpPackageService {
                 mrpPackageMaterial.setLinkQty(bomPackage.getLinkQty());
                 mrpPackageMaterial.setMode(bomPackage.getMode());
                 mrpPackageMaterial.setFab("CELL");
-                mrpPackageMaterialList.add(mrpPackageMaterial);
 
                 if(box==null && StringUtils.containsIgnoreCase(bomPackageMaterial.getMaterialName(), "箱")) {
                     box = bomPackageMaterial;
+                    mrpPackageMaterialList.add(mrpPackageMaterial);
+                } else if(pallet == null && StringUtils.containsIgnoreCase(bomPackageMaterial.getMaterialName(), "栈板")) {
+                    //处理栈板
+                    pallet = bomPackageMaterial;
+                    if(palletMap.get(pallet.getMaterial()) == null ) {
+                        palletMap.put(pallet.getMaterial(), new HashMap<>());
+                        palletMatrialMap.put(pallet.getMaterial(), bomPackageMaterial);
+                    }
                 } else {
                     otherList.add(bomPackageMaterial);
+                    mrpPackageMaterialList.add(mrpPackageMaterial);
+                }
+            }
+            mrpPackageService.saveMrpPackageMaterial(mrpPackageMaterialList);
+
+            String type = bomPackage.getType();
+            //纸箱需求量
+            double boxDemandQtyBase = 0;
+            if(box != null) {
+                if(type.equals(BomPackage.TYPE_D)) {
+                    //单片
+                    String mode = bomPackage.getMode();
+                    if(StringUtils.isEmpty(mode)) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有切单模式");
+                        continue;
+                    }
+                    if(mode.equals("全切单")) {
+                        //全切单：cellInput*1000*54切数/120Panel数目*1.1（10%损耗） (全切单)
+                        double cutQty;
+                        double panelQty;
+                        double lossRat;
+                        try {
+                            cutQty = Double.valueOf(bomPackage.getCutQty());
+                        } catch (Exception e) {
+                            mrpWarnService.addWarn(ver, packageId, "DPS", "没有切片数");
+                            continue;
+                        }
+                        try {
+                            panelQty = Double.valueOf(bomPackage.getPanelQty());
+                        } catch (Exception e) {
+                            mrpWarnService.addWarn(ver, packageId, "DPS", "没有Panel数");
+                            continue;
+                        }
+                        try {
+                            lossRat = Double.valueOf(box.getLossRate());
+                        } catch (Exception e) {
+                            lossRat = 0;
+                        }
+                        boxDemandQtyBase = DoubleUtil.upPrecision(1000*cutQty*panelQty*(1+lossRat/100), 0);
+                    } else {
+                        //抽单模式： cellinput*1000/600*3（抽单模式）
+                        String[] modeS = mode.split("抽");
+                        double mode_1;
+                        double mode_2;
+                        try {
+                            mode_1 = Double.valueOf(modeS[0]);
+                            mode_2= Double.valueOf(modeS[1]);
+                        } catch (Exception e) {
+                            mrpWarnService.addWarn(ver, packageId, "DPS", "抽单模式"+mode);
+                            continue;
+                        }
+                        boxDemandQtyBase =  DoubleUtil.upPrecision(1000/mode_1*mode_2, 0);
+                    }
+                } else {
+                    //连片：cellinput*连片数40*中板数3*单耗量G*1000*1.05（5%损耗）
+                    //单耗量G: 包装规格48倍/连数40/装箱数Panel40
+                    double panelQty;
+                    double lossRat;
+                    double linkQty;
+                    double middleQty;
+                    double specQty;
+                    try {
+                        linkQty = Double.valueOf(bomPackage.getLinkQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有连片数");
+                        continue;
+                    }
+                    try {
+                        middleQty = Double.valueOf(bomPackage.getMiddleQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "中板数");
+                        continue;
+                    }
+                    try {
+                        lossRat = Double.valueOf(box.getLossRate());
+                    } catch (Exception e) {
+                        lossRat = 0;
+                    }
+                    try {
+                        panelQty = Double.valueOf(bomPackage.getPanelQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有Panel数");
+                        continue;
+                    }
+                    try {
+                        specQty = Double.valueOf(box.getSpecQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有包装规格");
+                        continue;
+                    }
+                    boxDemandQtyBase = DoubleUtil.upPrecision(1000*linkQty*middleQty*(specQty/linkQty/panelQty)*(1+lossRat/100), 0);
                 }
             }
 
-            String type = bomPackage.getType();
             for(DpsPackage dpsPackage : dpsPackageList) {
                 Date fabDate = dpsPackage.getFabDate();
                 //DPS需求量
@@ -327,38 +429,7 @@ public class RunMrpPackageServiceImpl implements RunMrpPackageService {
                 //纸箱需求量
                 double boxDemandQty = 0;
                 if(box != null) {
-                    try{
-                        if(type.equals(BomPackage.TYPE_D)) {
-                            //单片
-                            String mode = bomPackage.getMode();
-                            if(mode.equals("全切单")) {
-                                //全切单：cellInput*1000*54切数/120Panel数目*1.1（10%损耗） (全切单)
-                                double cutQty = Double.valueOf(bomPackage.getCutQty());
-                                double panelQty = Double.valueOf(bomPackage.getPanelQty());
-                                double lossRat = Double.valueOf(box.getLossRate());
-                                boxDemandQty = DoubleUtil.upPrecision(dspDemandQty*1000*cutQty*panelQty*(1+lossRat/100), 0);
-                            } else {
-                                //抽单模式： cellinput*1000/600*3（抽单模式）
-                                String[] modeS = mode.split("抽");
-                                double mode_1 = Double.valueOf(modeS[0]);
-                                double mode_2 = Double.valueOf(modeS[1]);
-                                boxDemandQty =  DoubleUtil.upPrecision(dspDemandQty*1000/mode_1*mode_2, 0);
-                            }
-                        } else {
-                            //连片：cellinput*连片数40*中板数3*单耗量G*1000*1.05（5%损耗）
-                            //单耗量G: 包装规格48倍/连数40/装箱数Panel40
-                            double linkQty = Double.valueOf(bomPackage.getLinkQty());
-                            double middleQty = Double.valueOf(bomPackage.getMiddleQty());
-                            double lossRat = Double.valueOf(box.getLossRate());
-                            double panelQty = Double.valueOf(bomPackage.getPanelQty());
-                            double specQty = Double.valueOf(box.getSpecQty());
-                            boxDemandQty = DoubleUtil.upPrecision(dspDemandQty*1000*linkQty*middleQty*(specQty/linkQty/panelQty)*(1+lossRat/100), 0);
-                        }
-                    } catch (Exception e) {
-                        mrpWarnService.addWarn(ver, packageId, "DPS", "包材BOM有问题，"+e.getMessage());
-                    }
-
-
+                    boxDemandQty = DoubleUtil.upPrecision(boxDemandQtyBase*dspDemandQty, 0);
                     MrpPackage mrpPackage = new MrpPackage();
                     mrpPackage.setVer(ver);
                     mrpPackage.setFabDate(fabDate);
@@ -374,7 +445,13 @@ public class RunMrpPackageServiceImpl implements RunMrpPackageService {
                 //Tray
                 for(BomPackageMaterial bomPackageMaterial : otherList) {
                     //包装规格*纸箱需求量
-                    double specQty = Double.valueOf(bomPackageMaterial.getSpecQty());
+                    double specQty;
+                    try {
+                        specQty = Double.valueOf(bomPackageMaterial.getSpecQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有包装规格");
+                        specQty=0;
+                    }
                     double demandQty = DoubleUtil.upPrecision(specQty*boxDemandQty, 0);
                     MrpPackage mrpPackage = new MrpPackage();
                     mrpPackage.setVer(ver);
@@ -387,8 +464,54 @@ public class RunMrpPackageServiceImpl implements RunMrpPackageService {
                     mrpPackage.setDemandQty(demandQty);
                     mrpPackageList.add(mrpPackage);
                 }
-            }
 
+                //栈板
+                if(pallet != null) {
+                    double specQty;
+                    try {
+                        specQty = Double.valueOf(pallet.getSpecQty());
+                    } catch (Exception e) {
+                        mrpWarnService.addWarn(ver, packageId, "DPS", "没有包装规格");
+                        specQty=0;
+                    }
+                    double palletDemandQty = DoubleUtil.upPrecision(boxDemandQty*specQty, 0);
+                    Map<Date, Double> demandMap = palletMap.get(pallet.getMaterial());
+                    if(demandMap.get(fabDate) == null) {
+                        demandMap.put(fabDate, palletDemandQty);
+                    } else {
+                        double demand = demandMap.get(fabDate);
+                        demandMap.put(fabDate, palletDemandQty+demand);
+                    }
+                }
+            }
+            mrpPackageService.saveMrpPackage(mrpPackageList);
+        }
+
+        //保存栈板
+        for(String material : palletMap.keySet()) {
+            Map<Date, Double> demandMap = palletMap.get(material);
+
+            MrpPackageMaterial mrpPackageMaterial = new MrpPackageMaterial();
+            mrpPackageMaterial.setVer(ver);
+            mrpPackageMaterial.setPackageId("");
+            mrpPackageMaterial.setMaterial(material);
+            mrpPackageMaterial.setMaterialName(palletMatrialMap.get(material).getMaterialName());
+            mrpPackageMaterial.setMaterialGroup(palletMatrialMap.get(material).getMaterialGroup());
+            mrpPackageMaterial.setMaterialGroupName(palletMatrialMap.get(material).getMaterialGroupName());
+            mrpPackageMaterial.setFab("CELL");
+
+            List<MrpPackage> mrpPackageList = new ArrayList<>();
+            for(Date fabDate : demandMap.keySet()) {
+                MrpPackage mrpPackage = new MrpPackage();
+                mrpPackage.setVer(ver);
+                mrpPackage.setFabDate(fabDate);
+                mrpPackage.setPackageId("");
+                mrpPackage.setMaterial(material);
+                mrpPackage.setDemandQty(demandMap.get(fabDate));
+                mrpPackageList.add(mrpPackage);
+            }
+            List<MrpPackageMaterial> mrpPackageMaterialList = new ArrayList<>();
+            mrpPackageMaterialList.add(mrpPackageMaterial);
             mrpPackageService.saveMrpPackageMaterial(mrpPackageMaterialList);
             mrpPackageService.saveMrpPackage(mrpPackageList);
         }

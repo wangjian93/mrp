@@ -138,7 +138,10 @@
                 {field: 'material', title: '料号', align: 'center', width: 120},
                 {field: 'substituteRate', title: '替代比例（%）', align: 'center', width: 120},
                 {field:'substituteGroup', title:'操作', align: 'center', width: 160, templet: '#toolDemo'},
-                {field: 'materialName', title: '品名', align: 'center'}
+                {field: 'materialName', title: '品名', align: 'center'},
+                {title: '有效日期', align: 'center', width: 120, templet: function(d) {
+                    return d.startDate + " ~ " + d.endDate;
+                    }}
             ]],
             done: function(res, curr, count) {
                 // 同厂别、机种、物料组的设置合并单元格，设置行变色

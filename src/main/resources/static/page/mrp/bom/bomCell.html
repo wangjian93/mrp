@@ -58,6 +58,11 @@
     </div>
 </div>
 
+<!-- 表格工具栏 -->
+<script type="text/html" id="toolBarDemo">
+    <button type="button" lay-event="submit"  class="layui-btn layui-btn-sm icon-btn" style="float: left"><i class="layui-icon">&#xe669;</i>保存</button>
+</script>
+
 <!-- js部分 -->
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
@@ -72,7 +77,7 @@
         // 机种表格
         table.render({
             elem: '#table_product',
-            url: '/mrp/bom/queryBomProduct',
+            url: '/mrp/bomCell/queryBomProduct',
             where: {
                 fab: fab,
                 product: ''
@@ -82,7 +87,7 @@
                 {field: 'product', title: '机种', align: 'center'}
             ]],
             done: function (res, curr, count) {
-                layui.$('[lay-id="table_product"] .layui-table-body tbody>tr:first').trigger('click');
+                // layui.$('[lay-id="table_product"] .layui-table-body tbody>tr:first').trigger('click');
             },
             page: {layout: ['prev', 'count', 'next']},
             limit: 15,
@@ -90,41 +95,28 @@
         });
 
         /* 监听机种表格的行单击事件 */
+        var bomTable;
         table.on('row(table_product)', function (obj) {
             var product = obj.data.product;
             obj.tr.addClass('layui-table-click').siblings().removeClass('layui-table-click');
             var index = layer.load(1, {
                 shade: [0.1,'#fff'] //0.1透明度的白色背景
             });
-            $.get('/mrp/bom/getBom', {
+            $.get('/mrp/bomCell/getBom', {
                 fab: fab,
                 product: product
             }, function(res) {
                 layer.close(index);
                 if(res.code === 200) {
                     var data = res.data;
-                    for(var i=0; i<data.length; i++) {
-                        var d = data[i];
-                        if(d.material && d.material!=='') {
-                            d.label = d.material;
-                            d.pid =  d.cellMtrl;
-                            d.id = d.material;
-                        } else {
-                            d.label = d.cellMtrl;
-                            d.pid =  -1;
-                            d.id = d.cellMtrl;
-                        }
-                        d.LAY_CHECKED = d.useFlag;
-                    }
-                    console.log(data);
                     // BOM表格
-                    treeTable.render({
+                    bomTable = treeTable.render({
                         elem: '#table_bom',
                         data: data,
                         tree: {
                             iconIndex: 2,
-                            idName: 'id',
-                            pidName: 'pid',
+                            idName: 'material',
+                            pidName: 'cellMtrl',
                             isPidData: true
                         },
                         cols: [[
@@ -136,7 +128,7 @@
                             {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
                             {field: 'measureUnit', title: '单位', align: 'center', width: 80},
                             {field: 'usageQty', title: '使用量', align: 'center', width: 100},
-                            {field: 'fab', title: '厂别', align: 'center', width: 80},
+                            //{field: 'fab', title: '厂别', align: 'center', width: 80},
                             {field: 'materialGroupName', title: '物料组名', align: 'center', width: 100, templet: function(d) {
                                     return '<div style="text-align: left">'+d.materialGroupName+'</div>';
                                 }},
@@ -146,7 +138,15 @@
                         ]],
                         page: {layout: ['prev', 'count', 'next']},
                         limit: 500,
-                        size: 'sm'
+                        size: 'sm',
+                        toolbar: '#toolBarDemo'
+                    });
+
+                    /* 头工具栏事件 */
+                    treeTable.on('toolbar(table_bom)', function(obj){
+                        if (obj.event === 'submit') {
+                            saveBom();
+                        }
                     });
                 } else {
                     layer.msg("获取机种的BOM数据失败，"+res.msg);
@@ -166,6 +166,57 @@
                 }
             });
         });
+
+        /* 保存BOM */
+        var saveBom = function() {
+            var data = bomTable.options.data;
+            var materialData = [];
+            var product = data[0].children[0].product;
+            for(var i=0; i<data.length; i++) {
+                var d = data[i];
+                if(d.children && d.children.length>0) {
+                    var materialGroups = [];
+                    for(var j=0; j<d.children.length; j++) {
+                        var child = d.children[j];
+                        var material = child.material;
+                        var materialGroup = child.materialGroup;
+                        var usageQty = child.usageQty;
+                        var measureUnit = child.measureUnit;
+                        if(child.LAY_CHECKED) {
+                            materialData.push({
+                                material: material,
+                                materialGroup: materialGroup,
+                                usageQty: usageQty,
+                                measureUnit: measureUnit
+                            });
+                        }
+                        materialGroups.push(materialGroup);
+                    }
+
+                    var flag = false;
+                    if(materialGroups.indexOf("102")>-1 && materialGroups.indexOf("105")>-1 && materialGroups.indexOf("106")>-1
+                        && materialGroups.indexOf("107")>-1 && materialGroups.indexOf("108")>-1) {
+                        flag = true;
+                    }
+                    if(!flag) {
+                        layer.msg('提交失败，'+'102/105/106/107/108在一个成品料号里面需要同时有效', {icon: 5, anim: 6});
+                        return;
+                    }
+                }
+            }
+            var loadIndex = layer.msg('提交中...', {icon: 16, shade: 0.01, time: false});
+            $.post('/mrp/bomCell/submit', {
+                'product':product,
+                'materialData': JSON.stringify(materialData)
+            }, function(res) {
+                if(res.code === 200) {
+                    layer.close(loadIndex);
+                    layer.msg('提交完成', {icon: 1});
+                } else {
+                    layer.msg('提交失败，'+res.msg, {icon: 5, anim: 6});
+                }
+            })
+        };
     });
 
 </script>

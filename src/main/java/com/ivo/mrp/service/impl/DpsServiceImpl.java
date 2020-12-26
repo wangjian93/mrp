@@ -5,6 +5,7 @@ import com.ivo.common.utils.ExcelUtil;
 import com.ivo.mrp.entity.*;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.ary.DpsAryOc;
+import com.ivo.mrp.entity.direct.ary.DpsAryOutputName;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
 import com.ivo.mrp.entity.direct.cell.DpsCellOutputName;
 import com.ivo.mrp.entity.packaging.BomPackage;
@@ -53,6 +54,7 @@ public class DpsServiceImpl implements DpsService {
 
 
     private DpsOutputNameService dpsOutputNameService;
+
 
     @Autowired
     public DpsServiceImpl(DpsVerRepository dpsVerRepository, DpsLcmRepository dpsLcmRepository, DpsAryRepository dpsAryRepository,
@@ -225,6 +227,8 @@ public class DpsServiceImpl implements DpsService {
                 dpsCellOutputName.setFabDate(fabDate);
                 dpsCellOutputName.setDemandQty(demandQty);
                 dpsCellOutputNameList.add(dpsCellOutputName);
+
+                dpsCell.setSplitFlag(true);
             } else {
                 product = outputName;
             }
@@ -284,6 +288,8 @@ public class DpsServiceImpl implements DpsService {
         Date endDate = null;
         String file_name = "";
         List<DpsAry> dpsAryArrayList = new ArrayList<>();
+        List<DpsAryOutputName> dpsAryOutputNameList = new ArrayList<>();
+
         for(Map map : mapList) {
             String project = (String) map.get("model_id_dps");
             String outputName = (String) map.get("output_name");
@@ -296,6 +302,17 @@ public class DpsServiceImpl implements DpsService {
             String product;
             if(StringUtils.contains(outputName, ",")) {
                 product = outputName.substring(0, outputName.indexOf(","));
+
+                DpsAryOutputName dpsAryOutputName = new DpsAryOutputName();
+                dpsAryOutputName.setFab(fab);
+                dpsAryOutputName.setVer(dps_ver);
+                dpsAryOutputName.setOutputName(outputName);
+                dpsAryOutputName.setProject(project);
+                dpsAryOutputName.setFabDate(fabDate);
+                dpsAryOutputName.setDemandQty(demandQty);
+                dpsAryOutputNameList.add(dpsAryOutputName);
+
+                dpsAry.setSplitFlag(true);
             } else {
                 product = outputName;
             }
@@ -321,6 +338,7 @@ public class DpsServiceImpl implements DpsService {
         dpsVer.setFileName(file_name);
         dpsVerRepository.save(dpsVer);
         dpsAryRepository.saveAll(dpsAryArrayList);
+        dpsOutputNameService.saveDpsAryOutputName(dpsAryOutputNameList);
         syncDpsAryOc(dps_ver, ver);
     }
 
@@ -470,7 +488,7 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public Page getPagDpsAryProduct(String ver, int page, int limit, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "splitFlag", "outputName");
         return dpsAryRepository.getPageProduct(ver, searchProduct+"%", pageable);
     }
 
@@ -481,13 +499,13 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public Page getPagDpsCellProduct(String ver, int page, int limit, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "splitFlag", "outputName");
         return dpsCellRepository.getPageProduct(ver, searchProduct+"%", pageable);
     }
 
     @Override
     public Page getPagDpsLcmProduct(String ver, int page, int limit, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "splitFlag", "product");
         return dpsLcmRepository.getPageProduct(ver, searchProduct+"%", pageable);
     }
 
@@ -650,7 +668,7 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public List<DpsAry> getDpsAryByOutputName(String ver, String outputName) {
-        return null;
+        return dpsAryRepository.findByVerAndOutputName(ver, outputName);
     }
 
     @Override
@@ -666,5 +684,15 @@ public class DpsServiceImpl implements DpsService {
     @Override
     public void saveDpsVer(DpsVer dpsVer) {
         dpsVerRepository.save(dpsVer);
+    }
+
+    @Override
+    public void deleteDpsAry(List<DpsAry> list) {
+        dpsAryRepository.deleteAll(list);
+    }
+
+    @Override
+    public void saveDpsAry(List<DpsAry> list) {
+        dpsAryRepository.saveAll(list);
     }
 }

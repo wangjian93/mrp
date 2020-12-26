@@ -85,6 +85,21 @@
       </foreach>
   </select>
 
+  <select id="getDpsPol" resultType="java.util.HashMap">
+    select
+    file_ver,
+    fab_date,
+    model_id_dps,
+    sub_type,
+    colum_name,
+    qty,
+    file_name
+    from dps_excel_arycel
+    where file_ver= #{ver}
+    and sub_type = 'Cell Input'
+    and qty>0
+  </select>
+
   <select id="getAryMps" resultType="java.util.HashMap">
     SELECT mps_ver, ary_model_name as product, fab_date as fabDate,
       mps_qty as qty,

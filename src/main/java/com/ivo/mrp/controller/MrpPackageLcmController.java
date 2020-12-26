@@ -7,6 +7,7 @@ import com.ivo.mrp.entity.lcmPackaging.MrpPackageLcmMaterial;
 import com.ivo.mrp.service.DemandPackageLcmService;
 import com.ivo.mrp.service.MrpPackageLcmService;
 import com.ivo.mrp.service.MrpService;
+import com.ivo.mrp.service.RunMrpPackageLcmService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +36,15 @@ public class MrpPackageLcmController {
 
     private DemandPackageLcmService demandPackageLcmService;
 
+    private RunMrpPackageLcmService runMrpPackageLcmService;
+
     @Autowired
     public MrpPackageLcmController(MrpPackageLcmService mrpPackageLcmService,
-                                   DemandPackageLcmService demandPackageLcmService) {
+                                   DemandPackageLcmService demandPackageLcmService,
+                                   RunMrpPackageLcmService runMrpPackageLcmService) {
         this.mrpPackageLcmService = mrpPackageLcmService;
         this.demandPackageLcmService = demandPackageLcmService;
+        this.runMrpPackageLcmService = runMrpPackageLcmService;
     }
 
     @GetMapping("/getPageMrpPackageLcmMaterial")
@@ -67,5 +73,18 @@ public class MrpPackageLcmController {
             map.put("mrpData", list);
         }
         return ResultUtil.success(map);
+    }
+
+    @GetMapping("/updateMrpPackageMaterial")
+    public Result updateMrpPackageMaterial(String ver, @RequestParam(defaultValue = "", required = false) String product, String material) {
+        runMrpPackageLcmService.updateMrpPackageMaterial(ver, product, material);
+        return ResultUtil.success("MRP更新料号成功");
+    }
+
+    @GetMapping("/updateMrpPackageBalanceQty")
+    public Result updateMrpPackageBalanceQty(String ver, @RequestParam(defaultValue = "", required = false) String product, String material, Date fabDate, double balanceQty) {
+        runMrpPackageLcmService.updateMrpBalanceQty(ver, product, material, fabDate, balanceQty);
+        runMrpPackageLcmService.updateMrpPackageMaterial(ver, product, material);
+        return ResultUtil.success("MRP更新料号成功");
     }
 }

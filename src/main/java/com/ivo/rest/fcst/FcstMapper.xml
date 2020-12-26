@@ -24,10 +24,11 @@
 
   <!-- 获取CELL的MPS机种命名 -->
   <select id="getCellMpsMode" resultType="java.util.HashMap">
-    select DISTINCT CellInPut_PC, Material_FK
-    from SD_O_MPSModelDetail
-    where CellInPut_PC is not NULL
-    and ValidFlag=1
+    select DISTINCT CellInPut_PC, Material_FK from (
+                                                     select CellInPut_PC, Material_FK from SD_O_MPSModelDetail where CellInPut_PC is not NULL and ValidFlag=1
+                                                     union all
+                                                     select CellInPut_PC, Material_FK from SD_O_MPSModelDetailHis where CellInPut_PC is not NULL and ValidFlag=1
+                                                   ) t
   </select>
 
 

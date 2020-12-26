@@ -16,8 +16,10 @@ public class RunMrpPackageLcmServiceTest extends AbstractTest {
 
     @Test
     public void test_runMrp() {
-//        String[] dpsVers = new String[] {"20201207073"};
-//        String[] mpsVers = new String[] {};
-        runMrpPackageLcmService.completeMrpMaterial("20201210051");
+//        String[] dpsVers = new String[] {"20201207073","20201207074"};
+//        String[] mpsVers = new String[] {"20201209014","20201209016"};
+//        runMrpPackageLcmService.runMrp(dpsVers, mpsVers, "SYS");
+
+        runMrpPackageLcmService.completeMrpMaterial("20201218067");
     }
 }

@@ -15,4 +15,6 @@ public interface BomPackageMaterialRepository extends JpaRepository<BomPackageMa
 
     List<BomPackageMaterial> findByPackageIdAndSupplierFlagIsTrue(String packageId);
 
+    BomPackageMaterial findFirstByPackageIdAndMaterial(String packageId, String material);
+
 }

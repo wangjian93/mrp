@@ -16,10 +16,10 @@ import java.util.Map;
 public interface DemandPackageLcmRepository extends JpaRepository<DemandPackageLcm, DemandKey> {
 
     @Query(value = "select distinct d.material from DemandPackageLcm d where d.ver=:ver and d.isAlone = true")
-    List<String> getDemandAloneMaterial(String ver);
+    List<String> getDemandAloneMaterial(@Param("ver") String ver);
 
     @Query(value = "select distinct d.product as product, d.material as material from DemandPackageLcm d where d.ver=:ver and d.isAlone = false")
-    List<Map> getDemandProductMaterial(String ver);
+    List<Map> getDemandProductMaterial(@Param("ver") String ver);
 
 
 

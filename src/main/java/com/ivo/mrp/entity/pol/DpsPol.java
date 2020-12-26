@@ -1,10 +1,13 @@
 package com.ivo.mrp.entity.pol;
 
 import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp.key.DpsPolKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -17,21 +20,27 @@ import java.util.Date;
 @Table(name = "MRP3_Dps_Pol")
 @Setter
 @Getter
-public class DpsPol extends AutoIncreaseEntityModel {
+@IdClass(DpsPolKey.class)
+public class DpsPol {
 
     /**
-     * 厂别
+     * 版本
      */
-    private String fab;
+    @Id
+    private String ver;
 
     /**
      * 机种
      */
+    @Id
     private String product;
+
+    private String project;
 
     /**
      * 日期
      */
+    @Id
     private java.sql.Date fabDate;
 
     /**

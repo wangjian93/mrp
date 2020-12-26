@@ -11,7 +11,12 @@ import com.ivo.mrp.service.MaterialGroupService;
 import com.ivo.mrp.service.MaterialService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -77,6 +82,20 @@ public class BomCellServiceImpl implements BomCellService {
             bomCellMaterial.setUSAGEQTY( ((BigDecimal) map.get("USAGEQTY")).doubleValue() );
             bomCellMaterial.setSUBFLAG( ((BigDecimal) map.get("SUBFLAG")).intValue() );
             bomCellMaterial.setMEMO((String) map.get("MEMO"));
+
+            String material = bomCellMaterial.getMTRL_ID();
+            bomCellMaterial.setMaterialName(materialService.getMaterialName(material));
+            String materialGroup = materialService.getMaterialGroup(material);
+            bomCellMaterial.setMaterialGroup(materialGroup);
+            bomCellMaterial.setMaterialGroupName(materialGroupService.getMaterialGroupName(materialGroup));
+
+            if(StringUtils.equalsAny(bomCellMaterial.getMaterialGroup(), "104","103", "115", "116", "101", "922", "921", "917", "918")
+                    || StringUtils.startsWith(bomCellMaterial.getMTRL_ID(), "57")) {
+                bomCellMaterial.setValidFlag(false);
+            } else {
+                bomCellMaterial.setValidFlag(true);
+            }
+
             bomCellMaterialList.add(bomCellMaterial);
         }
         batchService.batchInsert(bomCellMaterialList);
@@ -91,9 +110,9 @@ public class BomCellServiceImpl implements BomCellService {
         List<CellMpsMode> cellMpsModeList = new ArrayList<>();
         for(Map map : mapList) {
             CellMpsMode cellMpsMode = new CellMpsMode();
-            cellMpsMode.setCellInput_pc((String) map.get("CellInPut_PC"));
+            cellMpsMode.setCellInputPc((String) map.get("CellInPut_PC"));
             cellMpsMode.setCellMtrl((String) map.get("Material_FK"));
-            cellMpsMode.setId(cellMpsMode.getCellInput_pc()+"_"+cellMpsMode.getCellMtrl());
+            cellMpsMode.setId(cellMpsMode.getCellInputPc()+"_"+cellMpsMode.getCellMtrl());
             cellMpsModeList.add(cellMpsMode);
         }
         cellMpsModeRepository.saveAll(cellMpsModeList);
@@ -116,7 +135,7 @@ public class BomCellServiceImpl implements BomCellService {
 
     @Override
     public List<BomCellMaterial> getBomCellMaterial(List<String> cellMtrlList) {
-        return bomCellMaterialRepository.findByCELLMTRLIn(cellMtrlList);
+        return bomCellMaterialRepository.findByCELLMTRLInAndValidFlagIsTrue(cellMtrlList);
     }
 
     @Override
@@ -130,37 +149,50 @@ public class BomCellServiceImpl implements BomCellService {
     }
 
     @Override
-    public void test() {
+    public void syncBomCell2() {
         List<BomCellProduct> bomCellProductList = bomCellProductRepository.findAll();
-        int i = bomCellProductList.size();
         for(BomCellProduct bomCellProduct : bomCellProductList) {
-            System.out.println(i--);
+            if(bomCellProduct.isVerify()) continue;
             String product = bomCellProduct.getProduct();
             List<String> cellMtrlList = getCellMtrl(product);
             List<BomCellMaterial> bomCellMaterialList = getBomCellMaterial(cellMtrlList);
 
-            if(bomCellMaterialList != null && bomCellMaterialList.size()>0) {
-                List<BomCell2> bomCellList = new ArrayList<>();
-                for(BomCellMaterial bomCellMaterial : bomCellMaterialList) {
-                    BomCell2 bomCell = new BomCell2();
-                    String material = bomCellMaterial.getMTRL_ID();
-                    bomCell.setId(product+"_"+material);
-                    bomCell.setProduct(product);
-                    bomCell.setMaterial(material);
-                    bomCell.setUsageQty(bomCellMaterial.getUSAGEQTY());
-                    bomCell.setMeasureUnit(bomCellMaterial.getMEASURE_UNIT());
+            if(bomCellMaterialList == null || bomCellMaterialList.size() ==0) continue;
+            List<BomCell2> bomCellList = new ArrayList<>();
+            for(BomCellMaterial bomCellMaterial : bomCellMaterialList) {
+                BomCell2 bomCell = new BomCell2();
+                String material = bomCellMaterial.getMTRL_ID();
+                bomCell.setId(product+"_"+material);
+                bomCell.setProduct(product);
+                bomCell.setMaterial(material);
+                bomCell.setUsageQty(bomCellMaterial.getUSAGEQTY());
+                bomCell.setMeasureUnit(bomCellMaterial.getMEASURE_UNIT());
 
-                    bomCell.setMaterialName(materialService.getMaterialName(material));
-                    String materialGroup = materialService.getMaterialGroup(material);
-                    bomCell.setMaterialGroup(materialGroup);
-                    bomCell.setMaterialGroupName(materialGroupService.getMaterialGroupName(materialGroup));
-                    bomCellList.add(bomCell);
-                }
-
-                bomCellRepository2.saveAll(bomCellList);
-                bomCellProduct.setVerify(true);
-                bomCellProductRepository.save(bomCellProduct);
+                bomCell.setMaterialName(bomCellMaterial.getMaterialName());
+                bomCell.setMaterialGroup(bomCellMaterial.getMaterialGroup());
+                bomCell.setMaterialGroupName(bomCellMaterial.getMaterialGroupName());
+                bomCellList.add(bomCell);
             }
+
+            bomCellRepository2.saveAll(bomCellList);
+            bomCellProduct.setVerify(true);
+            bomCellProductRepository.save(bomCellProduct);
         }
+    }
+
+    @Override
+    public Page<BomCellProduct> queryProduct(int page, int limit, String searchProduct) {
+        Pageable pageable = PageRequest.of(page, limit,  Sort.Direction.ASC, "product");
+        return bomCellProductRepository.findByProductLike(searchProduct+"%", pageable);
+    }
+
+    @Override
+    public void deleteBomCell(List<BomCell2> list) {
+        bomCellRepository2.deleteAll(list);
+    }
+
+    @Override
+    public void saveBomCell(List<BomCell2> list) {
+        bomCellRepository2.saveAll(list);
     }
 }

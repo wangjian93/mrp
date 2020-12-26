@@ -631,7 +631,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
             return;
         }
-        String project = StringUtils.contains(product, "") ? product.substring(0, product.indexOf(" ")) : product;
+        String project = StringUtils.contains(product, " ") ? product.substring(0, product.indexOf(" ")) : product;
         Double cut = cutService.getProjectCut(project);
         if(cut == null) {
             log.warn("警告：MPS机种"+product+"没有切片数，MRP版本"+ver);
@@ -1777,11 +1777,15 @@ public class RunMrpServiceImpl implements RunMrpService {
         String type = mrpVer.getType();
         switch (type) {
             case MrpVer.Type_Lcm :
+                demandService.deleteDemand(ver);
+                computeDemand(ver);
                 computeMrpMaterialLcm(ver);
                 computeMrpBalanceLcm(ver);
                 completeMrpMaterial(ver);
                 break;
             case MrpVer.Type_Ary :
+                demandService.deleteDemand(ver);
+                computeDemand(ver);
                 computeMrpMaterialAry(ver);
                 computeMrpBalanceAry(ver);
                 completeMrpMaterial(ver);

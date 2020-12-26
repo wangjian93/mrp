@@ -1,10 +1,12 @@
 package com.ivo.mrp.entity.pol;
 
-import com.ivo.common.model.AutoIncreaseEntityModel;
+import com.ivo.mrp.key.MrpPolKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -17,11 +19,13 @@ import java.util.Date;
 @Table(name = "MRP3_Mrp_Pol")
 @Setter
 @Getter
-public class MrpPol extends AutoIncreaseEntityModel {
+@IdClass(MrpPolKey.class)
+public class MrpPol  {
 
     /**
      * MRP版本
      */
+    @Id
     private String ver;
 
     /**
@@ -32,22 +36,20 @@ public class MrpPol extends AutoIncreaseEntityModel {
     /**
      * 机种
      */
+    @Id
     private String product;
 
     /**
      * 料号
      */
+    @Id
     private String material;
 
     /**
      * 日期
      */
+    @Id
     private java.sql.Date fabDate;
-
-    /**
-     * 投入量
-     */
-    private double inputQty;
 
     /**
      * 需求量
@@ -103,4 +105,14 @@ public class MrpPol extends AutoIncreaseEntityModel {
      * 创建时间
      */
     private Date createDate = new Date();
+
+    /**
+     * 实际收货数量
+     */
+    private double arrivalActualQty;
+
+    /**
+     * 计划到货量
+     */
+    private double arrivalPlanQty;
 }

@@ -27,7 +27,7 @@ public class CellMpsMode {
     /**
      * 机种的PC CellInput命名
      */
-    private String cellInput_pc;
+    private String cellInputPc;
 
     /**
      * CELL料号，即14料号

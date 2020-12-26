@@ -59,4 +59,6 @@ public interface BomPackageService {
     List<BomPackageMaterial> getBomPackageMaterial(String product, String type, String linkQty);
 
     List<BomPackageMaterial> getBomPackageForSupplier(String packageId);
+
+    BomPackageMaterial getBomPackageMaterial(String packageId , String material);
 }

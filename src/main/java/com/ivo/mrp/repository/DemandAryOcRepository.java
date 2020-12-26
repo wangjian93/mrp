@@ -31,4 +31,6 @@ public interface DemandAryOcRepository extends JpaRepository<DemandAryOc, Demand
      */
     @Query(value = "select DISTINCT d.product from DemandAryOc d where d.ver=:ver and d.material=:material")
     List<String> getProduct(@Param("ver") String ver, @Param("material") String material);
+
+    List<DemandAryOc> findByVer(String ver);
 }

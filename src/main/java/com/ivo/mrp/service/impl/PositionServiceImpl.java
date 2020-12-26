@@ -41,4 +41,9 @@ public class PositionServiceImpl implements PositionService {
     public List<String> getPositionIveDull() {
         return positionRepository.getPosition(Position.FAB_IVE, Position.TYPE_Dull);
     }
+
+    @Override
+    public List<String> getPositionAll() {
+        return positionRepository.getPositionAll();
+    }
 }

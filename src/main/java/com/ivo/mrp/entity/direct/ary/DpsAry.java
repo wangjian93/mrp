@@ -65,4 +65,6 @@ public class DpsAry {
     private String creator = "";
 
     private Date createDate = new Date();
+
+    private boolean splitFlag = false;
 }

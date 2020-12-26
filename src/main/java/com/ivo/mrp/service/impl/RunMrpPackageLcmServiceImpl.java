@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -544,7 +545,7 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
                 demandQty = demandQtyMap.get(fabDate);
             }
             //当日耗损量
-            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
+//            double lossQty = DoubleUtil.upPrecision(demandQty*lossRate/100, 0);
 
             // 计划到货量
             double arrivalPlanQty;
@@ -569,7 +570,7 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
             double balanceQty;
             if(i==0) {
                 // 第一天：期初库存 – 当日需求量 - 当日耗损量
-                balanceQty = DoubleUtil.upPrecision(goodInventory-demandQty-lossQty, 0);
+                balanceQty = DoubleUtil.upPrecision(goodInventory-demandQty, 0);
 
             } else {
                 // 其他天：前一天的结余量 + 前一天的到货 – 当日需求量 - 当日耗损量
@@ -577,7 +578,7 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
                 MrpPackageLcm lastMrpPackageLcm = mrpPackageLcmList.get(i-1);
                 double lastBalanceQty = lastMrpPackageLcm.getBalanceQty();
                 double lastArrivalQty = lastMrpPackageLcm.getArrivalQty();
-                balanceQty =  DoubleUtil.upPrecision(lastBalanceQty + lastArrivalQty - demandQty - lossQty, 0);
+                balanceQty =  DoubleUtil.upPrecision(lastBalanceQty + lastArrivalQty - demandQty, 0);
             }
             //判断结余量是否修改
             if(mrpPackageLcm.isModifyBalanceFlag()) {
@@ -617,7 +618,7 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
             }
 
             mrpPackageLcm.setDemandQty(demandQty);
-            mrpPackageLcm.setLossQty(lossQty);
+//            mrpPackageLcm.setLossQty(lossQty);
             mrpPackageLcm.setArrivalQty(arrivalQty);
             mrpPackageLcm.setBalanceQty(balanceQty);
             mrpPackageLcm.setShortQty(shortQty);
@@ -690,5 +691,39 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
         completeMrpMaterial(ver);
         mrpVer.setMemo("运算完成");
         mrpService.saveMrpVer(mrpVer);
+    }
+
+    @Override
+    public void updateMrpPackageMaterial(String ver, String product, String material) {
+        MrpPackageLcmMaterial mrpPackageLcmMaterial = mrpPackageLcmService.getMrpPackageLcmMaterial(ver, product, material);
+       if(StringUtils.isEmpty(product)) {
+            computeMrpBalanceAloneMaterial(ver,  mrpPackageLcmMaterial);
+       } else {
+           computeMrpBalanceProductMaterial(ver, mrpPackageLcmMaterial);
+       }
+    }
+
+    @Override
+    public void updateMrpBalanceQty(String ver, String product, String material, Date fabDate, double balanceQty) {
+        MrpPackageLcm mrpLcm = mrpPackageLcmService.getMrpPackageLcm(ver, product, material, fabDate);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if(mrpLcm.getBalanceQtyHis() == balanceQty) {
+            mrpLcm.setModifyBalanceFlag(false);
+            mrpLcm.setBalanceQty(balanceQty);
+        } else {
+            if(mrpLcm.isModifyBalanceFlag()) {
+                mrpLcm.setBalanceQty(balanceQty);
+                mrpLcm.setMemo("结余量修改"+sdf.format(new java.util.Date()));
+            } else {
+                mrpLcm.setModifyBalanceFlag(true);
+                mrpLcm.setBalanceQtyHis(mrpLcm.getBalanceQty());
+                mrpLcm.setBalanceQty(balanceQty);
+                mrpLcm.setMemo("结余量修改"+sdf.format(new java.util.Date()));
+            }
+        }
+
+        List<MrpPackageLcm> list = new ArrayList<>();
+        list.add(mrpLcm);
+        mrpPackageLcmService.saveMrpPackageLcm(list);
     }
 }

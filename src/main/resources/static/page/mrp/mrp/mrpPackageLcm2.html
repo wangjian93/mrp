@@ -35,6 +35,9 @@
         .layui-table tbody tr:hover, .layui-table-click, .layui-table-hover {
             background-color: transparent;
         }
+        .layui-table td{
+            border-color: #736e6e;
+        }
     </style>
 
     <!-- 表格单元格样式 -->
@@ -154,7 +157,7 @@
 <script type="text/html" id="mrpTitleDemo"><div class="box_parent">
 <div class="box" style="width: 160px;">需求量</div>
 <div class="box" style="color: #01AAED;width: 160px;">到货量</div>
-<div class="box" style="color: red;border-bottom: none;width: 160px;background-color: yellow">结余量</div>
+<div class="box" style="color: red;border-bottom: none;width: 160px;background-color: #87CEFA">结余量</div>
 <div class="box" style="color: red;width: 160px;" hidden>缺料量</div>
 <div class="box" style="width: 160px;" hidden>分配量</div>
 </div></script>
@@ -165,7 +168,7 @@
 <div class="box" style="width: 160px;">{{ item }}</div>
 {{#  }); }}
 <div class="box" style="color: #01AAED;width: 160px;">到货量</div>
-<div class="box" style="color: red;border-bottom: none;width: 160px;background-color: yellow">结余量</div>
+<div class="box" style="color: red;border-bottom: none;width: 160px;background-color:#87CEFA">结余量</div>
 <div class="box" style="color: red;width: 160px;" hidden>缺料量</div>
 <div class="box" style="width: 160px;" hidden>分配量</div>
 </div></script>
@@ -174,7 +177,7 @@
 <script type="text/html" id="mrpMonthDemo"><div class="box_parent" id="{{ d.material_month }}">
 <div class="box" id="{{ d.material_product_month }}_demandQty"></div>
 <div class="box" id="{{ d.material_product_month }}_arrivalQty"></div>
-<div class="box" id="{{ d.material_product_month }}_balanceQty" style="border-bottom: none;background-color: yellow"></div>
+<div class="box" id="{{ d.material_product_month }}_balanceQty" style="border-bottom: none;background-color: #87CEFA"></div>
 <div class="box" id="{{ d.material_product_month }}_shortQty" hidden></div>
 <div class="box" id="{{ d.material_product_month }}_allocationQty" hidden></div>
 </div></script>
@@ -184,18 +187,18 @@
 <div class="box">-</div>
 {{#  }); }}
 <div class="box" id="{{ d.material_month }}_arrivalQty"></div>
-<div class="box" id="{{ d.material_month }}_balanceQty" style="border-bottom: none;background-color: yellow"></div>
+<div class="box" id="{{ d.material_month }}_balanceQty" style="border-bottom: none;background-color:#87CEFA"></div>
 <div class="box" id="{{ d.material_month }}_shortQty" hidden></div>
 <div class="box" id="{{ d.material_month }}_allocationQty" hidden></div>
 </div></script>
 
 <!-- MRP行数据模板 -->
-<script type="text/html" id="mrpDemo"><div class="box_parent hover" id="{{ d.material_fabDate }}">
-<div class="box hover" id="{{ d.material_product_fabDate }}_demandQty"  lay-event="{{ d.material_fabDate }}_demandQty"></div>
-<div class="box hover" id="{{ d.material_product_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty"></div>
-<div class="box hover" id="{{ d.material_product_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty" style="border-bottom: none;background-color: yellow"></div>
-<div class="box hover" id="{{ d.material_product_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty" hidden></div>
-<div class="box hover" id="{{ d.material_product_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty" hidden></div>
+<script type="text/html" id="mrpDemo"><div class="box_parent hover" id="{{ d.material_product_fabDate }}">
+<div class="box hover" id="{{ d.material_product_fabDate }}_demandQty"  lay-event="{{ d.material_product_fabDate }}_demandQty"></div>
+<div class="box hover" id="{{ d.material_product_fabDate }}_arrivalQty"  lay-event="{{ d.material_product_fabDate }}_arrivalQty"></div>
+<div class="box hover" id="{{ d.material_product_fabDate }}_balanceQty"  lay-event="{{ d.material_product_fabDate }}_balanceQty" style="border-bottom: none;background-color: #87CEFA"></div>
+<div class="box hover" id="{{ d.material_product_fabDate }}_shortQty"  lay-event="{{ d.material_product_fabDate }}_shortQty" hidden></div>
+<div class="box hover" id="{{ d.material_product_fabDate }}_allocationQty"  lay-event="{{ d.material_product_fabDate }}_allocationQty" hidden></div>
 </div></script>
 
 <script type="text/html" id="mrpDemo_Alone"><div class="box_parent hover" id="{{ d.material_fabDate }}">
@@ -203,7 +206,7 @@
 <div class="box" id="{{ d.material_fabDate }}_demandQty_product_{{ item }}"></div>
 {{#  }); }}
 <div class="box hover" id="{{ d.material_fabDate }}_arrivalQty"  lay-event="{{ d.material_fabDate }}_arrivalQty"></div>
-<div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty" style="border-bottom: none;background-color: yellow"></div>
+<div class="box hover" id="{{ d.material_fabDate }}_balanceQty"  lay-event="{{ d.material_fabDate }}_balanceQty" style="border-bottom: none;background-color: #87CEFA"></div>
 <div class="box hover" id="{{ d.material_fabDate }}_shortQty"  lay-event="{{ d.material_fabDate }}_shortQty" hidden></div>
 <div class="box hover" id="{{ d.material_fabDate }}_allocationQty"  lay-event="{{ d.material_fabDate }}_allocationQty" hidden></div>
 </div></script>
@@ -243,7 +246,7 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'element', 'dropdown'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'element', 'dropdown', 'tableX'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;
@@ -251,6 +254,7 @@
         var admin = layui.admin;
         var form = layui.form;
         var element = layui.element;
+        var tableX = layui.tableX;
 
         /* 获取URL请求的参数 */
         var getQueryVariable = function (variable) {
@@ -315,16 +319,9 @@
             },
             cols: [[
                 {type: 'numbers', align: 'center', fixed: 'left'},
-                {field: 'products', title: '机种', align: 'center', width: 160, fixed: 'left',templet: function(d) {
-                        return '<div style="max-height: 60px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
-                    }},
                 {field: 'material', title: '<div style="line-height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
-                {field: 'suppliers', title: '供应商', align: 'center', width: 160,fixed: 'left', templet: function(d) {
-                        if(d.suppliers != null) {
-                            return '<div style="max-height: 60px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
-                        } else {
-                            return '';
-                        }
+                {title: '物料名', align: 'center', width: 160, fixed: 'left', templet: function (d) {
+                        return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
                     }},
                 {title: '', align: 'center', width: 160, fixed: 'left', templet: function(d) {
                         if(d.alone) {
@@ -335,15 +332,22 @@
                         }
                     }
                 },
-                {title: '物料名', align: 'center', width: 160, templet: function (d) {
-                        return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
+                {title: '机种', align: 'center', width: 160, templet: function(d) {
+                        return '<div style="max-height: 60px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                    }},
+                {field: 'suppliers', title: '供应商', align: 'center', width: 160,templet: function(d) {
+                        if(d.suppliers != null) {
+                            return '<div style="max-height: 60px;overflow-y:auto;">'+d.suppliers.replace(/,/g,"<br>")+'</div>';
+                        } else {
+                            return '';
+                        }
                     }},
                 {field: 'materialGroup', title: '物料组', align: 'center', width: 80},
-                {field: 'materialGroupName', title: '物料组名', align: 'center', width: 140},
+                //{field: 'materialGroupName', title: '物料组名', align: 'center', width: 100},
                 {field: 'fab', title: '厂别', align: 'center', width: 80},
-                {field: 'lossRate', title: '损耗率', align: 'center', width: 80},
+                // {field: 'lossRate', title: '损耗率', align: 'center', width: 80},
                 {field: 'goodInventory', title: '良品库存', align: 'center', width: 80},
-                {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 80},
+                // {field: 'dullInventory', title: '呆滞库存', align: 'center', width: 80},
                 // {field: 'inventorDate', title: '库存日期', align: 'center', width: 140},
                 // {field: 'supplierCodes', title: '供应商', align: 'center', width: 140},
                 // {field: 'customers', title: '客户', align: 'center', width: 140},
@@ -390,9 +394,12 @@
                     var products = item.products;
                     renderMaterialMrp(material, alone, products);
                 });
+                //单元格合并
+                tableX.merges('table_mrp', [4], ["products"]);
             },
             page: true,
-            limit: 20,
+            limit: 200,
+            limits: [20, 50, 100, 200, 300, 400, 500, 1000],
             size: 'sm',
             height: 'full-20',
             even: true
@@ -470,7 +477,7 @@
                         var nowDay = new Date();
                         var fd = new Date(item.fabDate);
                         if(nowDay.getTime() > fd.getTime()) {
-                            $('#'+material_fabDate+"_arrivalQty").html('<span style="color: red;">'+arrivalQty+'</span>');
+                            $('#'+material_fabDate+"_arrivalQty").html('<span style="color: black;">'+arrivalQty+'</span>');
                         } else {
                             $('#'+material_fabDate+"_arrivalQty").html('<span style="color: #01AAED;">'+arrivalQty+'</span>');
                         }
@@ -520,7 +527,7 @@
                         var nowDay = new Date();
                         var fd = new Date(item.fabDate);
                         if(nowDay.getTime() > fd.getTime()) {
-                            $('#'+material_product_fabDate+"_arrivalQty").html('<span style="color: red;">'+arrivalQty+'</span>');
+                            $('#'+material_product_fabDate+"_arrivalQty").html('<span style="color: black;">'+arrivalQty+'</span>');
                         } else {
                             $('#'+material_product_fabDate+"_arrivalQty").html('<span style="color: #01AAED;">'+arrivalQty+'</span>');
                         }
@@ -618,30 +625,32 @@
 
         //监听表格点击
         table.on('tool(table_mrp)', function(obj) {
+            var material;
+            var product;
+            var fabDate;
+            var label;
             var ars = obj.event.split("_");
-            var material = ars[0];
+            material = ars[0];
             //料号中会有'.'jquery的ID选择器选不到
             material = material.replace("point",".");
-            var fabDate = ars[1];
-            var label = ars[2];
-            switch(label){
+            if(ars.length === 3) {
+                fabDate = ars[1];
+                label = ars[2];
+            } else {
+                product = ars[1];
+                fabDate = ars[2];
+                label = ars[3];
+            }
+
+            switch(label) {
                 case 'demandQty':
-                    showDemandQtyDetail(material,fabDate);
-                    break;
-                case 'lossQty':
-                    layer.msg(material);
+                    // showDemandQtyDetail(material,fabDate);
                     break;
                 case 'arrivalQty':
-                    showArrivalQtyDetail(material,fabDate);
+                    showArrivalQtyDetail(material, product, fabDate);
                     break;
                 case 'balanceQty':
-                    editBalanceQty(material,fabDate);
-                    break;
-                case 'shortQty':
-                    layer.msg(material);
-                    break;
-                case 'allocationQty':
-                    showAllocationQty(material,fabDate);
+                    editBalanceQty(material, product, fabDate);
                     break;
             }
         });
@@ -686,7 +695,7 @@
         };
 
         //显示到货量明细
-        var showArrivalQtyDetail = function(material, fabDate) {
+        var showArrivalQtyDetail = function(material, product, fabDate) {
             admin.open({
                 type: 1,
                 title: '供应商到货',
@@ -754,19 +763,30 @@
                         jsons: JSON.stringify(table.cache["table_arrivalQtyDetail"])
                     }, function(res) {
                         if(res.code === 200) {
-                            $.get('/mrp/mrp/updateMrpMaterial', {
+                            $.get('/mrp/packageLcm/updateMrpPackageMaterial', {
                                 ver: ver,
+                                product: product,
                                 material: material
                             }, function(res) {
                                 if(res.code === 200) {
                                     layer.close(index);
                                     //料号中会有'.'jquery的ID选择器选不到
-                                    var material_ = material.replace(".","point");
-                                    var id = 'mrp_'+material_;
-                                    var mrp_month = 'mrp_month'+material_;
-                                    $('#'+id).html('<div>加载中</div>');
-                                    $('#'+mrp_month).html('<div>加载中</div>');
-                                    renderMaterialMrp(material);
+                                    var material_ = material.replace(".", "point");
+                                    var id;
+                                    var mrp_month;
+                                    if (product) {
+                                        id = 'mrp_' + material_ + "_" + product;
+                                        mrp_month = 'mrp_month' + material_ + "_" + product;
+                                        $('#' + id).html('<div>加载中</div>');
+                                        $('#' + mrp_month).html('<div>加载中</div>');
+                                        renderMaterialMrp(material, false, product);
+                                    } else {
+                                        id = 'mrp_' + material_;
+                                        mrp_month = 'mrp_month' + material_;
+                                        $('#' + id).html('<div>加载中</div>');
+                                        $('#' + mrp_month).html('<div>加载中</div>');
+                                        renderMaterialMrp(material, true, product);
+                                    }
                                 } else {
                                     layer.msg("MRP更新失败，"+res.msg);
                                     layer.close(index);
@@ -781,37 +801,59 @@
         };
 
         //修改料号的结余量
-        var editBalanceQty = function(material, fabDate) {
+        var editBalanceQty = function(material, product, fabDate) {
             var material_ = material.replace(".","point");
             var material_fabDate = material_ + "_" + fabDate;
-            var span = $('#'+material_fabDate+"_balanceQty span:first-child");
+            var material_product_fabDate = material_ +"_"+product+"_" + fabDate;
+
+            var id;
+            if(product) {
+                id = material_product_fabDate;
+            } else {
+                id = material_fabDate;
+            }
+
+            var span = $('#'+id+"_balanceQty span:first-child");
             span.hide();
             var oldValue = span.html();
-            $('#'+material_fabDate+"_balanceQty").append('<input style="height:20px;" class="layui-input"/>');
-            var input = $('#'+material_fabDate+"_balanceQty  input:last-child");
+            $('#'+id+"_balanceQty").append('<input style="height:20px;" class="layui-input"/>');
+            var input = $('#'+id+"_balanceQty  input:last-child");
             input.focus();
             input.val(oldValue);
             input.blur(function(){
                 var d = input.val();
                 if(d === "" || d===oldValue) {
-                    $('#'+material_fabDate+"_balanceQty  input").remove();
+                    $('#'+id+"_balanceQty  input").remove();
                     span.show();
                 } else {
-                    $('#'+material_fabDate+"_balanceQty  input").remove();
+                    $('#'+id+"_balanceQty  input").remove();
                     span.html(d);
                     span.show();
-                    $.get('/mrp/mrp/updateMrpBalanceQty', {
+                    $.get('/mrp/packageLcm/updateMrpPackageBalanceQty', {
                         ver: ver,
                         material: material,
+                        product: product,
                         fabDate: fabDate,
                         balanceQty: d
                     }, function(res) {
                         if(res.code === 200) {
-                            var id = 'mrp_'+material_;
-                            var mrp_month = 'mrp_month'+material_;
-                            $('#'+id).html('<div>加载中</div>');
-                            $('#'+mrp_month).html('<div>加载中</div>');
-                            renderMaterialMrp(material);
+                            //料号中会有'.'jquery的ID选择器选不到
+                            var material_ = material.replace(".", "point");
+                            var id;
+                            var mrp_month;
+                            if (product) {
+                                id = 'mrp_' + material_ + "_" + product;
+                                mrp_month = 'mrp_month' + material_ + "_" + product;
+                                $('#' + id).html('<div>加载中</div>');
+                                $('#' + mrp_month).html('<div>加载中</div>');
+                                renderMaterialMrp(material, false, product);
+                            } else {
+                                id = 'mrp_' + material_;
+                                mrp_month = 'mrp_month' + material_;
+                                $('#' + id).html('<div>加载中</div>');
+                                $('#' + mrp_month).html('<div>加载中</div>');
+                                renderMaterialMrp(material, true, product);
+                            }
                         } else {
                             layer.msg("结余量修改失败,"+res.msg)
                         }
