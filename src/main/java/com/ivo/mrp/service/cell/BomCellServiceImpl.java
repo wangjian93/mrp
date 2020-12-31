@@ -67,7 +67,7 @@ public class BomCellServiceImpl implements BomCellService {
     public void syncBomCellMaterial() {
         log.info("同步CELL料号的B材料 >> START");
         //清空表
-        bomCellMaterialRepository.truncateTable();
+//        bomCellMaterialRepository.truncateTable();
 
         List<Map> mapList = restService.getCellMtrl();
         if(mapList==null || mapList.size()==0) return;

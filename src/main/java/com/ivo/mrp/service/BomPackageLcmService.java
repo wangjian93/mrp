@@ -38,4 +38,6 @@ public interface BomPackageLcmService {
 
 
     List<AloneMaterial> getAloneMaterial();
+
+    void syncAloneMaterial();
 }

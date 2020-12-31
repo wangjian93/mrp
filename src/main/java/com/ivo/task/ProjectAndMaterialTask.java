@@ -40,7 +40,7 @@ public class ProjectAndMaterialTask {
     /**
      * 同步机种
      */
-    @Scheduled(cron = Project_Cron)
+//    @Scheduled(cron = Project_Cron)
     public void syncProject(){
         log.info("启动任务syncProject");
         projectService.syncProject();
@@ -49,7 +49,7 @@ public class ProjectAndMaterialTask {
     /**
      * 同步物料组
      */
-    @Scheduled(cron = MaterialGroup_Cron)
+//    @Scheduled(cron = MaterialGroup_Cron)
     public void syncMaterialGroup(){
         log.info("启动任务syncMaterialGroup");
         materialGroupService.syncMaterialGroup();
@@ -58,7 +58,7 @@ public class ProjectAndMaterialTask {
     /**
      * 同步料号
      */
-    @Scheduled(cron = Material_Cron)
+//    @Scheduled(cron = Material_Cron)
     public void syncMaterial(){
         log.info("启动任务syncMaterial");
         materialService.syncMaterial();

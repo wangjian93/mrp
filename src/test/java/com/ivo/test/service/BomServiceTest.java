@@ -42,7 +42,6 @@ public class BomServiceTest extends AbstractTest {
     @Test
     public void test_syncBomCell() {
         bomService.syncBomCell();
-        bomService.syncBomAry();
     }
 
     @Test

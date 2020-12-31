@@ -24,7 +24,7 @@ public class SubstituteTask {
         this.substituteService = substituteService;
     }
 
-    @Scheduled(cron = Substitute_Corn)
+//    @Scheduled(cron = Substitute_Corn)
     public void syncSubstitute() {
         log.info("启动任务syncSubstitute");
         substituteService.syncSubstitute();

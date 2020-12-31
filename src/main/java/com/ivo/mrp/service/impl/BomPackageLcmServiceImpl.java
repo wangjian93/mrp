@@ -106,4 +106,23 @@ public class BomPackageLcmServiceImpl implements BomPackageLcmService {
     public List<AloneMaterial> getAloneMaterial() {
         return aloneMaterialRepository.findAll();
     }
+
+    @Override
+    public void syncAloneMaterial() {
+        syncAloneMaterial("LCM1");
+        syncAloneMaterial("LCM2");
+    }
+
+    private void syncAloneMaterial(String fab) {
+        List<AloneMaterial> aloneMaterialList = aloneMaterialRepository.findByFab(fab);
+        List<String> materialList = new ArrayList<>();
+        for(AloneMaterial aloneMaterial : aloneMaterialList) {
+            materialList.add(aloneMaterial.getMaterial());
+        }
+        List<BomPackagingLcm> bomPackagingLcmList = bomPackagingLcmRepository.findByFabAndMaterialIn(fab, materialList);
+        for(BomPackagingLcm bomPackagingLcm : bomPackagingLcmList) {
+            bomPackagingLcm.setAlongFlag(true);
+        }
+        bomPackagingLcmRepository.saveAll(bomPackagingLcmList);
+    }
 }

@@ -31,7 +31,7 @@ public class BomPackageLcmServiceTest extends AbstractTest {
 
     @Test
     public void test() {
-        bomPackageLcmService.syncLcmPackageBom();
+        bomPackageLcmService.syncAloneMaterial();
     }
 
     @Test

@@ -247,6 +247,17 @@
                         {type: 'numbers', align: 'center', fixed: 'left'},
                         {field: 'product',  title:'机种', align: 'center', width: 160, fixed: 'left'}
                     ];
+                    for(var i=0; i<months.length; i++) {
+                        (function(month) {
+                            cols2.push({field: month, title: month+'月', align: 'center', width: 100, templet: function(d) {
+                                    if(d.product!=='') {
+                                        return '<span lay-event="'+month+'__'+d.product+'">按钮</span>'
+                                    } else {
+                                        return '-';
+                                    }
+                                } });
+                        })(months[i]);
+                    }
                     for(var i=0; i<days.length; i++) {
                         (function(day) {
                             var day_ = day.substring(5, 10);
@@ -277,6 +288,10 @@
                                 }
                             }
                         },
+                    });
+                    //监听表格点击
+                    table.on('tool(table_outputName)', function(obj) {
+                        alert(obj.event);
                     });
                 },
                 yes: function(index, layero) {

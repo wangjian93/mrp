@@ -12,7 +12,6 @@ spring:
       url: jdbc:mysql://10.20.2.9/coq?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
       username: test
       password: test
-#      password: test
 #      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
 #      username: scm
 #      password: scmdb

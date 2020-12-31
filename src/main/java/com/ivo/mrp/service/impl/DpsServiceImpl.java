@@ -15,10 +15,13 @@ import com.ivo.mrp.repository.*;
 import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
+import com.ivo.mrp.service.packageing.DpsPackageService;
+import com.ivo.mrp.service.pol.DpsPolService;
 import com.ivo.rest.RestService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,6 +57,14 @@ public class DpsServiceImpl implements DpsService {
 
 
     private DpsOutputNameService dpsOutputNameService;
+
+    @Autowired
+    @Lazy
+    private DpsPackageService dpsPackageService;
+
+    @Autowired
+    @Lazy
+    private DpsPolService dpsPolService;
 
 
     @Autowired
@@ -180,6 +191,8 @@ public class DpsServiceImpl implements DpsService {
             List list = getDpsVerByFileVer(ver, DpsVer.Type_Cell);
             if(list == null || list.size() == 0) {
                 syncDpsCell(ver);
+                dpsPackageService.syncDpsPackage(ver);
+                dpsPolService.syncDpsPol(ver);
             }
         }
         log.info("同步DPS CELL数据 >> END");

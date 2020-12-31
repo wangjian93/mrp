@@ -83,8 +83,8 @@ public class BomServiceImpl implements BomService {
     @Override
     public void syncBomLcm() {
         log.info("同步LCM的BOM >> START");
-        bomLcmRepository.truncateTable();
-        bomPackagingLcmRepository.truncateTable();
+//        bomLcmRepository.truncateTable();
+//        bomPackagingLcmRepository.truncateTable();
 //        syncBomLcm1();
         syncBomLcm2();
         log.info("同步LCM的BOM >> END");

@@ -378,7 +378,7 @@
                 tableX.merges('table_mrp', [1], [mergeFields]);
             },
             page: true,
-            limit: 5,
+            limit: 50,
             size: 'sm',
             height: 'full-20'
         });
@@ -486,8 +486,10 @@
                     var product_ = product.replace(/\//g,"slash");
                     var lis = [];
                     layui.each(days, function(i, day) {
-                        var product_fabDate = product_+"_"+"_"+day
-                        lis.push('<div id="'+product_fabDate+'" style="background-color: yellow"></div>');
+                        var product_fabDate = product_+"_"+day;
+                        lis.push('<div class="box_parent" style="background-color: yellow">' +
+                            '<div class="box" id="'+product_fabDate+'" ></div>' +
+                            '</div>');
                     });
                     var id = 'dps_'+product_;
                     $('[id="'+id+'"]').html(lis.join(""));
@@ -496,71 +498,33 @@
                     var lisMonth = [];
                     layui.each(months, function(i, month) {
                         var product_month = product_+"_"+month;
-                        lisMonth.push('<div id="'+product_month+'" style="background-color: yellow"></div>');
+                        lisMonth.push('<div class="box_parent" style="background-color: yellow">' +
+                            '<div class="box" id="'+product_month+'" ></div>' +
+                            '</div>');
                     });
                     var id_month = 'dps_month_'+product_;
                     $('[id="'+id_month+'"]').html(lisMonth.join(""));
 
-                    // var monthSum = {};
-                    // layui.each(res.data, function(index, item) {
-                    //     var product_material_fabDate = product_+"_"+material_+"_"+item.fabDate;
-                    //     var demandQty = item.demandQty===0?'':item.demandQty;
-                    //     $('[id="'+product_material_fabDate+'_demandQty"]').html('<span>'+demandQty+'</span>');
-                    //     var lossQty = item.lossQty===0?'':item.lossQty;
-                    //     $('[id="'+product_material_fabDate+'_lossQty"]').html('<span>'+lossQty+'</span>');
-                    //     var arrivalQty = item.arrivalQty===0?'':item.arrivalQty;
-                    //     $('[id="'+product_material_fabDate+'_arrivalQty"]').html('<span style="color: #01AAED;">'+arrivalQty+'</span>');
-                    //
-                    //     var balanceQty = item.balanceQty===0?'':item.balanceQty;
-                    //     if(item.balanceQty<0) {
-                    //         $('[id="'+product_material_fabDate+'_balanceQty"]').html('<span style="color: red">'+balanceQty+'</span>');
-                    //     } else {
-                    //         $('[id="'+product_material_fabDate+'_balanceQty"]').html('<span>'+balanceQty+'</span>');
-                    //     }
-                    //     if(item.modifyBalanceFlag) {
-                    //         $('[id="'+product_material_fabDate+'_balanceQty"]').css("background-color", "#FFB800");
-                    //     }
-                    //
-                    //     var shortQty = item.shortQty===0?'':item.shortQty;
-                    //     $('[id="'+product_material_fabDate+'_shortQty"]').html('<span style="color: red">'+shortQty+'</span>');
-                    //
-                    //     var allocationQty = item.allocationQty===0?'':item.allocationQty;
-                    //     $('[id="'+product_material_fabDate+'_allocationQty"]').html('<span>'+allocationQty+'</span>');
-                    //
-                    //     var fabDate = item.fabDate;
-                    //     var month = fabDate.substring(0, 7);
-                    //     if(!monthSum[month]) {
-                    //         monthSum[month] = {
-                    //             demandQty: 0,
-                    //             lossQty: 0,
-                    //             arrivalQty: 0,
-                    //             balanceQty: 0,
-                    //             shortQty: 0,
-                    //             allocationQty: 0
-                    //         };
-                    //     }
-                    //     monthSum[month].demandQty += item.demandQty;
-                    //     monthSum[month].lossQty += item.lossQty;
-                    //     monthSum[month].arrivalQty += item.arrivalQty;
-                    //     monthSum[month].shortQty += item.shortQty;
-                    //     monthSum[month].allocationQty += item.allocationQty;
-                    //     monthSum[month].balanceQty = item.balanceQty;
-                    // });
-                    //
-                    // layui.each(Object.keys(monthSum), function(index, month) {
-                    //     var product_material_month = product_+"_"+material_+"_"+month;
-                    //     var monthData = monthSum[month];
-                    //     $('[id="'+product_material_month+'_demandQty"]').html('<span>'+monthData.demandQty+'</span>');
-                    //     $('[id="'+product_material_month+'_lossQty"]').html('<span>'+monthData.lossQty+'</span>');
-                    //     $('[id="'+product_material_month+'_arrivalQty"]').html('<span style="color:#01AAED;">'+monthData.arrivalQty+'</span>');
-                    //     if(monthData.balanceQty < 0) {
-                    //         $('[id="'+product_material_month+'_balanceQty"]').html('<span style="color:red">'+monthData.balanceQty+'</span>');
-                    //     } else {
-                    //         $('[id="'+product_material_month+'_balanceQty"]').html('<span>'+monthData.balanceQty+'</span>');
-                    //     }
-                    //     $('[id="'+product_material_month+'_shortQty"]').html('<span>'+monthData.shortQty+'</span>');
-                    //     $('[id="'+product_material_month+'_allocationQty"]').html('<span>'+monthData.allocationQty+'</span>');
-                    // });
+                    var monthSum = {};
+                    layui.each(res.data, function(index, item) {
+                        var fabDate = item.fabDate;
+                        var product_fabDate = product_+"_"+fabDate;
+                        $('[id="'+product_fabDate+'"]').html('<span>'+item.demandQty+'</span>');
+
+                        var month = fabDate.substring(0, 7);
+                        if(!monthSum[month]) {
+                            monthSum[month] = {
+                                demandQty: 0
+                            };
+                        }
+                        monthSum[month].demandQty += item.demandQty;
+                    });
+
+                    layui.each(Object.keys(monthSum), function(index, month) {
+                        var product_month = product_+"_"+month;
+                        var monthData = monthSum[month];
+                        $('[id="'+product_month+'"]').html('<span>'+monthData.demandQty+'</span>');
+                    });
                 });
             }
         };
@@ -583,11 +547,14 @@
         //监听表格点击
         table.on('tool(table_mrp)', function(obj) {
             var ars = obj.event.split("_");
-            var material = ars[0];
+            var product = ars[0];
+            var material = ars[1];
             //料号中会有'.'jquery的ID选择器选不到
             material = material.replace("point",".");
-            var fabDate = ars[1];
-            var label = ars[2];
+            product = product.replace(/slash/g,"/");
+            var fabDate = ars[2];
+            var label = ars[3];
+            console.log(product);
             switch(label){
                 case 'demandQty':
                     showDemandQtyDetail(material,fabDate);
@@ -599,7 +566,7 @@
                     showArrivalQtyDetail(material,fabDate);
                     break;
                 case 'balanceQty':
-                    editBalanceQty(material,fabDate);
+                    editBalanceQty(material,fabDate, product);
                     break;
                 case 'shortQty':
                     layer.msg(material);
@@ -745,37 +712,40 @@
         };
 
         //修改料号的结余量
-        var editBalanceQty = function(material, fabDate) {
+        var editBalanceQty = function(material, fabDate, product) {
             var material_ = material.replace(".","point");
-            var material_fabDate = material_ + "_" + fabDate;
-            var span = $('#'+material_fabDate+"_balanceQty span:first-child");
+            var product_ = product.replace(/\//g,"slash");
+            var product_material_fabDate = product_+"_"+material_ + "_" + fabDate;
+            //var span = $('#'+product_material_fabDate+"_balanceQty span:first-child")
+            var span = $('[id="'+product_material_fabDate+'_balanceQty"] span:first-child');
             span.hide();
             var oldValue = span.html();
-            $('#'+material_fabDate+"_balanceQty").append('<input style="height:20px;" class="layui-input"/>');
-            var input = $('#'+material_fabDate+"_balanceQty  input:last-child");
+            $('[id="'+product_material_fabDate+'_balanceQty"]').append('<input style="height:20px;" class="layui-input"/>');
+            var input = $('[id="'+product_material_fabDate+'_balanceQty"] input:last-child');
             input.focus();
             input.val(oldValue);
             input.blur(function(){
                 var d = input.val();
                 if(d === "" || d===oldValue) {
-                    $('#'+material_fabDate+"_balanceQty  input").remove();
+                    $('[id="'+product_material_fabDate+'_balanceQty"] input').remove();
                     span.show();
                 } else {
-                    $('#'+material_fabDate+"_balanceQty  input").remove();
+                    $('[id="'+product_material_fabDate+'_balanceQty"] input').remove();
                     span.html(d);
                     span.show();
                     $.get('/mrp/mrp/updateMrpBalanceQty', {
                         ver: ver,
                         material: material,
                         fabDate: fabDate,
+                        product: product,
                         balanceQty: d
                     }, function(res) {
                         if(res.code === 200) {
-                            var id = 'mrp_'+material_;
-                            var mrp_month = 'mrp_month'+material_;
-                            $('#'+id).html('<div>加载中</div>');
-                            $('#'+mrp_month).html('<div>加载中</div>');
-                            renderMaterialMrp(material);
+                            var id = 'mrp_'+product_+'_'+material_;
+                            var mrp_month = 'mrp_month_'+product_+'_'+material_;
+                            $('[id="'+id+'"]').html('<div>加载中</div>');
+                            $('[id="'+mrp_month+'"]').html('<div>加载中</div>');
+                            renderMaterialMrp(product, material);
                         } else {
                             layer.msg("结余量修改失败,"+res.msg)
                         }

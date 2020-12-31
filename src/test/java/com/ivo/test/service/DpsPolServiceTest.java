@@ -17,6 +17,6 @@ public class DpsPolServiceTest extends AbstractTest {
 
     @Test
     public void test_syncDpsPol() {
-        dpsPolService.syncDpsPol("20201214093005");
+        dpsPolService.syncDpsPol();
     }
 }

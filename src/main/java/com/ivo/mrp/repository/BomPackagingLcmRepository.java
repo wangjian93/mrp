@@ -42,4 +42,10 @@ public interface BomPackagingLcmRepository extends JpaRepository<BomPackagingLcm
     @Modifying
     @Query(value = "TRUNCATE TABLE MRP3_Bom_Packaging_Lcm", nativeQuery = true)
     void truncateTable();
+
+
+    List<BomPackagingLcm> findByFabAndMaterialIn(String fab, List<String> list);
+
+    List<BomPackagingLcm> findByAlongFlagIsTrue();
 }
+

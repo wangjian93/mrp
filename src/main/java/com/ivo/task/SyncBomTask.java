@@ -29,7 +29,7 @@ public class SyncBomTask {
     /**
      * 同步LCM BOM
      */
-    @Scheduled(cron = BOM_LCM_Corn)
+//    @Scheduled(cron = BOM_LCM_Corn)
     public void syncBomLcm() {
         log.info("启动任务syncBomLcm");
         bomService.syncBomLcm();
@@ -38,7 +38,7 @@ public class SyncBomTask {
     /**
      * 同步ARY BOM
      */
-    @Scheduled(cron = BOM_ARY_Corn)
+//    @Scheduled(cron = BOM_ARY_Corn)
     public void syncBomAry() {
         log.info("启动任务syncBomAry");
         bomService.syncBomAry();
@@ -47,7 +47,7 @@ public class SyncBomTask {
     /**
      * 同步CELL BOM
      */
-    @Scheduled(cron = BOM_CELL_Corn)
+//    @Scheduled(cron = BOM_CELL_Corn)
     public void syncBomCell() {
         log.info("启动任务syncBomCell");
         bomService.syncBomCell();
