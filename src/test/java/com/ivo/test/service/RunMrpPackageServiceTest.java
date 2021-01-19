@@ -16,7 +16,7 @@ public class RunMrpPackageServiceTest extends AbstractTest {
 
     @Test
     public void test_runMrp() {
-        String[] dpsVers = new String[] {"20201216091"};
+        String[] dpsVers = new String[] {"20210106111"};
         runMrpPackageService.runMrp(dpsVers, "SYS");
     }
 

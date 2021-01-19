@@ -9,12 +9,12 @@ spring:
 #      url: jdbc:mysql://10.20.46.54:3306/mrp_db?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
 #      username: root
 #      password: root
-      url: jdbc:mysql://10.20.2.9/coq?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-      username: test
-      password: test
-#      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-#      username: scm
-#      password: scmdb
+#      url: jdbc:mysql://10.20.2.9/coq?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+#      username: test
+#      password: test
+      url: jdbc:mysql://10.20.2.192/scmdb?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: scm
+      password: scmdb
     #LCM的DPS数据库
     dpslcm:
       url: jdbc:mysql://10.10.2.115:3306/dps_lcm?useSSL=false&characterEncoding=utf-8&serverTimezone=Asia/Shanghai

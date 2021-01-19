@@ -60,7 +60,7 @@ public class RunMrpServiceTest extends AbstractTest {
 
     @Test
     public void test_() {
-        runMrpService.updateMrp("20201215055");
+        runMrpService.updateMrp("20210107090");
     }
 
 }

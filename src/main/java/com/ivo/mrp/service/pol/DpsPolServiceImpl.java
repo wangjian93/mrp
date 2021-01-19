@@ -1,9 +1,6 @@
 package com.ivo.mrp.service.pol;
 
 import com.ivo.mrp.entity.DpsVer;
-import com.ivo.mrp.entity.packaging.BomPackage;
-import com.ivo.mrp.entity.packaging.DpsCellProduct;
-import com.ivo.mrp.entity.packaging.DpsPackage;
 import com.ivo.mrp.entity.pol.DpsCellPolProduct;
 import com.ivo.mrp.entity.pol.DpsPol;
 import com.ivo.mrp.repository.pol.DpsCellPolProductRepository;

@@ -1,12 +1,10 @@
 package com.ivo.mrp.entity.direct.ary;
 
-import com.ivo.mrp.key.BomAryKey;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -19,48 +17,54 @@ import java.util.Date;
 @Setter
 @Getter
 @Entity
-@Table(name = "MRP3_Bom_Ary")
-@IdClass(BomAryKey.class)
+@Table(name = "MRP3_Bom_Ary2")
 public class BomAry {
 
     /**
-     * 厂别
+     * ID: product_material
      */
     @Id
-    private String fab = "ARY";
+    private String id;
 
     /**
      * 机种
      */
-    private String project;
-
-    /**
-     * 机种 （MPS的命名CellInPut）
-     */
-    @Id
     private String product;
 
     /**
-     * ary的15料号
+     * 料号
      */
-    @Id
-    private String aryMtrl;
+    private String material;
 
+    /**
+     * 物料名
+     */
     private String materialName;
 
+    /**
+     * 物料组
+     */
     private String materialGroup;
 
+    /**
+     * 物料组名
+     */
     private String materialGroupName;
 
     /**
-     * 是否使用
+     * 计量单位
      */
-    private boolean useFlag = true;
+    private String measureUnit;
+
+    /**
+     * 使用数量
+     */
+    private double usageQty;
 
     /**
      * 备注
      */
-    private String memo = "同步自MPS";
+    private String memo = "";
 
     /**
      * 创建者
@@ -71,14 +75,4 @@ public class BomAry {
      * 创建时间
      */
     private Date createDate = new Date();
-
-    /**
-     * 修改者
-     */
-    private String updater = "SYS";
-
-    /**
-     * 修改时间
-     */
-    private Date updateDate = new Date();
 }

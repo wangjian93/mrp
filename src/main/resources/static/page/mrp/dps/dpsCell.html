@@ -172,10 +172,11 @@
         for(var i=0; i<months.length; i++) {
             (function(month) {
                 var title = laytpl(calendarMonthDemo.innerHTML).render({month: month});
-                cols.push({title: title, align: 'center', width: 100,
+                cols.push({title: title, align: 'center', width: 100, field: month,
                     templet: function(d) {
-                        var data = d[month] || '';
-                        return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
+                        var data = d[month] || 0;
+                        // return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
+                        return data;
                     },
                     totalRow: true
                 });
@@ -198,8 +199,7 @@
                     templet: function(d) {
                         var data = d[day] || {};
                         return laytpl(dpsDemo.innerHTML).render({dpsQty: data.demandQty});
-                    },
-                    totalRow: true
+                    }
                 });
             })(days[i], weeks[i]);
         }
@@ -213,7 +213,8 @@
             },
             cols: [cols],
             page: true,
-            limit: 50,
+            limit: 200,
+            limits: [20, 50, 100, 200, 300, 400, 500, 1000],
             size: 'sm',
             height: 'full-80',
             totalRow: true,
@@ -245,13 +246,13 @@
                 success: function (layero, dIndex) {
                     var cols2 = [
                         {type: 'numbers', align: 'center', fixed: 'left'},
-                        {field: 'product',  title:'机种', align: 'center', width: 160, fixed: 'left'}
+                        {field: 'product',  title:'机种', align: 'center', width: 120, fixed: 'left'}
                     ];
                     for(var i=0; i<months.length; i++) {
                         (function(month) {
-                            cols2.push({field: month, title: month+'月', align: 'center', width: 100, templet: function(d) {
+                            cols2.push({field: month, title: month.split("-")[1]+'月', align: 'center', width: 70,  fixed: 'left', templet: function(d) {
                                     if(d.product!=='') {
-                                        return '<span lay-event="'+month+'__'+d.product+'">按钮</span>'
+                                        return '<button type="button" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="'+month+'__'+d.product+'">分配</button>'
                                     } else {
                                         return '-';
                                     }
@@ -267,13 +268,19 @@
                             cols2.push({field: day, title: day_, align: 'center', width: 70, edit: 'text' });
                         })(days[i]);
                     }
+
+                    $.ajaxSettings.async = false;
+                    var outputName_data;
+                    $.get('/mrp/dps/getDpsOutputName',{
+                        ver: ver,
+                        outputName: outputName
+                    }, function(res) {
+                        outputName_data = res.data;
+                    });
+                    $.ajaxSettings.async = true;
                     table.render({
                         elem: '#table_outputName',
-                        url: '/mrp/dps/getDpsOutputName',
-                        where: {
-                            ver: ver,
-                            outputName: outputName
-                        },
+                        data: outputName_data,
                         cols: [cols2],
                         page: {layout: ['count']},
                         height: 300,
@@ -287,11 +294,27 @@
                                         .find('td').data('edit',false);
                                 }
                             }
-                        },
+                        }
                     });
                     //监听表格点击
                     table.on('tool(table_outputName)', function(obj) {
-                        alert(obj.event);
+                        var ars = obj.event.split("__");
+                        var month = ars[0];
+                        var product = ars[1];
+
+                        var d = table.cache["table_outputName"];
+                        var d0 = d[0];
+
+                        for(var i=1; i<d.length; i++) {
+                            if(product === d[i].product) {
+                                for(var key  in d0){
+                                    if(key.length>7 && key.substring(0,7) === month) {
+                                        d[i][key] = d0[key];
+                                    }
+                                }
+                            }
+                        }
+                        table.reload('table_outputName', {data: d});
                     });
                 },
                 yes: function(index, layero) {

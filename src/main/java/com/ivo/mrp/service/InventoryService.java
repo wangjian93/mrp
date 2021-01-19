@@ -1,6 +1,7 @@
 package com.ivo.mrp.service;
 
 import com.ivo.mrp.entity.Inventory;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 
 import java.sql.Date;
@@ -20,4 +21,6 @@ public interface InventoryService {
     List<Map> getDullInventory(String plant, List<String> materialList, Date fabDate);
 
     void syncInventory();
+
+    Workbook exportExcel(Date fabDate);
 }

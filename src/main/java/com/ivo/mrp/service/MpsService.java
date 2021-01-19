@@ -7,7 +7,6 @@ import com.ivo.mrp.entity.direct.lcm.MpsLcm;
 import org.springframework.data.domain.Page;
 
 import java.io.InputStream;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -31,30 +30,25 @@ public interface MpsService {
      */
     String generateMpsVer();
 
+    List<MpsVer> getMpsVerByMpsFile(String mpsFile, String fab, String type);
+
     /**
      * 同步LCM MPS
      */
     void syncMpsLcm();
+    void syncMpsLcm(String ver);
 
     /**
      * 同步CELL MPS
      */
     void syncMpsCell();
+    void syncMpsCell(String ver);
 
     /**
      * 同步ARY MPS
      */
     void syncMpsAry();
-
-    /**
-     * 同步CELL MPS
-     */
-    void syncMpsCell2();
-
-    /**
-     * 同步ARY MPS
-     */
-    void syncMpsAry2();
+    void syncMpsAry(String ver);
 
     /**
      * 上传LCM MPS
@@ -64,21 +58,7 @@ public interface MpsService {
      */
     void importMpsLcm(InputStream inputStream, String fileName, String user);
 
-    /**
-     * 上传Ary MPS
-     * @param inputStream EXCEL文件
-     * @param fileName 文件名
-     * @param user 用户
-     */
-    void importMpsAry(InputStream inputStream, String fileName, String user);
 
-    /**
-     * 上传CELL MPS
-     * @param inputStream EXCEL文件
-     * @param fileName 文件名
-     * @param user 用户
-     */
-    void importMpsCell(InputStream inputStream, String fileName, String user);
 
     /**
      * 获取LCM DPS的所有机种

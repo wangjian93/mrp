@@ -8,6 +8,7 @@ import com.ivo.mrp.entity.direct.cell.*;
 import com.ivo.mrp.entity.direct.lcm.*;
 import com.ivo.mrp.exception.MrpException;
 import com.ivo.mrp.service.*;
+import com.ivo.mrp.service.ary.BomAryService;
 import com.ivo.mrp.service.cell.BomCellService;
 import com.ivo.mrp.service.packageing.BomPackageService;
 import com.ivo.rest.RestService;
@@ -16,7 +17,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -39,7 +39,6 @@ public class RunMrpServiceImpl implements RunMrpService {
     private RestService restService;
     private ArrivalPlanService arrivalPlanService;
     private AllocationService allocationService;
-    private BomPackageService bomPackageService;
     private MaterialService materialService;
     private MaterialGroupService materialGroupService;
     private SupplierService supplierService;
@@ -47,6 +46,8 @@ public class RunMrpServiceImpl implements RunMrpService {
     private MrpWarnService mrpWarnService;
 
     private BomCellService bomCellService;
+
+    private BomAryService bomAryService;
 
     @Autowired
     public RunMrpServiceImpl(DpsService dpsService, MpsService mpsService, MrpService mrpService,
@@ -57,12 +58,12 @@ public class RunMrpServiceImpl implements RunMrpService {
                              RestService restService,
                              ArrivalPlanService arrivalPlanService,
                              AllocationService allocationService,
-                             BomPackageService bomPackageService,
                               MaterialService materialService,
                              MaterialGroupService materialGroupService,
                              SupplierService supplierService,
                              ActualArrivalService actualArrivalService,
-                             MrpWarnService mrpWarnService, BomCellService bomCellService) {
+                             MrpWarnService mrpWarnService, BomCellService bomCellService,
+                             BomAryService bomAryService) {
         this.dpsService = dpsService;
         this.mpsService = mpsService;
         this.mrpService = mrpService;
@@ -74,13 +75,13 @@ public class RunMrpServiceImpl implements RunMrpService {
         this.restService = restService;
         this.arrivalPlanService = arrivalPlanService;
         this.allocationService = allocationService;
-        this.bomPackageService = bomPackageService;
         this.materialService = materialService;
         this.materialGroupService = materialGroupService;
         this.supplierService = supplierService;
         this.actualArrivalService = actualArrivalService;
         this.mrpWarnService = mrpWarnService;
         this.bomCellService = bomCellService;
+        this.bomAryService = bomAryService;
     }
 
     @Override
@@ -369,7 +370,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
         MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
-        List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+        List<BomAry> bomAryList = bomAryService.getBomAry(product);
         if(bomAryList == null || bomAryList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
@@ -384,7 +385,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<DpsAry> dpsAryList = dpsService.getDpsAry(dpsVer, product, mrpVer.getStartDate());
         List<DemandAry> demandAryList = new ArrayList<>();
         for(DpsAry dpsAry : dpsAryList) {
-            for(BomAryMtrl bomAry : bomAryList) {
+            for(BomAry bomAry : bomAryList) {
                 DemandAry demandAry = new DemandAry();
                 demandAry.setVer(ver);
                 demandAry.setType(DemandLcm.TYPE_DPS);
@@ -412,7 +413,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
         MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
-        List<Map> bomOcList = bomService.getAryOcBom(product);
+        List<Map> bomOcList = bomAryService.getBomAryOc(product);
         if(bomOcList == null || bomOcList.size()==0) {
             log.warn("警告：DPS机种"+product+" ARY 2次Input没有OC BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "DPS", "ARY 2次Input没有BOM");
@@ -457,7 +458,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         DpsVer dps = dpsService.getDpsVer(dpsVer);
         MrpVer mrpVer = mrpService.getMrpVer(ver);
         String fab = dps.getFab();
-        List<BomCell2> bomCellList = bomCellService.getBomCell(product);
+        List<BomCell> bomCellList = bomCellService.getBomCell(product);
         if(bomCellList == null || bomCellList.size()==0) {
             log.warn("警告：DPS机种"+product+"没有BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "DPS", "没有BOM");
@@ -473,7 +474,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<DpsCell> dpsCellList = dpsService.getDpsCell(dpsVer, product, mrpVer.getStartDate());
         List<DemandCell> demandCellList = new ArrayList<>();
         for(DpsCell dpsCell : dpsCellList) {
-            for(BomCell2 bomCellMtrl : bomCellList) {
+            for(BomCell bomCellMtrl : bomCellList) {
                 DemandCell demandCell = new DemandCell();
                 demandCell.setVer(ver);
                 demandCell.setType(DemandLcm.TYPE_DPS);
@@ -625,7 +626,7 @@ public class RunMrpServiceImpl implements RunMrpService {
     public void computeMpsDemandAry(String ver, String mpsVer, String product) {
         MpsVer mps = mpsService.getMpsVer(mpsVer);
         String fab = mps.getFab();
-        List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+        List<BomAry> bomAryList = bomAryService.getBomAry(product);
         if(bomAryList == null || bomAryList.size()==0) {
             log.warn("警告：MPS机种"+product+"没有BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
@@ -655,7 +656,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<MpsAry> mpsAryList = mpsService.getMpsAry(mpsVer, product, startDate);
         List<DemandAry> demandAryList = new ArrayList<>();
         for(MpsAry mpsAry : mpsAryList) {
-            for(BomAryMtrl bomAry : bomAryList) {
+            for(BomAry bomAry : bomAryList) {
                 DemandAry demandAry = new DemandAry();
                 demandAry.setVer(ver);
                 demandAry.setType(DemandAry.TYPE_MPS);
@@ -682,7 +683,7 @@ public class RunMrpServiceImpl implements RunMrpService {
     public void computeMpsDemandCell(String ver, String mpsVer, String product) {
         MpsVer mps = mpsService.getMpsVer(mpsVer);
         String fab = mps.getFab();
-        List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
+        List<BomCell> bomCellList = bomCellService.getBomCell(product);
         if(bomCellList == null || bomCellList.size()==0) {
             log.warn("警告：MPS机种"+product+"没有BOM List，MRP版本"+ver);
             mrpWarnService.addWarn(ver, product, "MPS", "没有BOM");
@@ -712,7 +713,7 @@ public class RunMrpServiceImpl implements RunMrpService {
         List<MpsCell> mpsCellList = mpsService.getMpsCell(mpsVer, product, startDate);
         List<DemandCell> demandCellList = new ArrayList<>();
         for(MpsCell mpsCell : mpsCellList) {
-            for(BomCellMtrl bomCellMtrl : bomCellList) {
+            for(BomCell bomCell : bomCellList) {
                 DemandCell demandCell = new DemandCell();
                 demandCell.setVer(ver);
                 demandCell.setType(DemandLcm.TYPE_MPS);
@@ -721,13 +722,13 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandCell.setProduct(mpsCell.getProduct());
                 demandCell.setFabDate(mpsCell.getFabDate());
                 demandCell.setQty(mpsCell.getDemandQty());
-                demandCell.setMaterial(bomCellMtrl.getMaterial());
-                demandCell.setUsageQty(bomCellMtrl.getUsageQty());
+                demandCell.setMaterial(bomCell.getMaterial());
+                demandCell.setUsageQty(bomCell.getUsageQty());
                 demandCell.setCutQty(cut);
                 demandCell.setProject(project);
 
                 //替代料比例
-                Double substituteRate = bomCellMtrl.getSubstituteRate();
+                Double substituteRate = 100D;//bomCell.getSubstituteRate();
                 demandCell.setSubstituteRate(substituteRate);
 
                 //DPS需求量 * Bon使用量 * 1000 * 切片数 * 替代比列
@@ -817,7 +818,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             java.sql.Date fabDate = monthSettle.getSettleDate();
             double settleQty = monthSettle.getSettleQty();
             String materialGroup = monthSettle.getMaterialGroup();
-            List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+            List<BomAry> bomAryList = bomAryService.getBomAry(product);
             if(bomAryList == null || bomAryList.size()==0) {
                 log.warn("警告：月结机种"+product+"没有BOM List，MRP版本"+ver);
                 mrpWarnService.addWarn(ver, product, "月结", "没有BOM");
@@ -831,7 +832,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 return;
             }
             List<DemandAry> demandAryList = new ArrayList<>();
-            for(BomAryMtrl bomAry : bomAryList) {
+            for(BomAry bomAry : bomAryList) {
                 //要属于月结机种的同个物料组继续
                 if(!bomAry.getMaterialGroup().equals(materialGroup)) continue;
                 DemandAry demandAry = new DemandAry();
@@ -864,7 +865,7 @@ public class RunMrpServiceImpl implements RunMrpService {
             java.sql.Date fabDate = monthSettle.getSettleDate();
             double settleQty = monthSettle.getSettleQty();
             String materialGroup = monthSettle.getMaterialGroup();
-            List<BomCellMtrl> bomCellList = bomService.getCellBom(product);
+            List<BomCell> bomCellList = bomCellService.getBomCell(product);
             if(bomCellList == null || bomCellList.size()==0) {
                 log.warn("警告：月结机种"+product+"没有BOM List，MRP版本"+ver);
                 mrpWarnService.addWarn(ver, product, "月结", "没有BOM");
@@ -878,7 +879,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 return;
             }
             List<DemandCell> demandCellList = new ArrayList<>();
-            for(BomCellMtrl bomCell : bomCellList) {
+            for(BomCell bomCell : bomCellList) {
                 //要属于月结机种的同个物料组继续
                 if(!bomCell.getMaterialGroup().equals(materialGroup)) continue;
                 DemandCell demandCell = new DemandCell();
@@ -892,7 +893,7 @@ public class RunMrpServiceImpl implements RunMrpService {
                 demandCell.setUsageQty(bomCell.getUsageQty());
 
                 //替代料比例
-                Double substituteRate = bomCell.getSubstituteRate();
+                Double substituteRate = 100D;//bomCell.getSubstituteRate();
                 demandCell.setSubstituteRate(substituteRate);
 
                 //DPS需求量 * Bon使用量 * 1000 * 切片数 * 替代比列
@@ -942,10 +943,10 @@ public class RunMrpServiceImpl implements RunMrpService {
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         List<MrpLcmMaterial> mrpLcmMaterialList = new ArrayList<>();
         for(Map map : goodInventoryList) {
-            goodInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            goodInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         for(Map map : dullInventoryList) {
-            dullInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            dullInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         for(String material : materialList) {
             MrpLcmMaterial mrpLcmMaterial = new MrpLcmMaterial();
@@ -981,10 +982,10 @@ public class RunMrpServiceImpl implements RunMrpService {
         HashMap<String, Double> goodInventoryMap = new HashMap<>();
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         for(Map map : goodInventoryList) {
-            goodInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            goodInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         for(Map map : dullInventoryList) {
-            dullInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            dullInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         List<MrpAryMaterial> mrpAryMaterialList = new ArrayList<>();
         for(String material : materialList) {
@@ -1021,10 +1022,10 @@ public class RunMrpServiceImpl implements RunMrpService {
         HashMap<String, Double> goodInventoryMap = new HashMap<>();
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         for(Map map : goodInventoryList) {
-            goodInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            goodInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         for(Map map : dullInventoryList) {
-            dullInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            dullInventoryMap.put((String)map.get("MATERIAL"), (double)map.get("QTY"));
         }
         List<MrpCellMaterial> mrpCellMaterialList = new ArrayList<>();
         for(String material : materialList) {
@@ -1791,6 +1792,8 @@ public class RunMrpServiceImpl implements RunMrpService {
                 completeMrpMaterial(ver);
                 break;
             case MrpVer.Type_Cell :
+                demandService.deleteDemand(ver);
+                computeDemand(ver);
                 computeMrpMaterialCell(ver);
                 computeMrpBalanceCell(ver);
                 completeMrpMaterial(ver);

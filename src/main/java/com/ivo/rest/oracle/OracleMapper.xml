@@ -57,4 +57,11 @@
     </foreach>
   </select>
 
+  <select id="getTftMatrialByCellMtrlFroAry" resultType="java.lang.String">
+    select DISTINCT compant_item as tftMtrl from V_BOM_CELL_TFT where fg_item in
+    <foreach item="item" index="index" collection="cellMtrlList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
 </mapper>

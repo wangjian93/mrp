@@ -4,11 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ivo.common.result.Result;
 import com.ivo.common.utils.ResultUtil;
-import com.ivo.mrp.entity.direct.cell.BomCell2;
-import com.ivo.mrp.entity.direct.cell.BomCellMaterial;
+import com.ivo.mrp.entity.direct.cell.BomCell;
+import com.ivo.mrp.entity.direct.cell.CellMaterial;
 import com.ivo.mrp.service.MaterialGroupService;
 import com.ivo.mrp.service.MaterialService;
 import com.ivo.mrp.service.cell.BomCellService;
+import com.ivo.mrp.service.cell.CellMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,16 @@ public class BomCellController {
 
     private MaterialGroupService materialGroupService;
 
+    private CellMaterialService cellMaterialService;
+
     @Autowired
     public BomCellController(BomCellService bomCellService, MaterialService materialService,
-                             MaterialGroupService materialGroupService) {
+                             MaterialGroupService materialGroupService,
+                             CellMaterialService cellMaterialService) {
         this.bomCellService = bomCellService;
         this.materialService = materialService;
         this.materialGroupService = materialGroupService;
+        this.cellMaterialService = cellMaterialService;
     }
 
     @GetMapping("/queryBomProduct")
@@ -52,17 +57,17 @@ public class BomCellController {
 
     @GetMapping("/getBom")
     public Result getBom(String product) {
-        List<BomCell2> bomCellList = bomCellService.getBomCell(product);
+        List<BomCell> bomCellList = bomCellService.getBomCell(product);
         List<String> materialList = new ArrayList<>();
-        for(BomCell2 bomCell : bomCellList) {
+        for(BomCell bomCell : bomCellList) {
             materialList.add(bomCell.getMaterial());
         }
         List<String> cellMtrlList = bomCellService.getCellMtrl(product);
-        List<BomCellMaterial> bomCellMaterialList = bomCellService.getBomCellMaterial(cellMtrlList);
+        List<CellMaterial> cellMaterialList = cellMaterialService.getCellMaterialMaster(cellMtrlList);
         List<Map> mapList = new ArrayList<>();
 
         Map<String, Boolean> cellMtrlMap = new HashMap<>();
-        for(BomCellMaterial cellMaterial : bomCellMaterialList) {
+        for(CellMaterial cellMaterial : cellMaterialList) {
             String material = cellMaterial.getMTRL_ID();
             Map map = new HashMap();
             map.put("product", product);
@@ -101,8 +106,8 @@ public class BomCellController {
     @PostMapping("/submit")
     public Result submit(String product, String materialData) {
         ObjectMapper mapper = new ObjectMapper();
-        List<BomCell2> oldBomCellList = bomCellService.getBomCell(product);
-        List<BomCell2> bomCellList = new ArrayList<>();
+        List<BomCell> oldBomCellList = bomCellService.getBomCell(product);
+        List<BomCell> bomCellList = new ArrayList<>();
         try {
             List<Map> mapList;
             List<String> materialList = new ArrayList<>();
@@ -118,7 +123,7 @@ public class BomCellController {
                     String materialGroup = materialService.getMaterialGroup(material);
                     String materialGroupName = materialGroupService.getMaterialGroupName(materialGroup);
 
-                    BomCell2 bomCell = new BomCell2();
+                    BomCell bomCell = new BomCell();
                     bomCell.setProduct(product);
                     bomCell.setMaterial(material);
                     bomCell.setUsageQty(usageQty);

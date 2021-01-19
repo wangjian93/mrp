@@ -193,7 +193,7 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
                 demandPackageLcm.setMaterial(bomLcm.getMaterial());
                 demandPackageLcm.setUsageQty(bomLcm.getUsageQty());
                 //替代料比例
-                Double substituteRate = substituteService.getSubstituteRate(bomLcm.getFab(), bomLcm.getProduct(), bomLcm.getMaterialGroup(), bomLcm.getMaterial());
+                Double substituteRate = 100D;//substituteService.getSubstituteRate(bomLcm.getFab(), bomLcm.getProduct(), bomLcm.getMaterialGroup(), bomLcm.getMaterial());
                 demandPackageLcm.setSubstituteRate(substituteRate);
 
                 //DPS需求量 * Bon使用量 * 替代比列
@@ -294,10 +294,10 @@ public class RunMrpPackageLcmServiceImpl implements RunMrpPackageLcmService {
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         List<MrpPackageLcmMaterial> mrpLcmMaterialList = new ArrayList<>();
         for(Map map : goodInventoryList) {
-            goodInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            goodInventoryMap.put((String)map.get("MATERIAL"), ((Double)map.get("QTY")));
         }
         for(Map map : dullInventoryList) {
-            dullInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            dullInventoryMap.put((String)map.get("MATERIAL"), ((Double)map.get("QTY")));
         }
         for(String material : materialList) {
             MrpPackageLcmMaterial mrpLcmMaterial = new MrpPackageLcmMaterial();

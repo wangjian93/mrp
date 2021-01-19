@@ -71,6 +71,13 @@ public interface EifMapper {
     List<Map> getMaterialByAryMtrl(@Param("aryMtr") String aryMtr);
 
     /**
+     * 获取ARY的TFT料号（15料号）下的材料
+     * @param tftMtrlList
+     * @return
+     */
+    List<Map> getAryMatrialByTftMtrl(@Param("tftMtrlList") List<String> tftMtrlList);
+
+    /**
      * 获取料号供应商数据
      * @return List<Map>
      */

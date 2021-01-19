@@ -71,7 +71,7 @@
         // 机种表格
         table.render({
             elem: '#table_product',
-            url: '/mrp/bom/queryBomProduct',
+            url: '/mrp/bomAry/queryBomProduct',
             where: {
                 fab: fab,
                 product: ''
@@ -95,7 +95,7 @@
             var index = layer.load(1, {
                 shade: [0.1,'#fff'] //0.1透明度的白色背景
             });
-            $.get('/mrp/bom/getBom', {
+            $.get('/mrp/bomAry/getBom', {
                 fab: fab,
                 product: product
             }, function(res) {

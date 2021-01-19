@@ -69,6 +69,8 @@ public interface RestService {
      */
     List<Map> getCellMpsMode();
 
+    List<Map> getAryMpsMode();
+
     /**
      * 从Oracle数据库V_BOM_CELL_C获取成品料号的材料
      * @param cellMtrl 成品料号
@@ -244,10 +246,29 @@ public interface RestService {
     List<Map> getBomPackageLcm2();
 
     /**
+     * 获取LCM MPS的版本
+     * @return List<String>
+     */
+    List<String> getMpsLcmVersion();
+
+    /**
      * 获取MPS系统的LCM数据
-     * @param year 年份
-     * @param month 月份
+     * @param version 版本
      * @return List<Map>
      */
-    List<Map> getMpsLcm(int year, int month);
+    List<Map> getMpsLcm(String version);
+
+    /**
+     * 为ARY根据cell料号获取TFT料号
+     * @param cellMtrlList
+     * @return List<String>
+     */
+    List<String> getTftMatrialByCellMtrlFroAry(@Param("cellMtrlList") List<String> cellMtrlList);
+
+    /**
+     * 获取ARY的TFT料号（15料号）下的材料
+     * @param tftMtrlList
+     * @return
+     */
+    List<Map> getAryMatrialByTftMtrl(@Param("tftMtrlList") List<String> tftMtrlList);
 }

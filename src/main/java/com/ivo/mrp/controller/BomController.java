@@ -40,7 +40,6 @@ public class BomController {
     private BomService bomService;
     private BomPackageService bomPackageService;
     private BomPolService bomPolService;
-
     private BomPackageLcmService bomPackageLcmService;
 
     @Autowired
@@ -53,7 +52,6 @@ public class BomController {
     }
 
     //** 主材 **//
-
     @ApiOperation("查询主材Bom的机种")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", value = "页数", defaultValue = "1"),
@@ -84,10 +82,6 @@ public class BomController {
         List list = new ArrayList<>();
         if(StringUtils.equalsAnyIgnoreCase(fab, "LCM1", "LCM2")) {
             list = bomService.getLcmBom(product, fab);
-        } else if(StringUtils.equalsIgnoreCase(fab, "ARY")) {
-            list = bomService.getAryBom(product);
-        } else if(StringUtils.equalsIgnoreCase(fab, "CELL")) {
-            list = bomService.queryCellBom(product);
         }
         return ResultUtil.success(list);
     }

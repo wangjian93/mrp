@@ -115,10 +115,18 @@
                                 <i class="layui-icon layui-icon-upload"></i>数据导入
                             </button>
                         </div>
+
                         <div class="layui-inline">
-                            <button class="layui-btn icon-btn layui-btn-sm"  id="exportArrivalPlan" type="button">
-                                <i class="layui-icon layui-icon-upload"></i>数据导出
-                            </button>
+                            <!-- 导出下拉按钮 -->
+                            <div class="dropdown-menu" style="margin-left: 10px;">
+                                <button class="layui-btn icon-btn layui-btn-sm" type="button">
+                                    <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                                </button>
+                                <ul class="dropdown-menu-nav dropdown-right-center">
+                                    <li><a id="bt_export">搜索结果</a></li>
+                                    <li><a id="exportArrivalPlan">全部数据</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -168,7 +176,7 @@
 <script type="text/javascript" src="../../../assets/libs/layui/layui.js"></script>
 <script type="text/javascript" src="../../../assets/js/common.js?v=318"></script>
 <script>
-    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'laydate', 'notice', 'upload'], function() {
+    layui.use(['flow', 'table', 'laytpl', 'admin', 'form', 'laydate', 'notice', 'upload', 'dropdown'], function() {
         var $ = layui.$;
         var flow = layui.flow;
         var table = layui.table;

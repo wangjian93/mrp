@@ -11,7 +11,6 @@ import com.ivo.core.decryption.DecryptException;
 import com.ivo.core.decryption.IVODecryptionUtils;
 import com.ivo.mrp.entity.DpsVer;
 import com.ivo.mrp.entity.direct.ary.BomAry;
-import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
 import com.ivo.mrp.entity.direct.ary.DpsAry;
 import com.ivo.mrp.entity.direct.ary.DpsAryOutputName;
 import com.ivo.mrp.entity.direct.cell.DpsCell;
@@ -20,6 +19,7 @@ import com.ivo.mrp.entity.direct.lcm.DpsLcm;
 import com.ivo.mrp.service.BomService;
 import com.ivo.mrp.service.DpsOutputNameService;
 import com.ivo.mrp.service.DpsService;
+import com.ivo.mrp.service.ary.BomAryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -60,12 +60,15 @@ public class DpsController {
 
     private BomService bomService;
 
+    private BomAryService bomAryService;
+
     @Autowired
     public DpsController(DpsService dpsService, DpsOutputNameService dpsOutputNameService,
-                         BomService bomService) {
+                         BomService bomService, BomAryService bomAryService) {
         this.dpsService = dpsService;
         this.dpsOutputNameService = dpsOutputNameService;
         this.bomService = bomService;
+        this.bomAryService = bomAryService;
     }
 
     @ApiOperation("查询DPS版本信息")
@@ -138,7 +141,7 @@ public class DpsController {
                         map.putIfAbsent(month, 0D);
                         map.put(month, DoubleUtil.rounded((double)map.get(month)+demandQty, 3));
                     }
-                    List<BomAryMtrl> bomAryList = bomService.getAryBom(pro);
+                    List<BomAry> bomAryList = bomAryService.getBomAry(pro);
                     map.put("bomList", bomAryList);
                     break;
                 case DpsVer.Type_Cell:
@@ -404,7 +407,7 @@ public class DpsController {
             } else {
                 map = new HashMap();
                 map.put("product", product);
-                List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+                List<BomAry> bomAryList = bomAryService.getBomAry(product);
                 map.put("bomList", bomAryList);
 
                 productList.add(product);
@@ -416,7 +419,7 @@ public class DpsController {
             if(productList.contains(product)) continue;
             Map map = new HashMap();
             map.put("product", product);
-            List<BomAryMtrl> bomAryList = bomService.getAryBom(product);
+            List<BomAry> bomAryList = bomAryService.getBomAry(product);
             map.put("bomList", bomAryList);
             productList.add(product);
             mapList.add(map);

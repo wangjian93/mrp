@@ -24,11 +24,41 @@
 
   <!-- 获取CELL的MPS机种命名 -->
   <select id="getCellMpsMode" resultType="java.util.HashMap">
-    select DISTINCT CellInPut_PC, Material_FK from (
-                                                     select CellInPut_PC, Material_FK from SD_O_MPSModelDetail where CellInPut_PC is not NULL and ValidFlag=1
-                                                     union all
-                                                     select CellInPut_PC, Material_FK from SD_O_MPSModelDetailHis where CellInPut_PC is not NULL and ValidFlag=1
-                                                   ) t
+    select DISTINCT product, Material_FK from (
+                                                                select DISTINCT CellInPut_PC as product, Material_FK from SD_O_MPSModelDetail where CellInPut_PC is not NULL and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT CellInPut_PC as product, Material_FK from SD_O_MPSModelDetailHis where CellInPut_PC is not NULL and ValidFlag=1
+
+                                                                union all
+                                                                select DISTINCT CellInPut as product, Material_FK from SD_O_MPSModelDetail where CellInPut is not NULL and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT CellInPut as product, Material_FK from SD_O_MPSModelDetailHis where CellInPut is not NULL and ValidFlag=1
+
+                                                                union all
+                                                                select DISTINCT SubToCellOut as product, Material_FK from SD_O_MPSModelDetail where SubFlag=1 and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT SubToCellOut as product, Material_FK from SD_O_MPSModelDetailHis where SubFlag=1 and ValidFlag=1
+
+                                                                union all
+                                                                select DISTINCT CellOutPut as product, Material_FK from SD_O_MPSModelDetail where CellOutPut is not NULL and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT CellOutPut as product, Material_FK from SD_O_MPSModelDetailHis where CellOutPut is not NULL and ValidFlag=1
+
+                                                              ) t
+  </select>
+
+  <!-- 获取Ary的MPS机种命名 -->
+  <select id="getAryMpsMode" resultType="java.util.HashMap">
+    select DISTINCT product, Material_FK from (
+                                                                select DISTINCT ArrayInPut as product, Material_FK from SD_O_MPSModelDetail where ArrayInPut is not NULL and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT ArrayInPut as product, Material_FK from SD_O_MPSModelDetailHis where ArrayInPut is not NULL and ValidFlag=1
+
+                                                                union all
+                                                                select DISTINCT SubToCellIn as product, Material_FK from SD_O_MPSModelDetail where SubFlag=1 and ValidFlag=1
+                                                                union all
+                                                                select DISTINCT SubToCellIn as product, Material_FK from SD_O_MPSModelDetailHis where SubFlag=1 and ValidFlag=1
+                                                              ) t
   </select>
 
 
@@ -39,23 +69,11 @@
 
   <!-- 获取CELL MPS的DateOfInsert版本数据 -->
   <select id="getCellMpsDate" parameterType="java.lang.String" resultType="java.util.HashMap">
-    select
-      CellInPut,OutOfDate, SUM(qty) as qty
-    from
-      (
-        select
-          (select  DISTINCT CellInPut from SD_O_MPSModelDetail b where b.ValidFlag=1 and b.CellOutPut=MPSKey) as CellInPut,
-          Cast(Value as decimal(10,3)) as qty,
-          *
-        from SD_D_MPSDetailbyDateNewHis
-        where ValidFlag=1 and InsertType='release'
-          and OutOfDate like '%Total%'
-          and DateOfInsert = #{dateOfInsert}
-          and MPSColumn='CellInPut'
-      )t
-    where CellInPut is not null
-    GROUP BY CellInPut,OutOfDate
-    order by  CellInPut
+    select * from SD_D_MPSDetailbyDateNewHis where ValidFlag=1 and InsertType='release'
+                                               and OutOfDate like '%Total%'
+                                               and MPSColumn='CellInPut'
+                                               and MPSKey &lt;&gt; ''
+                                               and DateOfInsert = #{dateOfInsert}
   </select>
 
   <!-- 获取ARY MPS的DateOfInsert版本数据 -->
@@ -67,10 +85,18 @@
                                                and DateOfInsert = #{dateOfInsert}
   </select>
 
+
+  <select id="getMpsLcmVersion" resultType="java.lang.String">
+    select DISTINCT DateOfInsert + '' as version from SD_D_FCSTPSIManagementItemHis
+    where DateOfInsert is not null
+  </select>
+
   <!-- 获取LCM的MPS  -->
   <select id="getMpsLcm" resultType="java.util.HashMap">
     select
       Material_FK + Version as product,
+      year,
+      month,
       LCM1InQty as lcm1Qty,
       LCM2InQty as lcm2Qty
     from SD_D_FCSTPSIManagementItemHis
@@ -78,6 +104,7 @@
       InsertType='release' and ValidFlag=1
       and MaterialType='MDL'
       and (LCM1InQty>0 or LCM2InQty>0)
-      and [Year]=#{year} and [Month]=#{month}
+      and dateOfInsert = #{dateOfInsert}
+    ORDER BY product
   </select>
 </mapper>

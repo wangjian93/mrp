@@ -6,11 +6,12 @@ import com.ivo.common.result.Result;
 import com.ivo.common.utils.ResultUtil;
 import com.ivo.mrp.entity.Supplier;
 import com.ivo.mrp.entity.packaging.*;
+import com.ivo.mrp.service.RunMrpPackageLcmService;
 import com.ivo.mrp.service.SupplierService;
-import com.ivo.mrp.service.packageing.BomPackageService;
-import com.ivo.mrp.service.packageing.MrpPackageService;
-import com.ivo.mrp.service.packageing.PackageAllocationService;
-import com.ivo.mrp.service.packageing.PackageSupplierService;
+import com.ivo.mrp.service.packageing.*;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,15 +40,19 @@ public class MrpPackageController {
 
     private SupplierService supplierService;
 
+    private RunMrpPackageService runMrpPackageService;
+
     @Autowired
     public MrpPackageController(MrpPackageService mrpPackageService, PackageAllocationService packageAllocationService,
                                 PackageSupplierService packageSupplierService, BomPackageService bomPackageService,
-                                SupplierService supplierService) {
+                                SupplierService supplierService,
+                                RunMrpPackageService runMrpPackageService) {
         this.mrpPackageService = mrpPackageService;
         this.packageAllocationService = packageAllocationService;
         this.packageSupplierService = packageSupplierService;
         this.bomPackageService = bomPackageService;
         this.supplierService = supplierService;
+        this.runMrpPackageService = runMrpPackageService;
     }
 
     @GetMapping("/getPageMrpPackageMaterial")
@@ -173,5 +178,25 @@ public class MrpPackageController {
         packageAllocationService.save(packageAllocationList);
         mrpPackageService.updateAllocationQty(ver, packageId, material, fabDate, totalAllocationQty);
         return ResultUtil.success("保存供应商的数量分配成功", totalAllocationQty);
+    }
+
+    @GetMapping("/updateMrp")
+    public Result updateMrp(String ver) {
+//        runMrpPackageLcmService.up(ver);
+        return ResultUtil.success(ver+"更新成功");
+    }
+
+    @ApiOperation("选择DPS/MPS版本运算MRP")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dpsVer", value = "DPS版本", required = true)
+    })
+    @PostMapping("/runMrp")
+    public Result runMrp(String dpsVer) throws IOException, ClassNotFoundException {
+        String[] dpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(dpsVer)) {
+            dpsVers = dpsVer.split(",");
+        }
+        runMrpPackageService.runMrp(dpsVers, "SYS");
+        return ResultUtil.success();
     }
 }

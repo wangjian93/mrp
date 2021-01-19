@@ -24,6 +24,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -54,17 +55,11 @@ public class ActualArrivalServiceImpl implements ActualArrivalService {
 
     @Override
     public void syncActualArrival() {
-        String[] sts = new String[] {"2020-12-11","2020-12-12","2020-12-13","2020-12-14","2020-12-15","2020-12-16"};
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        for(String s : sts) {
-            Date fabDate = null;
-            try {
-                fabDate = new Date(sdf.parse(s).getTime());
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            syncActualArrival(fabDate);
-        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(new java.util.Date());
+        c.add(Calendar.DATE, -1);
+        java.util.Date yesterday = c.getTime(); //前一天
+        syncActualArrival(new Date(yesterday.getTime()));
     }
 
     @Override

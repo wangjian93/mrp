@@ -16,6 +16,6 @@ public class DpsPackageServiceTest extends AbstractTest {
 
     @Test
     public void test_syncDpsPackage() {
-        dpsPackageService.syncDpsPackage("20201214093005");
+        dpsPackageService.syncDpsPackage();
     }
 }

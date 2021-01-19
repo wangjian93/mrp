@@ -106,6 +106,20 @@
     order by Product_FK,b.Material_FK ;
   </select>
 
+  <select id="getAryMatrialByTftMtrl" resultType="java.util.Map">
+    SELECT distinct Product_FK as product, b.Material_FK as material, a.BaseQty as baseQty, b.qty as qty, a.MeasureUnit_FK as measureUnit
+    from MM_M_BomMaster a , MM_D_BomItem b
+    where a.ValidFlag = 1
+      and b.ValidFlag = 1
+      and a.BomMaster_ID = b.BomMaster_FK
+      and (b.Material_FK like '57%' or b.Material_FK like '51%')
+      and a.Product_FK in
+    <foreach item="item" index="index" collection="tftMtrlList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    order by Product_FK,b.Material_FK ;
+  </select>
+
   <select id="getSupplierMaterial" resultType="java.util.Map">
     select DISTINCT B.Material_FK as material,A.Vendor_FK as supplierCode ,C.VendorName1 as supplierName
     from MM_M_PurchaseOrderRequisition A

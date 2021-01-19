@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * CELL料号的材料,数据来源oracle的V_BOM_CELL_C
@@ -16,7 +17,11 @@ import javax.persistence.Table;
 @Getter
 @Entity
 @Table(name = "MRP3_Bom_Cell_Material")
-public class BomCellMaterial extends AutoIncreaseEntityModel {
+public class CellMaterial extends AutoIncreaseEntityModel {
+
+    public final static String TYPE_M = "主材";
+    public final static String TYPE_P = "包材";
+
 
     private String PLANT;
 
@@ -40,11 +45,20 @@ public class BomCellMaterial extends AutoIncreaseEntityModel {
 
     private String materialGroupName;
 
-    private boolean validFlag;
+    private boolean validFlag = true;
 
     /**
-     * 1主材
-     * 2包材
+     * 材料类型
      */
-    private int type = 1;
+    private String type;
+
+    /**
+     * 创建者
+     */
+    private String creator = "SYS";
+
+    /**
+     * 创建时间
+     */
+    private Date createDate = new Date();
 }

@@ -10,14 +10,16 @@ import com.ivo.mrp.entity.pol.MrpPolMaterial;
 import com.ivo.mrp.service.MrpService;
 import com.ivo.mrp.service.pol.DpsPolService;
 import com.ivo.mrp.service.pol.MrpPolService;
+import com.ivo.mrp.service.pol.RunMrpPolService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,11 +40,15 @@ public class MrpPolController {
 
     private DpsPolService dpsPolService;
 
+    private RunMrpPolService runMrpPolService;
+
     @Autowired
-    public MrpPolController(MrpPolService polService, MrpService mrpService, DpsPolService dpsPolService) {
+    public MrpPolController(MrpPolService polService, MrpService mrpService, DpsPolService dpsPolService,
+                            RunMrpPolService runMrpPolService) {
         this.polService = polService;
         this.mrpService = mrpService;
         this.dpsPolService = dpsPolService;
+        this.runMrpPolService = runMrpPolService;
     }
 
     @GetMapping("/getPageMrpPolMatrial")
@@ -85,6 +91,26 @@ public class MrpPolController {
             dpsPolList.addAll(dpsPolService.getDpsPol(dpsVer, product));
         }
         return ResultUtil.success(dpsPolList);
+    }
+
+    @GetMapping("/updateMrp")
+    public Result updateMrp(String ver) {
+//        runMrpPackageLcmService.up(ver);
+        return ResultUtil.success(ver+"更新成功");
+    }
+
+    @ApiOperation("选择DPS/MPS版本运算MRP")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dpsVer", value = "DPS版本", required = true)
+    })
+    @PostMapping("/runMrp")
+    public Result runMrp(String dpsVer) throws IOException, ClassNotFoundException {
+        String[] dpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(dpsVer)) {
+            dpsVers = dpsVer.split(",");
+        }
+        runMrpPolService.runMrpPol(dpsVers, "SYS");
+        return ResultUtil.success();
     }
 
 }

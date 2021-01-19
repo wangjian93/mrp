@@ -1,66 +1,70 @@
 package com.ivo.mrp.entity.direct.cell;
 
-import com.ivo.mrp.key.BomCellKey;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.Table;
 import java.util.Date;
 
 /**
- * CELL的材料清单
- * 数据来源：从MPS系统SD_O_MPSModelDetail获取维护的机种成品料号
+ * CELL的材料BOM
  * @author wj
  * @version 1.0
  */
 @Setter
 @Getter
 @Entity
-@Table(name = "MRP3_Bom_Cell")
-@IdClass(BomCellKey.class)
+@Table(name = "MRP3_Bom_Cell2")
 public class BomCell {
 
     /**
-     * 厂别
+     * ID: product_material
      */
     @Id
-    private String fab = "CELL";
+    private String id;
 
     /**
      * 机种
      */
-    private String project;
-
-    /**
-     * 机种 （MPS的命名CellInPut）
-     */
-    @Id
     private String product;
 
     /**
-     * CELL的成品料号
+     * 料号
      */
-    @Id
-    private String cellMtrl;
+    private String material;
 
+    /**
+     * 物料名
+     */
     private String materialName;
 
+    /**
+     * 物料组
+     */
     private String materialGroup;
 
+    /**
+     * 物料组名
+     */
     private String materialGroupName;
 
     /**
-     * 是否使用
+     * 计量单位
      */
-    private boolean useFlag = true;
+    private String measureUnit;
+
+    /**
+     * 使用数量
+     */
+    private double usageQty;
 
     /**
      * 备注
      */
-    private String memo = "同步自MPS";
+    private String memo = "";
 
     /**
      * 创建者
@@ -73,12 +77,8 @@ public class BomCell {
     private Date createDate = new Date();
 
     /**
-     * 修改者
+     * 替代料比例
      */
-    private String updater = "SYS";
-
-    /**
-     * 修改时间
-     */
-    private Date updateDate = new Date();
+//    @Formula("(select DISTINCT s.substitute_rate from mrp3_substitute s where s.fab='CELL' and s.product=product and s.material_group=material_group and s.material=material and s.valid_flag=1)")
+//    private Double substituteRate;
 }

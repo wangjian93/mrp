@@ -41,7 +41,7 @@ public class SyncBomTask {
 //    @Scheduled(cron = BOM_ARY_Corn)
     public void syncBomAry() {
         log.info("启动任务syncBomAry");
-        bomService.syncBomAry();
+//        bomService.syncBomAry();
     }
 
     /**
@@ -50,6 +50,6 @@ public class SyncBomTask {
 //    @Scheduled(cron = BOM_CELL_Corn)
     public void syncBomCell() {
         log.info("启动任务syncBomCell");
-        bomService.syncBomCell();
+//        bomService.syncBomCell();
     }
 }

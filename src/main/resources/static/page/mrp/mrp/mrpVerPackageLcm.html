@@ -105,7 +105,7 @@
                 {type: 'numbers', align: 'center'},
                 {field: 'ver', title: '版本', align: 'center', width: 110},
                 {field: 'fab', title: '厂别', align: 'center', width: 70},
-                {field: 'type', title: '类型', align: 'center', width: 70, templet: function () {return '主材'}},
+                {field: 'type', title: '类型', align: 'center', width: 70, templet: function () {return '包材'}},
                 {field: 'startDate', title: '开始日期', align: 'center', width: 100},
                 {field: 'endDate', title: '结束日期', align: 'center', width: 100},
                 {field: 'dpsVer', title: 'DPS', align: 'center', width: 180},
@@ -170,7 +170,7 @@
 
         var updateMrp = function(ver) {
             $("#"+ver+"_update").addClass("layui-btn-disabled");
-            $.get('/mrp/mrp/updateMrp', {ver: ver}, function(res) {
+            $.get('/mrp/packageLcm/updateMrp', {ver: ver}, function(res) {
                 if(res.code === 200) {
                     layer.msg(ver+"更新成功");
                 } else {
@@ -192,7 +192,7 @@
                 yes: function(index, layero) {
                     var data = form.val("addFrom");
                     var loadIndex = layer.msg('MRP执行计算中...', {icon: 16, shade: 0.01, time: false});
-                    $.post('/mrp/mrp/runMrp', {dpsVer: data.dpsVer, mpsVer: data.mpsVer }, function(res) {
+                    $.post('/mrp/packageLcm/runMrp', {dpsVer: data.dpsVer, mpsVer: data.mpsVer }, function(res) {
                         if(res.code === 200) {
                             notice.msg("提交成功", {icon: 5});
                             table.reload('table_mrpVer');

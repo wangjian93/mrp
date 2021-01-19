@@ -4,18 +4,12 @@ import com.ivo.mrp.entity.direct.cell.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wj
  * @version 1.0
  */
 public interface BomCellService {
-
-    /**
-     * 同步CELL料号的B材料
-     */
-    void syncBomCellMaterial();
 
     /**
      * 同步CELL的MPS命名
@@ -27,15 +21,10 @@ public interface BomCellService {
      */
     void syncBomCellProduct();
 
-    void syncBomCell2();
-
-
     /**
-     * 获取CELL料号的材料
-     * @param cellMtrlList cell料号集合
-     * @return  List<BomCellMaterial>
+     * 同步CELL的BOM
      */
-    List<BomCellMaterial> getBomCellMaterial(List<String> cellMtrlList);
+    void syncBomCell();
 
     /**
      * 从MPS命名获取机种的cell料号
@@ -49,11 +38,22 @@ public interface BomCellService {
      * @param product 机种
      * @return List<BomCell
      */
-    List<BomCell2> getBomCell(String product);
+    List<BomCell> getBomCell(String product);
 
+    /**
+     * 分页查询cell机种
+     * @param page 页数
+     * @param limit 分页大小
+     * @param searchProduct 查询
+     * @return Page<BomCellProduct>
+     */
     Page<BomCellProduct> queryProduct(int page, int limit, String searchProduct);
 
+    List<BomCellProduct> getBomCellProduct();
 
-    void deleteBomCell(List<BomCell2> list);
-    void saveBomCell(List<BomCell2> list);
+    BomCellProduct getBomCellProduct(String product);
+
+    void deleteBomCell(List<BomCell> list);
+
+    void saveBomCell(List<BomCell> list);
 }

@@ -15,18 +15,11 @@ public class BomCellServiceTest extends AbstractTest {
     @Autowired
     private BomCellService bomCellService;
 
-
     @Test
-    public void test_syncBomCellMaterial() {
-        bomCellService.syncBomCellMaterial();
-    }
-
-
-    @Test
-    public void test() {
+    public void test_syncBomCell() {
         bomCellService.syncCellMpsMode();
         bomCellService.syncBomCellProduct();
-        bomCellService.syncBomCell2();
+        bomCellService.syncBomCell();
     }
 
 }

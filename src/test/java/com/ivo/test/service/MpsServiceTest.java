@@ -36,9 +36,13 @@ public class MpsServiceTest extends AbstractTest {
 //    }
 
     @Test
-    public void test_sync() {
-        mpsService.syncMpsAry2();
-        mpsService.syncMpsCell2();
+    public void test_syncMpsAry() {
+        mpsService.syncMpsAry();
+    }
+
+    @Test
+    public void test_syncMpsCell() {
+        mpsService.syncMpsCell();
     }
 
     @Test

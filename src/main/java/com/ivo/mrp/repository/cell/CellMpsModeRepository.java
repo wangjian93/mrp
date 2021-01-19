@@ -16,13 +16,9 @@ import java.util.Map;
  */
 public interface CellMpsModeRepository extends JpaRepository<CellMpsMode, String> {
 
-    @Query(value = "select distinct cellInputPc as product from CellMpsMode ")
+    @Query(value = "select distinct product from CellMpsMode ")
     List<String> getProduct();
 
-    @Query(value = "select cellMtrl from CellMpsMode where cellInputPc=:product")
+    @Query(value = "select distinct cellMtrl from CellMpsMode where product=:product")
     List<String> getCellMtrlByProduct(@Param("product")  String product);
-
-    @Query(value = "select distinct cellInputPc as cellInputPc from CellMpsMode where cellInputPc like :searchProduct",
-    countQuery = "select count(distinct cellInputPc) from CellMpsMode where cellInputPc like :searchProduct")
-    Page<Map> getPageCellMpsModeProduct(@Param("searchProduct") String searchProduct, Pageable pageable);
 }

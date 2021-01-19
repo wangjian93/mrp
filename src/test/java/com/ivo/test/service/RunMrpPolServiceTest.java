@@ -16,7 +16,7 @@ public class RunMrpPolServiceTest extends AbstractTest {
 
     @Test
     public void test_runMrpPol() {
-        String[] dpsVers = new String[]{"20201218094"};
+        String[] dpsVers = new String[]{"20210106112"};
         runMrpPolService.runMrpPol(dpsVers, "SYS");
     }
 }

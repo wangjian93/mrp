@@ -321,9 +321,20 @@
             cols: [[
                 {type: 'numbers', align: 'center', fixed: 'left'},
                 {title: '机种', align: 'center', width: 160, fixed: 'left', templet: function(d) {
-                        return '<div style="max-height: 60px;overflow-y:auto;">'+d.products.replace(/,/g,"<br>")+'</div>';
+                        var productVars = d.products.split(",");
+                        var productStr = "";
+                        for(var i=0; i<productVars.length; i++) {
+                            var p = productVars[i].substring(0, 4)+""+productVars[i].substring(7, 8)+"-R"+ productVars[i].substring(9, 10);
+                            if(productStr !== "") {
+                                productStr += "<br>";
+                            }
+                            productStr += p;
+                        }
+
+                        return '<div style="max-height: 60px;overflow-y:auto;">'+productStr+'</div>';
                     }},
                 {field: 'material', title: '<div style="line-height: 40px;">料号</div>', align: 'center', width: 140, fixed: 'left'},
+                {title: 'BOM用量', align: 'center', width: 100, fixed: 'left'},
                 {title: '物料名', align: 'center', width: 160, fixed: 'left', templet: function (d) {
                         return '<div style="max-width: 150px;white-space:normal; word-break:break-all;overflow:hidden;">'+d.materialName+'</div>';
                     }},

@@ -17,6 +17,6 @@ public class InventoryServiceTest extends AbstractTest {
 
     @Test
     public void test() {
-        inventoryService.syncInventory();;
+        inventoryService.syncInventory();
     }
 }

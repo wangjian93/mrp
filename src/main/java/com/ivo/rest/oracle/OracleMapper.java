@@ -57,4 +57,11 @@ public interface OracleMapper {
 
     List<Map> getInventoryAll(@Param("fabDate") String fabDate, @Param("positionList") List<String> positionList);
 
+
+    /**
+     * 为ARY根据cell料号获取TFT料号
+     * @param cellMtrlList
+     * @return List<String>
+     */
+    List<String> getTftMatrialByCellMtrlFroAry(@Param("cellMtrlList") List<String> cellMtrlList);
 }

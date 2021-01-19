@@ -1,8 +1,5 @@
 package com.ivo.mrp.service;
 
-import com.ivo.mrp.entity.direct.ary.BomAry;
-import com.ivo.mrp.entity.direct.ary.BomAryMtrl;
-import com.ivo.mrp.entity.direct.cell.BomCellMtrl;
 import com.ivo.mrp.entity.direct.lcm.BomLcm;
 import org.springframework.data.domain.Page;
 
@@ -22,44 +19,12 @@ public interface BomService {
     void syncBomLcm();
 
     /**
-     * 同步CELL的BOM
-     */
-    void syncBomCell();
-
-    /**
-     * 同步ARY的BOM
-     */
-    void syncBomAry();
-
-    /**
      * 获取LCM的机种BOM
      * @param product 机种
      * @Param fab 厂别
      * @return List<BomLcm>
      */
     List<BomLcm> getLcmBom(String product, String fab);
-
-    /**
-     * 获取ARY二次Input时OC光刻胶材料的BOM
-     * 从CELL的BOM List中抓取光刻胶112物料组
-     * @param product 机种
-     * @return List<Map>
-     */
-    List<Map> getAryOcBom(String product);
-
-    /**
-     * 获取CELL的机种BOM
-     * @param product 机种
-     * @return List<BomLcm>
-     */
-    List<BomCellMtrl> getCellBom(String product);
-
-    /**
-     * 获取ARY的机种BOM
-     * @param product 机种
-     * @return List<BomLcm>
-     */
-    List<BomAryMtrl> getAryBom(String product);
 
     /**
      * 主材查询BOM的机种
@@ -70,18 +35,4 @@ public interface BomService {
      * @return Page<Map>
      */
     Page<Map> queryProduct(int page, int limit, String fab, String searchProduct);
-
-    /**
-     * 获取去CELL的机种BOM
-     * @param product 机种
-     * @return List<Map>
-     */
-    List<Map> queryCellBom(String product);
-
-    /**
-     * 获取去Ary的机种BOM
-     * @param product 机种
-     * @return List<Map>
-     */
-    List<Map> queryAryBom(String product);
 }

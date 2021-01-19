@@ -14,11 +14,9 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -86,5 +84,30 @@ public class MrpPackageLcmController {
         runMrpPackageLcmService.updateMrpBalanceQty(ver, product, material, fabDate, balanceQty);
         runMrpPackageLcmService.updateMrpPackageMaterial(ver, product, material);
         return ResultUtil.success("MRP更新料号成功");
+    }
+
+    @GetMapping("/updateMrp")
+    public Result updateMrp(String ver) {
+//        runMrpPackageLcmService.up(ver);
+        return ResultUtil.success(ver+"更新成功");
+    }
+
+    @ApiOperation("选择DPS/MPS版本运算MRP")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "dpsVer", value = "DPS版本", required = true),
+            @ApiImplicitParam(name = "mpsVer", value = "MPS版本")
+    })
+    @PostMapping("/runMrp")
+    public Result runMrp(String dpsVer, String mpsVer) throws IOException, ClassNotFoundException {
+        String[] dpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(dpsVer)) {
+            dpsVers = dpsVer.split(",");
+        }
+        String[] mpsVers = new String[]{};
+        if(StringUtils.isNotEmpty(mpsVer)) {
+            mpsVers = mpsVer.split(",");
+        }
+        runMrpPackageLcmService.runMrp(dpsVers, mpsVers, "SYS");
+        return ResultUtil.success();
     }
 }

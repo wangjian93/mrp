@@ -33,6 +33,9 @@ public interface FcstMapper {
     List<Map> getCellMpsMode();
 
 
+    List<Map> getAryMpsMode();
+
+
     /**
      * 获取MPS的DateOfInsert作版本
      * @return List<String>
@@ -55,9 +58,15 @@ public interface FcstMapper {
 
     /**
      * 获取LCM的MPS
-     * @param year 年份
-     * @param month 月
+     * @param dateOfInsert
      * @return List<Map>
      */
-    List<Map> getMpsLcm(@Param("year") int year, @Param("month") int month);
+    List<Map> getMpsLcm(@Param("dateOfInsert") String dateOfInsert);
+
+
+    /**
+     * 获取LCM的MPS版本
+     * @return List
+     */
+    List<String> getMpsLcmVersion();
 }

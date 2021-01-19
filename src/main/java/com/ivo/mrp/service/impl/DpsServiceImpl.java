@@ -87,33 +87,6 @@ public class DpsServiceImpl implements DpsService {
     }
 
     @Override
-    public List<DpsAry> getDpsAry(String ver) {
-        return dpsAryRepository.findByVer(ver);
-    }
-
-    @Override
-    public List<DpsCell> getDpsCell(String ver) {
-        return dpsCellRepository.findByVer(ver);
-    }
-
-    @Override
-    public List<DpsLcm> getDpsLcm(String ver) {
-        return dpsLcmRepository.findByVer(ver);
-    }
-
-
-
-    @Override
-    public List<DpsAryOc> getDpsAryOc(String ver) {
-        return dpsAryOcRepository.findByVer(ver);
-    }
-
-    @Override
-    public List<DpsVer> getDpsVerByFileVer(String ver, String type) {
-        return dpsVerRepository.findByDpsFileAndType(ver, type);
-    }
-
-    @Override
     public String generateDpsVer() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String str = String.format("%03d", (dpsVerRepository.findAll().size()+1)%1000);
@@ -387,8 +360,30 @@ public class DpsServiceImpl implements DpsService {
         dpsAryOcRepository.saveAll(dpsAryOcList);
     }
 
+    @Override
+    public List<DpsAry> getDpsAry(String ver) {
+        return dpsAryRepository.findByVer(ver);
+    }
 
+    @Override
+    public List<DpsCell> getDpsCell(String ver) {
+        return dpsCellRepository.findByVer(ver);
+    }
 
+    @Override
+    public List<DpsLcm> getDpsLcm(String ver) {
+        return dpsLcmRepository.findByVer(ver);
+    }
+
+    @Override
+    public List<DpsAryOc> getDpsAryOc(String ver) {
+        return dpsAryOcRepository.findByVer(ver);
+    }
+
+    @Override
+    public List<DpsVer> getDpsVerByFileVer(String ver, String type) {
+        return dpsVerRepository.findByDpsFileAndType(ver, type);
+    }
 
     @Override
     public List<String> getDpsAryProduct(String ver) {
@@ -518,7 +513,7 @@ public class DpsServiceImpl implements DpsService {
 
     @Override
     public Page getPagDpsLcmProduct(String ver, int page, int limit, String searchProduct) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "splitFlag", "product");
+        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.ASC, "product");
         return dpsLcmRepository.getPageProduct(ver, searchProduct+"%", pageable);
     }
 

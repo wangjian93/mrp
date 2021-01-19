@@ -81,6 +81,9 @@
                         <button class="layui-btn icon-btn layui-btn-sm" lay-filter="search" lay-submit>
                             <i class="layui-icon">&#xe615;</i>搜索
                         </button>
+                        <button class="layui-btn icon-btn layui-btn-sm" type="button" id="bt_export">
+                            <i class="layui-icon">&#xe67d;</i>导出<i class="layui-icon layui-icon-drop right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -142,6 +145,14 @@
             });
             return false;
         });
+
+        $("#bt_export").click(function() {
+            var fabDate = $('input[name=fabDate]').val();
+            exportData(fabDate);
+        });
+        var exportData = function(fabDate) {
+            window.location.href = '/mrp/inventory/exportExcel?fabDate='+fabDate;
+        };
     });
 </script>
 </body>

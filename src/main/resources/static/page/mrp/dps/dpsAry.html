@@ -155,7 +155,7 @@
         var days = calendar.days;
 
         var cols = [
-            {type: 'numbers', align: 'center', fixed: 'left'},
+            {type: 'numbers', align: 'center', fixed: 'left', totalRowText: '合计'},
             {field: 'product',  title:'<div style="line-height: 40px;">机种</div>', align: 'center', width: 180, fixed: 'left', templet: function(d) {
                     return '<div style="line-height: 30px;">'+d.product+'</div>'
                 }},
@@ -182,11 +182,13 @@
         for(var i=0; i<months.length; i++) {
             (function(month) {
                 var title = laytpl(calendarMonthDemo.innerHTML).render({month: month});
-                cols.push({title: title, align: 'center', width: 100,
+                cols.push({title: title, align: 'center', width: 100, field: month,
                     templet: function(d) {
-                        var data = d[month] || '';
-                        return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
-                    }
+                        var data = d[month] || 0;
+                        // return laytpl(dpsMonthDemo.innerHTML).render({dpsQty: data});
+                        return data;
+                    },
+                    totalRow: true
                 });
             })(months[i]);
         }
@@ -221,10 +223,11 @@
             },
             cols: [cols],
             page: true,
-            limit: 50,
+            limit: 200,
+            limits: [20, 50, 100, 200, 300, 400, 500, 1000],
             size: 'sm',
             height: 'full-80',
-            // even: true,
+            totalRow: true,
             done: function(res, curr, count) {
                 tableX.merges('table_dps', [2], ["outputName"]);
             }
@@ -253,8 +256,8 @@
                 success: function (layero, dIndex) {
                     var cols2 = [
                         {type: 'numbers', align: 'center', fixed: 'left'},
-                        {field: 'product',  title:'机种', align: 'center', width: 160, fixed: 'left'},
-                        {title: 'BOM', align: 'center', width: 140, templet: function(d) {
+                        {field: 'product',  title:'机种', align: 'center', width: 120, fixed: 'left'},
+                        {title: 'BOM', align: 'center', width: 140, fixed: 'left', templet: function(d) {
                                 var bomStr = '';
                                 layui.each(d.bomList, function(index, bom){
                                     if(bomStr !== '') {
@@ -265,6 +268,17 @@
                                 return bomStr;
                             }}
                     ];
+                    for(var i=0; i<months.length; i++) {
+                        (function(month) {
+                            cols2.push({field: month, title: month.split("-")[1]+'月', align: 'center', width: 70,  fixed: 'left', templet: function(d) {
+                                    if(d.product!=='') {
+                                        return '<button type="button" class="layui-btn layui-btn-normal layui-btn-xs" lay-event="'+month+'__'+d.product+'">分配</button>'
+                                    } else {
+                                        return '-';
+                                    }
+                                } });
+                        })(months[i]);
+                    }
                     for(var i=0; i<days.length; i++) {
                         (function(day) {
                             var day_ = day.substring(5, 10);
@@ -274,13 +288,18 @@
                             cols2.push({field: day, title: day_, align: 'center', width: 70, edit: 'text' });
                         })(days[i]);
                     }
+                    $.ajaxSettings.async = false;
+                    var outputName_data;
+                    $.get('/mrp/dps/getAryDpsOutputName',{
+                        ver: ver,
+                        outputName: outputName
+                    }, function(res) {
+                        outputName_data = res.data;
+                    });
+                    $.ajaxSettings.async = true;
                     table.render({
                         elem: '#table_outputName',
-                        url: '/mrp/dps/getAryDpsOutputName',
-                        where: {
-                            ver: ver,
-                            outputName: outputName
-                        },
+                        data: outputName_data,
                         cols: [cols2],
                         page: {layout: ['count']},
                         height: 300,
@@ -295,6 +314,26 @@
                                 }
                             }
                         },
+                    });
+                    //监听表格点击
+                    table.on('tool(table_outputName)', function(obj) {
+                        var ars = obj.event.split("__");
+                        var month = ars[0];
+                        var product = ars[1];
+
+                        var d = table.cache["table_outputName"];
+                        var d0 = d[0];
+
+                        for(var i=1; i<d.length; i++) {
+                            if(product === d[i].product) {
+                                for(var key  in d0){
+                                    if(key.length>7 && key.substring(0,7) === month) {
+                                        d[i][key] = d0[key];
+                                    }
+                                }
+                            }
+                        }
+                        table.reload('table_outputName', {data: d});
                     });
                 },
                 yes: function(index, layero) {

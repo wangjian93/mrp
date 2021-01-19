@@ -26,6 +26,36 @@ public interface DpsService {
     DpsVer getDpsVer(String ver);
 
     /**
+     * 生成DPS版本
+     * @return String
+     */
+    String generateDpsVer();
+
+    /**
+     * 同步LCM DPS
+     */
+    void syncDpsLcm();
+    void syncDpsLcm(String ver);
+
+    /**
+     * 同步CELL DPS
+     */
+    void syncDpsCell();
+    void syncDpsCell(String ver);
+
+    /**
+     * 同步Ary DPS
+     */
+    void syncDpsAry();
+    void syncDpsAry(String ver);
+    /**
+     * 同步Ary的Oc DPS
+     */
+    void syncDpsAryOc(String dpsVer, String fileVer);
+
+
+
+    /**
      * 获取ARY DPS
      * @param ver dps版本
      * @return List<DpsAry>
@@ -54,37 +84,6 @@ public interface DpsService {
      * @return List<DpsAryOc>
      */
     List<DpsAryOc> getDpsAryOc(String ver);
-
-    /**
-     * 生成DPS版本
-     * @return String
-     */
-    String generateDpsVer();
-
-    /**
-     * 同步LCM DPS
-     */
-    void syncDpsLcm();
-    void syncDpsLcm(String ver);
-
-    /**
-     * 同步CELL DPS
-     */
-    void syncDpsCell();
-    void syncDpsCell(String ver);
-
-    /**
-     * 同步Ary DPS
-     */
-    void syncDpsAry();
-    void syncDpsAry(String ver);
-
-    /**
-     * 同步Ary的Oc DPS
-     */
-    void syncDpsAryOc(String dpsVer, String fileVer);
-
-
 
     /**
      * 获取Ary DPS的所有机种

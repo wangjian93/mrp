@@ -169,10 +169,10 @@ public class RunMrpPolServiceImpl implements RunMrpPolService {
         HashMap<String, Double> goodInventoryMap = new HashMap<>();
         HashMap<String, Double> dullInventoryMap = new HashMap<>();
         for(Map map : goodInventoryList) {
-            goodInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            goodInventoryMap.put((String)map.get("MATERIAL"), (Double)map.get("QTY"));
         }
         for(Map map : dullInventoryList) {
-            dullInventoryMap.put((String)map.get("MATERIAL"), ((BigDecimal)map.get("QTY")).doubleValue());
+            dullInventoryMap.put((String)map.get("MATERIAL"), (Double)map.get("QTY"));
         }
 
         List<String> typeList = new ArrayList<>();

@@ -2,12 +2,15 @@ package com.ivo.mrp.service.impl;
 
 import com.ivo.common.utils.DateUtil;
 import com.ivo.mrp.entity.Inventory;
+import com.ivo.mrp.entity.LossRate;
 import com.ivo.mrp.repository.InventoryRepository;
 import com.ivo.mrp.service.InventoryService;
 import com.ivo.mrp.service.PositionService;
 import com.ivo.rest.RestService;
 import com.ivo.rest.oracle.OracleMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -94,5 +97,35 @@ public class InventoryServiceImpl implements InventoryService {
             inventoryList.add(inventory);
         }
         inventoryRepository.saveAll(inventoryList);
+    }
+
+    @Override
+    public Workbook exportExcel(Date fabDate) {
+        List<Inventory> inventoryList = inventoryRepository.findByFabDate(fabDate);
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        String[] titleItems = new String[] {"日期","料号", "MATKL", "工厂","仓位", " MEINS", "数量"};
+
+        int intRow =0;
+        int intCel = 0;
+        Row row1 = sheet.createRow(intRow);
+        for(; intCel<titleItems.length; intCel++) {
+            Cell cell = row1.createCell(intCel);
+            cell.setCellValue(titleItems[intCel]);
+        }
+
+        for(Inventory inventory : inventoryList) {
+            intRow++;
+            intCel = 0;
+            Row row = sheet.createRow(intRow);
+            row.createCell(intCel++).setCellValue(inventory.getFabDate().toString());
+            row.createCell(intCel++).setCellValue(inventory.getMATNR());
+            row.createCell(intCel++).setCellValue(inventory.getMATKL());
+            row.createCell(intCel++).setCellValue(inventory.getWERKS());
+            row.createCell(intCel++).setCellValue(inventory.getLGORT());
+            row.createCell(intCel++).setCellValue(inventory.getMEINS());
+            row.createCell(intCel++).setCellValue(inventory.getLABST());
+        }
+        return workbook;
     }
 }

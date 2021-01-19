@@ -286,8 +286,8 @@ public class RestServiceImpl implements RestService {
     }
 
     @Override
-    public List<Map> getMpsLcm(int year, int month) {
-        return fcstMapper.getMpsLcm(year, month);
+    public List<Map> getMpsLcm(String version) {
+        return fcstMapper.getMpsLcm(version);
     }
 
 
@@ -295,5 +295,25 @@ public class RestServiceImpl implements RestService {
     public List<Map> getCellMpsMode() {
         log.info("从MPS数据库获取CELL的MPS机种命名");
         return fcstMapper.getCellMpsMode();
+    }
+
+    @Override
+    public List<String> getMpsLcmVersion() {
+        return fcstMapper.getMpsLcmVersion();
+    }
+
+    @Override
+    public List<Map> getAryMpsMode() {
+        return fcstMapper.getAryMpsMode();
+    }
+
+    @Override
+    public List<String> getTftMatrialByCellMtrlFroAry(List<String> cellMtrlList) {
+        return oracleMapper.getTftMatrialByCellMtrlFroAry(cellMtrlList);
+    }
+
+    @Override
+    public List<Map> getAryMatrialByTftMtrl(List<String> tftMtrlList) {
+        return eifMapper.getAryMatrialByTftMtrl(tftMtrlList);
     }
 }
